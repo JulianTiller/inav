@@ -3012,13 +3012,13 @@ Launch idle throttle - throttle to be set before launch sequence is initiated. I
 
 ---
 
-### nav_fw_launch_land_abort_deadband
+### nav_fw_launch_jerk_wake_idle
 
-Launch and landing abort stick deadband in [r/c points], applied after r/c deadband and expo. The Roll/Pitch stick needs to be deflected beyond this deadband to abort the launch or landing.
+Trigger the idle throttle by jerking the plane
 
 | Default | Min | Max |
 | --- | --- | --- |
-| 100 | 2 | 250 |
+| OFF | OFF | ON |
 
 ---
 
