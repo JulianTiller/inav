@@ -93,7 +93,8 @@ void updateWindEstimator(timeUs_t currentTimeUs)
     if (!STATE(FIXED_WING_LEGACY) ||
         !isGPSHeadingValid() ||
         !gpsSol.flags.validVelNE ||
-        !gpsSol.flags.validVelD) {
+        !gpsSol.flags.validVelD ||
+		STATE(GPS_ESTIMATED_FIX)){
         return;
     }
 

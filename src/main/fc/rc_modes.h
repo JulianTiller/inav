@@ -75,13 +75,7 @@ typedef enum {
     BOXPLANWPMISSION = 46,
     BOXSOARING       = 47,
     BOXUSER3         = 48,
-    BOXUSER4         = 49,
-    BOXCHANGEMISSION = 50,
-    BOXBEEPERMUTE    = 51,
-    BOXMULTIFUNCTION = 52,
-    BOXMIXERPROFILE      = 53,
-    BOXMIXERTRANSITION   = 54,
-    BOXANGLEHOLD     = 55,
+    BOXGPSOFF        = 49,
     CHECKBOX_ITEM_COUNT
 } boxId_e;
 
