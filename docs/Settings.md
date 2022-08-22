@@ -1762,6 +1762,16 @@ Defines if INAV will dead-reckon over short GPS outages. May also be useful for 
 
 ---
 
+### inav_allow_gps_fix_estimation
+
+Defines if inav will estimate GPS fix with magnetometer and barometer on GPS outages. Enables navigation and RTH without GPS.
+
+| Default | Min | Max |
+| --- | --- | --- |
+| OFF | OFF | ON |
+
+---
+
 ### inav_auto_mag_decl
 
 Automatic setting of magnetic declination based on GPS position. When used manual magnetic declination is ignored.
