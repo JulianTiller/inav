@@ -19,13 +19,16 @@
 
 #include "config/parameter_group.h"
 
-#include "drivers/timer.h"
+#ifndef MAX_MIXER_PROFILE_COUNT
+#define MAX_MIXER_PROFILE_COUNT 2
+#endif
 
 #if defined(TARGET_MOTOR_COUNT)
 #define MAX_SUPPORTED_MOTORS TARGET_MOTOR_COUNT
 #else
 #define MAX_SUPPORTED_MOTORS 12
 #endif
+
 
 // Digital protocol has fixed values
 #define DSHOT_DISARM_COMMAND      0
@@ -66,20 +69,21 @@ typedef struct motorMixer_s {
 
 PG_DECLARE_ARRAY(motorMixer_t, MAX_SUPPORTED_MOTORS, primaryMotorMixer);
 
-typedef struct timerOverride_s {
-    uint8_t outputMode;
-} timerOverride_t;
-
-PG_DECLARE_ARRAY(timerOverride_t, HARDWARE_TIMER_DEFINITION_COUNT, timerOverrides);
-
-typedef struct mixerConfig_s {
+typedef struct mixerProfile_s {
     int8_t motorDirectionInverted;
     uint8_t platformType;
     bool hasFlaps;
     int16_t appliedMixerPreset;
-} mixerConfig_t;
+    uint8_t outputMode;
+    motorMixer_t MotorMixer[MAX_SUPPORTED_MOTORS];
+} mixerProfile_t;
 
-PG_DECLARE(mixerConfig_t, mixerConfig);
+PG_DECLARE_ARRAY(mixerProfile_t, MAX_MIXER_PROFILE_COUNT, mixerProfiles);
+#define mixerConfig() mixerProfiles(systemConfig()->current_mixer_profile_index)
+#define mixerConfigMutable() ((mixerProfile_t *)mixerConfig())
+#define primaryMotorMixer(_index) (&((mixerConfig()->MotorMixer)[_index]))
+#define primaryMotorMixerMutable(_index) ((motorMixer_t *)primaryMotorMixer(_index))
+extern motorMixer_t primaryMotorMixer_CopyArray[12];
 
 typedef struct reversibleMotorsConfig_s {
     uint16_t deadband_low;                // min 3d value

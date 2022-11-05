@@ -107,6 +107,7 @@ PG_REGISTER_WITH_RESET_TEMPLATE(systemConfig_t, systemConfig, PG_SYSTEM_CONFIG, 
 PG_RESET_TEMPLATE(systemConfig_t, systemConfig,
     .current_profile_index = 0,
     .current_battery_profile_index = 0,
+    .current_mixer_profile_index = 0,
     .debug_mode = SETTING_DEBUG_MODE_DEFAULT,
 #ifdef USE_DEV_TOOLS
     .groundTestMode = SETTING_GROUND_TEST_MODE_DEFAULT,     // disables motors, set heading trusted for FW (for dev use)
@@ -469,11 +470,39 @@ void setConfigBatteryProfileAndWriteEEPROM(uint8_t profileIndex)
     beeperConfirmationBeeps(profileIndex + 1);
 }
 
-void setGyroCalibration(float getGyroZero[XYZ_AXIS_COUNT])
+uint8_t getConfigMixerProfile(void)
 {
-    gyroConfigMutable()->gyro_zero_cal[X] = (int16_t) getGyroZero[X];
-    gyroConfigMutable()->gyro_zero_cal[Y] = (int16_t) getGyroZero[Y];
-    gyroConfigMutable()->gyro_zero_cal[Z] = (int16_t) getGyroZero[Z];
+    return systemConfig()->current_mixer_profile_index;
+}
+
+bool setConfigMixerProfile(uint8_t profileIndex)
+{
+    bool ret = true; // return true if current_mixer_profile_index has changed
+    if (systemConfig()->current_mixer_profile_index == profileIndex) {
+        ret =  false;
+    }
+    if (profileIndex >= MAX_MIXER_PROFILE_COUNT) {// sanity check
+        profileIndex = 0;
+    }
+    systemConfigMutable()->current_mixer_profile_index = profileIndex;
+    // setMixerProfile(profileIndex);
+    return ret;
+}
+
+void setConfigMixerProfileAndWriteEEPROM(uint8_t profileIndex)
+{
+    if (setConfigMixerProfile(profileIndex)) {
+        // profile has changed, so ensure current values saved before new profile is loaded
+        writeEEPROM();
+        readEEPROM();
+    }
+    beeperConfirmationBeeps(profileIndex + 1);
+}
+
+void setGyroCalibrationAndWriteEEPROM(int16_t getGyroZero[XYZ_AXIS_COUNT]) {
+    gyroConfigMutable()->gyro_zero_cal[X] = getGyroZero[X];
+    gyroConfigMutable()->gyro_zero_cal[Y] = getGyroZero[Y];
+    gyroConfigMutable()->gyro_zero_cal[Z] = getGyroZero[Z];
 }
 
 void setGravityCalibration(float getGravity)
