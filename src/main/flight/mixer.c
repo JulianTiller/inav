@@ -654,10 +654,28 @@ void FAST_CODE mixTable(void)
     for (int i = 0; i < motorCount; i++) {
         motor[i] = rpyMix[i] + constrain(mixerThrottleCommand * currentMixer[i].throttle, throttleMin, throttleMax);
 
-        if (failsafeIsActive()) {
-            motor[i] = constrain(motor[i], motorConfig()->mincommand, motorConfig()->maxthrottle);
-        } else {
-            motor[i] = constrain(motor[i], throttleRangeMin, throttleRangeMax);
+            if (failsafeIsActive()) {
+                motor[i] = constrain(motor[i], motorConfig()->mincommand, motorConfig()->maxthrottle);
+            } else {
+                motor[i] = constrain(motor[i], throttleRangeMin, throttleRangeMax);
+            }
+
+            // Motor stop handling
+            if (currentMotorStatus != MOTOR_RUNNING) {
+                motor[i] = motorValueWhenStopped;
+            }
+            if (currentMixer[i].throttle <= -1.0f) {
+                motor[i] = motorZeroCommand;
+            }
+#ifdef USE_DEV_TOOLS
+            if (systemConfig()->groundTestMode) {
+                motor[i] = motorZeroCommand;
+            }
+#endif
+        }
+    } else {
+        for (int i = 0; i < motorCount; i++) {
+            motor[i] = motor_disarmed[i];
         }
     }
 }

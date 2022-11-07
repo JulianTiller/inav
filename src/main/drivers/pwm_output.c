@@ -359,8 +359,8 @@ void beeperPwmInit(ioTag_t tag, uint16_t frequency)
     }
 }
 #endif
-#else
-static void pwmOutConfigTimer(pwmOutputPort_t * p, TCH_t * tch, uint32_t hz, uint16_t period, uint16_t value)
+#else //AURIX
+/*static void pwmOutConfigTimer(pwmOutputPort_t * p, TCH_t * tch, uint32_t hz, uint16_t period, uint16_t value)
 {
     p->tch = tch;
 
@@ -466,7 +466,7 @@ bool isMotorBrushed(uint16_t motorPwmRateHz)
 static pwmOutputPort_t * motorConfigPwm(const timerHardware_t *timerHardware, float sMin, float sLen, uint32_t motorPwmRateHz, bool enableOutput)
 {
     const uint32_t baseClockHz = timerGetBaseClockHW(timerHardware);
-    const uint32_t prescaler = ((baseClockHz / motorPwmRateHz) + 0xffff) / 0x10000; /* rounding up */
+    const uint32_t prescaler = ((baseClockHz / motorPwmRateHz) + 0xffff) / 0x10000; // rounding up
     const uint32_t timerHz = baseClockHz / prescaler;
     const uint32_t period = timerHz / motorPwmRateHz;
 
@@ -819,6 +819,11 @@ void beeperPwmInit(ioTag_t tag, uint16_t frequency)
     }
 }
 #else
+*/
+void resetAllocatedOutputPortCount(void){
+    allocatedOutputPortCount = 0;
+}
+
 static void pwmOutConfigTimer(pwmOutputPort_t * p, TCH_t * tch, uint32_t hz, uint16_t period, uint16_t value)
 {
     p->tch = tch;
