@@ -47,7 +47,7 @@
 #include "fc/settings.h"
 
 #include "flight/imu.h"
-#include "flight/mixer.h"
+#include "flight/mixer_profile.h"
 #include "flight/pid.h"
 
 #include "io/beeper.h"
