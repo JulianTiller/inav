@@ -3159,6 +3159,13 @@ static void cliDumpMixerProfile(uint8_t profileIndex, uint8_t dumpMask)
     cliPrintHashLine("mixer_profile");
     cliPrintLinef("mixer_profile %d\r\n", getConfigMixerProfile() + 1);
     dumpAllValues(MIXER_CONFIG_VALUE, dumpMask);
+    cliPrintHashLine("mixer");
+    cliPrintHashLine("dumpMask");
+    char buf0[FTOA_BUFFER_SIZE];
+    itoa(dumpMask,buf0,2);
+    cliPrintHashLine(buf0);
+    cliDumpPrintLinef(dumpMask, primaryMotorMixer(0)->throttle == 0.0f, "\r\nmmix reset\r\n");
+    printMotorMix(dumpMask, primaryMotorMixer(0), NULL);
 }
 
 #ifdef USE_CLI_BATCH
@@ -3774,13 +3781,10 @@ static void printConfig(const char *cmdline, bool doDiff)
         cliPrintHashLine("resources");
         //printResource(dumpMask, &defaultConfig);
 
-        cliPrintHashLine("Timer overrides");
-        printTimerOutputModes(dumpMask, timerOverrides_CopyArray, timerOverrides(0), -1);
+        // cliPrintHashLine("mixer");
+        // cliDumpPrintLinef(dumpMask, primaryMotorMixer_CopyArray[0].throttle == 0.0f, "\r\nmmix reset\r\n");
 
-        cliPrintHashLine("Mixer: motor mixer");
-        cliDumpPrintLinef(dumpMask, primaryMotorMixer_CopyArray[0].throttle == 0.0f, "\r\nmmix reset\r\n");
-
-        printMotorMix(dumpMask, primaryMotorMixer_CopyArray, primaryMotorMixer(0));
+        // printMotorMix(dumpMask, primaryMotorMixer_CopyArray, primaryMotorMixer(0));
 
         // print custom servo mixer if exists
         cliPrintHashLine("Mixer: servo mixer");

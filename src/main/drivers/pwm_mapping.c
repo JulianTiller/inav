@@ -540,11 +540,12 @@ void pwmEnsureEnoughtMotors(uint8_t motorCount)
 
 void pwmBuildTimerOutputList(timMotorServoHardware_t * timOutputs, bool isMixerUsingServos)
 {
-    UNUSED(isMixerUsingServos);
+    LOG_INFO(PWM, "pwmBuildTimerOutputList");
     timOutputs->maxTimMotorCount = 0;
     timOutputs->maxTimServoCount = 0;
 
     uint8_t motorCount = getMotorCount();
+    LOG_INFO(PWM, "motorCount %d", motorCount);
     uint8_t motorIdx = 0;
 
     pwmEnsureEnoughtMotors(motorCount);
@@ -567,10 +568,31 @@ void pwmBuildTimerOutputList(timMotorServoHardware_t * timOutputs, bool isMixerU
             motorIdx += 1;
         }
 
-        if (TIM_IS_SERVO(timHw->usageFlags) && !pwmHasMotorOnTimer(timOutputs, timHw->tim)) {
-            type = MAP_TO_SERVO_OUTPUT;
-        } else if (TIM_IS_MOTOR(timHw->usageFlags) && !pwmHasServoOnTimer(timOutputs, timHw->tim)) {
-            type = MAP_TO_MOTOR_OUTPUT;
+            // Make sure first motorCount outputs get assigned to motor
+            if ((timHw->usageFlags & TIM_USE_MC_MOTOR) && (motorIdx < motorCount)) {
+                timHw->usageFlags = timHw->usageFlags & ~TIM_USE_MC_SERVO;
+                motorIdx += 1;
+            }
+
+            // We enable mapping to servos if mixer is actually using them
+            if (isMixerUsingServos && timHw->usageFlags & TIM_USE_MC_SERVO) {
+                type = MAP_TO_SERVO_OUTPUT;
+            }
+            else if (timHw->usageFlags & TIM_USE_MC_MOTOR) {
+                type = MAP_TO_MOTOR_OUTPUT;
+            }
+            else if (timHw->usageFlags & TIM_USE_MC_SERVO){
+                type = MAP_TO_SERVO_OUTPUT;
+            }
+
+        } else {
+            // Fixed wing or HELI (one/two motors and a lot of servos
+            if (timHw->usageFlags & TIM_USE_FW_SERVO) {
+                type = MAP_TO_SERVO_OUTPUT;
+            }
+            else if (timHw->usageFlags & TIM_USE_FW_MOTOR) {
+                type = MAP_TO_MOTOR_OUTPUT;
+            }
         }
 
         switch(type) {
