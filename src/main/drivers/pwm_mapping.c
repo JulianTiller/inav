@@ -721,13 +721,13 @@ bool pwmMotorAndServoInit(void)
     return (pwmInitError == PWM_INIT_ERROR_NONE);
 }
 
-bool pwmMotorAndServoHotInit(timMotorServoHardware_t* timOutputs)
-{
-    resetAllocatedOutputPortCount();
-    pwmInitMotors(timOutputs);
-    pwmInitServos(timOutputs);
+// bool pwmMotorAndServoHotInit(timMotorServoHardware_t* timOutputs)
+// {
+//     resetAllocatedOutputPortCount();
+//     pwmInitMotors(timOutputs);
+//     pwmInitServos(timOutputs);
 
-    return (pwmInitError == PWM_INIT_ERROR_NONE);
-}
+//    return (pwmInitError == PWM_INIT_ERROR_NONE);
+//}
 #endif
 #endif
