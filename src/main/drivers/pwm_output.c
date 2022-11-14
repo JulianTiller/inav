@@ -820,9 +820,6 @@ void beeperPwmInit(ioTag_t tag, uint16_t frequency)
 }
 #else
 */
-void resetAllocatedOutputPortCount(void){
-    allocatedOutputPortCount = 0;
-}
 
 static void pwmOutConfigTimer(pwmOutputPort_t * p, TCH_t * tch, uint32_t hz, uint16_t period, uint16_t value)
 {

@@ -291,6 +291,13 @@ enum {
     MAP_TO_SERVO_OUTPUT,
 };
 
+typedef struct {
+    int maxTimMotorCount;
+    int maxTimServoCount;
+    const timerHardware_t * timMotors[MAX_PWM_OUTPUT_PORTS];
+    const timerHardware_t * timServos[MAX_PWM_OUTPUT_PORTS];
+} timMotorServoHardware_t;
+
 static pwmInitError_e pwmInitError = PWM_INIT_ERROR_NONE;
 
 static const char * pwmInitErrorMsg[] = {
@@ -540,12 +547,10 @@ void pwmEnsureEnoughtMotors(uint8_t motorCount)
 
 void pwmBuildTimerOutputList(timMotorServoHardware_t * timOutputs, bool isMixerUsingServos)
 {
-    LOG_INFO(PWM, "pwmBuildTimerOutputList");
     timOutputs->maxTimMotorCount = 0;
     timOutputs->maxTimServoCount = 0;
 
     uint8_t motorCount = getMotorCount();
-    LOG_INFO(PWM, "motorCount %d", motorCount);
     uint8_t motorIdx = 0;
 
     pwmEnsureEnoughtMotors(motorCount);
@@ -713,6 +718,7 @@ bool pwmMotorAndServoInit(void)
 
     // Build temporary timer mappings for motor and servo
     pwmBuildTimerOutputList(&timOutputs, isMixerUsingServos());
+
     // At this point we have built tables of timers suitable for motor and servo mappings
     // Now we can actually initialize them according to motor/servo count from mixer
     pwmInitMotors(&timOutputs);
@@ -721,13 +727,5 @@ bool pwmMotorAndServoInit(void)
     return (pwmInitError == PWM_INIT_ERROR_NONE);
 }
 
-// bool pwmMotorAndServoHotInit(timMotorServoHardware_t* timOutputs)
-// {
-//     resetAllocatedOutputPortCount();
-//     pwmInitMotors(timOutputs);
-//     pwmInitServos(timOutputs);
-
-//    return (pwmInitError == PWM_INIT_ERROR_NONE);
-//}
 #endif
 #endif
