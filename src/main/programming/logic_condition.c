@@ -425,6 +425,7 @@ static int logicConditionCompute(
                     pidInit();
                     pidInitFilters();
                     schedulePidGainsUpdate();
+                    navigationUsePIDs();
                     profileChanged = true;
                 }
                 return profileChanged;
