@@ -620,7 +620,7 @@ void processRx(timeUs_t currentTimeUs)
     const bool throttleIsLow = throttleStickIsLow();
 
     // When armed and motors aren't spinning, do beeps periodically
-    if (ARMING_FLAG(ARMED) && feature(FEATURE_MOTOR_STOP) && !STATE(FIXED_WING_LEGACY)) {
+    if (ARMING_FLAG(ARMED) && ifMotorstopFeatureEnabled() && !STATE(FIXED_WING_LEGACY)) {
         static bool armedBeeperOn = false;
 
         if (throttleIsLow) {
@@ -748,7 +748,7 @@ void processRx(timeUs_t currentTimeUs)
     else if (rcControlsConfig()->airmodeHandlingType == STICK_CENTER) {
         if (throttleIsLow) {
              if (STATE(AIRMODE_ACTIVE) && !failsafeIsActive()) {
-                 if ((rollPitchStatus == CENTERED) || (feature(FEATURE_MOTOR_STOP) && !STATE(FIXED_WING_LEGACY))) {
+                 if ((rollPitchStatus == CENTERED) || (ifMotorstopFeatureEnabled() && !STATE(FIXED_WING_LEGACY))) {
                      ENABLE_STATE(ANTI_WINDUP);
                  }
                  else {

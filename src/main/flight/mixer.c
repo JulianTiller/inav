@@ -132,6 +132,10 @@ static void computeMotorCount(void)
     }
 }
 
+bool ifMotorstopFeatureEnabled(void){
+    return mixerConfig()->motorstopFeature;
+}
+
 uint8_t getMotorCount(void) {
     return motorCount;
 }
@@ -228,7 +232,7 @@ void mixerResetDisarmedMotors(void)
 
     reversibleMotorsThrottleState = MOTOR_DIRECTION_FORWARD;
 
-    if (feature(FEATURE_MOTOR_STOP)) {
+    if (ifMotorstopFeatureEnabled()) {
         motorValueWhenStopped = motorZeroCommand;
     } else {
         motorValueWhenStopped = throttleIdleValue;
@@ -476,7 +480,7 @@ static int getReversibleMotorsThrottleDeadband(void)
         directionValue = reversibleMotorsConfig()->deadband_high;
     }
 
-    return feature(FEATURE_MOTOR_STOP) ? reversibleMotorsConfig()->neutral : directionValue;
+    return ifMotorstopFeatureEnabled() ? reversibleMotorsConfig()->neutral : directionValue;
 }
 
 void FAST_CODE mixTable(void)
