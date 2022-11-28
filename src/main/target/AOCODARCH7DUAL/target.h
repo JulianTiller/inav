@@ -28,6 +28,10 @@
 
 #define BEEPER                  PA15
 #define BEEPER_INVERTED
+<<<<<<< HEAD
+=======
+#define BEEPER_PWM_FREQUENCY    2500
+>>>>>>> e7dfc8261 (add target aocodarch7dual)
 
 // *************** IMU generic ***********************
 #define USE_DUAL_GYRO
@@ -83,7 +87,11 @@
 #define SPI3_SCK_PIN            PB3
 #define SPI3_MISO_PIN           PB4
 #define SPI3_MOSI_PIN           PB5
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> e7dfc8261 (add target aocodarch7dual)
 #define SPI3_SCK_AF GPIO_AF6_SPI3
 #define SPI3_MISO_AF GPIO_AF6_SPI3
 #define SPI3_MOSI_AF GPIO_AF7_SPI3
