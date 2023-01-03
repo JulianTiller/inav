@@ -82,6 +82,7 @@ bool osdUsingScaledThrottle()
 #include "fc/controlrate_profile.h"
 #include "fc/fc_core.h"
 #include "fc/fc_tasks.h"
+#include "fc/multifunction.h"
 #include "fc/rc_adjustments.h"
 #include "fc/rc_controls.h"
 #include "fc/rc_modes.h"
@@ -191,6 +192,9 @@ static bool refreshWaitForResumeCmdRelease;
 static bool fullRedraw = false;
 
 static uint8_t armState;
+
+textAttributes_t osdGetMultiFunctionMessage(char *buff);
+static osd_warnings_status_flags_e osdWarningsMask = 0;
 
 typedef struct osdMapData_s {
     uint32_t scale;
@@ -1793,8 +1797,10 @@ static bool osdDrawSingleElement(uint8_t item)
         buff[1] = SYM_SAT_R;
         tfp_sprintf(buff + 2, "%2d", gpsSol.numSat);
         if (!STATE(GPS_FIX)) {
-            if (getHwGPSStatus() == HW_SENSOR_UNAVAILABLE || getHwGPSStatus() == HW_SENSOR_UNHEALTHY) {
-                strcpy(buff + 2, "X!");
+            hardwareSensorStatus_e sensorStatus = getHwGPSStatus();
+            if (sensorStatus == HW_SENSOR_UNAVAILABLE || sensorStatus == HW_SENSOR_UNHEALTHY) {
+                buff[2] = SYM_ALERT;
+                buff[3] = '\0';
             }
             TEXT_ATTRIBUTES_ADD_BLINK(elemAttr);
         }
@@ -3481,6 +3487,12 @@ static bool osdDrawSingleElement(uint8_t item)
         }
 #endif // USE_ADC
 #endif // USE_POWER_LIMITS
+    case OSD_MULTI_FUNCTION:
+        {
+            displayWrite(osdDisplayPort, elemPosX, elemPosY, "          ");
+            elemAttr = osdGetMultiFunctionMessage(buff);
+            break;
+        }
 
     default:
         return false;
@@ -4138,7 +4150,106 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
         displayWrite(osdDisplayPort, statNameX, top++, "--- STATS ---   <- 2/2");
     }
 
-    if (isSinglePageStatsCompatible || page == 0) {
+    displayWrite(osdDisplayPort, statNameX, top, "MAX ALTITUDE     :");
+    osdFormatAltitudeStr(buff, stats.max_altitude);
+    displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+    switch (rxConfig()->serialrx_provider) {
+        case SERIALRX_CRSF:
+            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI %       :");
+            itoa(stats.min_rssi, buff, 10);
+            strcat(buff, "%");
+            displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI DBM     :");
+            itoa(stats.min_rssi_dbm, buff, 10);
+            tfp_sprintf(buff, "%s%c", buff, SYM_DBM);
+            displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+            displayWrite(osdDisplayPort, statNameX, top, "MIN LQ           :");
+            itoa(stats.min_lq, buff, 10);
+            strcat(buff, "%");
+            displayWrite(osdDisplayPort, statValuesX, top++, buff);
+            break;
+        default:
+            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI         :");
+            itoa(stats.min_rssi, buff, 10);
+            strcat(buff, "%");
+            displayWrite(osdDisplayPort, statValuesX, top++, buff);
+        }
+
+    displayWrite(osdDisplayPort, statNameX, top, "FLY TIME         :");
+    uint16_t flySeconds = getFlightTime();
+    uint16_t flyMinutes = flySeconds / 60;
+    flySeconds %= 60;
+    uint16_t flyHours = flyMinutes / 60;
+    flyMinutes %= 60;
+    tfp_sprintf(buff, "%02u:%02u:%02u", flyHours, flyMinutes, flySeconds);
+    displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+    displayWrite(osdDisplayPort, statNameX, top, "DISARMED BY      :");
+    displayWrite(osdDisplayPort, statValuesX, top++, disarmReasonStr[getDisarmReason()]);
+
+    if (savingSettings == true) {
+        displayWrite(osdDisplayPort, statNameX, top++, OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS));
+    } else if (notify_settings_saved > 0) {
+        if (millis() > notify_settings_saved) {
+            notify_settings_saved = 0;
+        } else {
+            displayWrite(osdDisplayPort, statNameX, top++, OSD_MESSAGE_STR(OSD_MSG_SETTINGS_SAVED));
+        }
+    }
+
+    displayCommitTransaction(osdDisplayPort);
+}
+
+static void osdShowStatsPage2(void)
+{
+    uint8_t top = 1;    /* first fully visible line */
+    const uint8_t statNameX = osdDisplayIsHD() ? 11 : 1;
+    const uint8_t statValuesX = osdDisplayIsHD() ? 30 : 20;
+    char buff[10];
+    statsPagesCheck = 1;
+
+    displayBeginTransaction(osdDisplayPort, DISPLAY_TRANSACTION_OPT_RESET_DRAWING);
+    displayClearScreen(osdDisplayPort);
+
+    displayWrite(osdDisplayPort, statNameX, top++, "--- STATS ---   <- 2/2");
+
+    if (osdConfig()->stats_min_voltage_unit == OSD_STATS_MIN_VOLTAGE_UNIT_BATTERY) {
+        displayWrite(osdDisplayPort, statNameX, top, "MIN BATTERY VOLT :");
+        osdFormatCentiNumber(buff, stats.min_voltage, 0, osdConfig()->main_voltage_decimals, 0, osdConfig()->main_voltage_decimals + 2);
+    } else {
+        displayWrite(osdDisplayPort, statNameX, top, "MIN CELL VOLTAGE :");
+        osdFormatCentiNumber(buff, stats.min_voltage/getBatteryCellCount(), 0, 2, 0, 3);
+    }
+    tfp_sprintf(buff, "%s%c", buff, SYM_VOLT);
+    displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+    if (feature(FEATURE_CURRENT_METER)) {
+        displayWrite(osdDisplayPort, statNameX, top, "MAX CURRENT      :");
+        osdFormatCentiNumber(buff, stats.max_current, 0, 2, 0, 3);
+        tfp_sprintf(buff, "%s%c", buff, SYM_AMP);
+        displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+        displayWrite(osdDisplayPort, statNameX, top, "MAX POWER        :");
+        bool kiloWatt = osdFormatCentiNumber(buff, stats.max_power, 1000, 2, 2, 3);
+        buff[3] = kiloWatt ? SYM_KILOWATT : SYM_WATT;
+        buff[4] = '\0';
+        displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+        displayWrite(osdDisplayPort, statNameX, top, "USED CAPACITY    :");
+        if (osdConfig()->stats_energy_unit == OSD_STATS_ENERGY_UNIT_MAH) {
+            tfp_sprintf(buff, "%d%c", (int)getMAhDrawn(), SYM_MAH);
+        } else {
+            osdFormatCentiNumber(buff, getMWhDrawn() / 10, 0, 2, 0, 3);
+            tfp_sprintf(buff, "%s%c", buff, SYM_WH);
+        }
+        displayWrite(osdDisplayPort, statValuesX, top++, buff);
+
+        int32_t totalDistance = getTotalTravelDistance();
+        bool moreThanAh = false;
+        bool efficiencyValid = totalDistance >= 10000;
         if (feature(FEATURE_GPS)) {
             if (isSinglePageStatsCompatible) {
                 displayWrite(osdDisplayPort, statNameX, top, "MAX/AVG SPEED    :");
@@ -4986,4 +5097,77 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
     return elemAttr;
 }
 
+void resetOsdWarningMask(void)
+{
+    osdWarningsMask = 0;
+}
+
+bool checkOsdWarning(bool condition, osd_warnings_status_flags_e warningType)
+{
+    static timeMs_t newWarningStartTime = 0;
+    const timeMs_t currentTimeMs = millis();
+
+    if (condition) {
+        if (!(osdWarningsMask & warningType)) {
+            newWarningStartTime = currentTimeMs;
+            osdWarningsMask |= warningType;
+        }
+        if (currentTimeMs - newWarningStartTime < 10000) {  // Display new warnings for 10s
+            return true;
+        }
+    } else if (osdWarningsMask & warningType) {
+        osdWarningsMask ^= warningType;
+    }
+
+    return false;
+}
+
+textAttributes_t osdGetMultiFunctionMessage(char *buff)
+{
+    textAttributes_t elemAttr = TEXT_ATTRIBUTES_NONE;
+    uint8_t warningCount = BITCOUNT(osdWarningsMask);
+
+    multi_function_e multiFuncItem;
+    multiFunctionSelection(&multiFuncItem);
+    if (multiFuncItem) {
+        switch (multiFuncItem) {
+        case MULTI_FUNC_NONE:
+        case MULTI_FUNC_1:
+            strcpy(buff, warningCount ? "WARNINGS  " : "0 WARNINGS");
+            break;
+        case MULTI_FUNC_2:
+            strcpy(buff, "EMERG ARM ");
+            break;
+        case MULTI_FUNC_COUNT:
+            break;
+        }
+
+        return elemAttr;
+    }
+
+/* WARNINGS --------------------------------------------- */
+    const char *messages[2];
+    const char *message = NULL;
+    uint8_t messageCount = 0;
+
+    if (checkOsdWarning(!STATE(GPS_FIX), OSD_WARN_1)) {
+        hardwareSensorStatus_e sensorStatus = getHwGPSStatus();
+        bool gpsFailed = sensorStatus == HW_SENSOR_UNAVAILABLE || sensorStatus == HW_SENSOR_UNHEALTHY;
+        messages[messageCount++] = gpsFailed ? "GPS FAILED" : "NO GPS FIX";
+    }
+
+    if (messageCount) {
+        message = messages[OSD_ALTERNATING_CHOICES(2000, messageCount)];    // display each warning for 2s
+        strcpy(buff, message);
+        TEXT_ATTRIBUTES_ADD_BLINK(elemAttr);
+        return elemAttr;
+    } else if (warningCount) {
+        buff[0] = SYM_ALERT;
+        tfp_sprintf(buff + 1, "%u", warningCount);
+        return elemAttr;
+    }
+/* WARNINGS --------------------------------------------- */
+
+    return elemAttr;
+}
 #endif // OSD
