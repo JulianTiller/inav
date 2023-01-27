@@ -720,6 +720,7 @@ bool isMulticopterFlying(void)
 /*-----------------------------------------------------------
  * Multicopter land detector
  *-----------------------------------------------------------*/
+  #if defined(USE_BARO)
 float updateBaroAltitudeRate(float newBaroAltRate, bool updateValue)
 {
     static float baroAltRate;
@@ -730,32 +731,44 @@ float updateBaroAltitudeRate(float newBaroAltRate, bool updateValue)
     return baroAltRate;
 }
 
-bool isMulticopterLandingDetected(void)
+static bool isLandingGbumpDetected(timeMs_t currentTimeMs)
 {
-    DEBUG_SET(DEBUG_LANDING, 4, 0);
-    DEBUG_SET(DEBUG_LANDING, 3, averageAbsGyroRates() * 100);
-    const timeMs_t currentTimeMs = millis();
-
     /* Detection based on G bump at touchdown, falling Baro altitude and throttle below hover.
      * G bump trigger: > 2g then falling back below 1g in < 0.1s.
      * Baro trigger: rate must be -ve at initial trigger g and < -2 m/s when g falls back below 1g
      * Throttle trigger: must be below hover throttle with lower threshold for manual throttle control */
+
     static timeMs_t gSpikeDetectTimeMs = 0;
     float baroAltRate = updateBaroAltitudeRate(0, false);
 
-    if (!gSpikeDetectTimeMs && acc.accADCf[Z] > 2.0f && baroAltRate < 0.0f) {   // initial trigger, > 2g, -ve baro rate
+    if (!gSpikeDetectTimeMs && acc.accADCf[Z] > 2.0f && baroAltRate < 0.0f) {
         gSpikeDetectTimeMs = currentTimeMs;
     } else if (gSpikeDetectTimeMs) {
         if (currentTimeMs < gSpikeDetectTimeMs + 100) {
             if (acc.accADCf[Z] < 1.0f && baroAltRate < -200.0f) {
                 const uint16_t idleThrottle = getThrottleIdleValue();
                 const uint16_t hoverThrottleRange = currentBatteryProfile->nav.mc.hover_throttle - idleThrottle;
-                return rcCommand[THROTTLE] < idleThrottle + ((navigationInAutomaticThrottleMode() ? 0.9 : 0.5) * hoverThrottleRange);
+                return rcCommand[THROTTLE] < idleThrottle + ((navigationInAutomaticThrottleMode() ? 0.8 : 0.5) * hoverThrottleRange);
             }
         } else if (acc.accADCf[Z] <= 1.0f) {
             gSpikeDetectTimeMs = 0;
         }
     }
+
+    return false;
+}
+#endif
+bool isMulticopterLandingDetected(void)
+{
+    DEBUG_SET(DEBUG_LANDING, 4, 0);
+    DEBUG_SET(DEBUG_LANDING, 3, averageAbsGyroRates() * 100);
+    const timeMs_t currentTimeMs = millis();
+
+#if defined(USE_BARO)
+    if (sensors(SENSOR_BARO) && isLandingGbumpDetected(currentTimeMs)) {
+        return true;    // Landing flagged immediately if landing bump detected
+    }
+#endif
 
     static timeMs_t landingDetectorStartedAt;
     /* Basic condition to start looking for landing
