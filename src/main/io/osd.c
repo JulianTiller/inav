@@ -5150,6 +5150,9 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
             message = warningsCount ? "WARNINGS !" : "0 WARNINGS";
             break;
         case MULTI_FUNC_2:
+            message = posControl.flags.manualEmergLandActive ? "ABORT LAND" : "EMERG LAND";
+            break;
+        case MULTI_FUNC_3:
             message = "EMERG ARM ";
             break;
         case MULTI_FUNC_END:
