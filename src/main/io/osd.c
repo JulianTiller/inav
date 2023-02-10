@@ -996,7 +996,7 @@ static const char * osdFailsafeInfoMessage(void)
 #if defined(USE_SAFE_HOME)
 static const char * divertingToSafehomeMessage(void)
 {
-	if (NAV_Status.state != MW_NAV_STATE_HOVER_ABOVE_HOME && safehome_applied) {
+	if (NAV_Status.state != MW_NAV_STATE_HOVER_ABOVE_HOME && posControl.safehomeState.isApplied) {
 	    return OSD_MESSAGE_STR(OSD_MSG_DIVERT_SAFEHOME);
 	}
 	return NULL;
@@ -1042,7 +1042,7 @@ static const char * navigationStateMessage(void)
         case MW_NAV_STATE_HOVER_ABOVE_HOME:
             if (STATE(FIXED_WING_LEGACY)) {
 #if defined(USE_SAFE_HOME)
-                if (safehome_applied) {
+                if (posControl.safehomeState.isApplied) {
                     return OSD_MESSAGE_STR(OSD_MSG_LOITERING_SAFEHOME);
                 }
 #endif
@@ -4547,13 +4547,13 @@ static void osdShowArmed(void)
             }
             y += 4;
 #if defined (USE_SAFE_HOME)
-            if (safehome_distance) { // safehome found during arming
+            if (posControl.safehomeState.distance) { // safehome found during arming
                 if (navConfig()->general.flags.safehome_usage_mode == SAFEHOME_USAGE_OFF) {
                     strcpy(buf, "SAFEHOME FOUND; MODE OFF");
 				} else {
 					char buf2[12]; // format the distance first
-					osdFormatDistanceStr(buf2, safehome_distance);
-					tfp_sprintf(buf, "%c - %s -> SAFEHOME %u", SYM_HOME, buf2, safehome_index);
+					osdFormatDistanceStr(buf2, posControl.safehomeState.distance);
+					tfp_sprintf(buf, "%c - %s -> SAFEHOME %u", SYM_HOME, buf2, posControl.safehomeState.index);
 				}
 				textAttributes_t elemAttr = _TEXT_ATTRIBUTES_BLINK_BIT;
 				// write this message above the ARMED message to make it obvious
@@ -4681,7 +4681,7 @@ static void osdRefresh(timeUs_t currentTimeUs)
             osdShowArmed();
             uint32_t delay = ARMED_SCREEN_DISPLAY_TIME;
 #if defined(USE_SAFE_HOME)
-            if (safehome_distance)
+            if (posControl.safehomeState.distance)
                 delay *= 3;
 #endif
             osdSetNextRefreshIn(delay);
@@ -5170,7 +5170,15 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
             message = posControl.flags.manualEmergLandActive ? "ABORT LAND" : "EMERG LAND";
             break;
         case MULTI_FUNC_3:
-            message = "EMERG ARM ";
+            message = "NO SFHOME ";
+#if defined(USE_SAFE_HOME)
+            if (navConfig()->general.flags.safehome_usage_mode != SAFEHOME_USAGE_OFF) {
+                message = posControl.safehomeState.isSuspended ? "USE SFHOME" : "CAN SFHOME";
+            }
+#endif
+            break;
+        case MULTI_FUNC_4:
+            message = ARMING_FLAG(ARMED) ? "NOW ARMED " : "EMERG ARM ";
             break;
         case MULTI_FUNC_END:
             break;
