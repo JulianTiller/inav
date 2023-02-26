@@ -179,12 +179,12 @@ flightModeForTelemetry_e getFlightModeForTelemetry(void);
 
 typedef enum {
     HITL_RESET_FLAGS            = (0 << 0),
-    HITL_ENABLE					= (1 << 0),
-    HITL_SIMULATE_BATTERY		= (1 << 1),
-    HITL_MUTE_BEEPER			= (1 << 2),
-    HITL_USE_IMU			    = (1 << 3), // Use the Acc and Gyro data provided by XPlane to calculate Attitude (i.e. 100% of the calculations made by AHRS from INAV)
-    HITL_HAS_NEW_GPS_DATA		= (1 << 4),
-    HITL_EXT_BATTERY_VOLTAGE	= (1 << 5), // Extend MSP_SIMULATOR format 2
+	HITL_ENABLE					= (1 << 0),
+	HITL_SIMULATE_BATTERY		= (1 << 1),
+	HITL_MUTE_BEEPER			= (1 << 2),
+	HITL_USE_IMU			    = (1 << 3), // Use the Acc and Gyro data provided by XPlane to calculate Attitude (i.e. 100% of the calculations made by AHRS from INAV)
+	HITL_HAS_NEW_GPS_DATA		= (1 << 4),
+	HITL_EXT_BATTERY_VOLTAGE	= (1 << 5), // Extend MSP_SIMULATOR format 2
     HITL_AIRSPEED               = (1 << 6),
     HITL_EXTENDED_FLAGS         = (1 << 7), // Extend MSP_SIMULATOR format 2
     HITL_GPS_TIMEOUT            = (1 << 8),
