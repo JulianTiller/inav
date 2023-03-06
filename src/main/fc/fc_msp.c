@@ -3533,12 +3533,8 @@ static bool mspParameterGroupsCommand(sbuf_t *dst, sbuf_t *src)
 #ifdef USE_SIMULATOR
 bool isOSDTypeSupportedBySimulator(void)
 {
-#ifdef USE_OSD
-	displayPort_t *osdDisplayPort = osdGetDisplayPort();
-	return (!!osdDisplayPort && !!osdDisplayPort->vTable->readChar);
-#else
-    return false;
-#endif
+    displayPort_t *osdDisplayPort = osdGetDisplayPort();
+    return (osdDisplayPort && osdDisplayPort->cols == 30 && (osdDisplayPort->rows == 13 || osdDisplayPort->rows == 16));
 }
 
 void mspWriteSimulatorOSD(sbuf_t *dst)
@@ -3761,59 +3757,51 @@ bool mspFCProcessInOutCommand(uint16_t cmdMSP, sbuf_t *dst, sbuf_t *src, mspResu
 #endif
 #ifdef USE_SIMULATOR
     case MSP_SIMULATOR:
-		tmp_u8 = sbufReadU8(src); // Get the Simulator MSP version
-
+        tmp_u8 = sbufReadU8(src); // Get the Simulator MSP version
+        
         // Check the MSP version of simulator
-		if (tmp_u8 != SIMULATOR_MSP_VERSION) {
+        if (tmp_u8 != SIMULATOR_MSP_VERSION) {
             break;
         }
 
-		simulatorData.flags = sbufReadU8(src);
+        simulatorData.flags = sbufReadU8(src);
 
         if (!SIMULATOR_HAS_OPTION(HITL_ENABLE)) {
 
-			if (ARMING_FLAG(SIMULATOR_MODE_HITL)) { // Just once
-				DISABLE_ARMING_FLAG(SIMULATOR_MODE_HITL);
+            if (ARMING_FLAG(SIMULATOR_MODE)) { // Just once
+                DISABLE_ARMING_FLAG(SIMULATOR_MODE);
 
 #ifdef USE_BARO
-            if ( requestedSensors[SENSOR_INDEX_BARO] != BARO_NONE ) {
-				baroStartCalibration();
-            }
+                baroStartCalibration();
 #endif
 #ifdef USE_MAG
-				DISABLE_STATE(COMPASS_CALIBRATED);
-				compassInit();
+                DISABLE_STATE(COMPASS_CALIBRATED);
+                compassInit();
 #endif
-				simulatorData.flags = HITL_RESET_FLAGS;
+                simulatorData.flags = HITL_RESET_FLAGS;
                 // Review: Many states were affected. Reboot?
 
-				disarm(DISARM_SWITCH);  // Disarm to prevent motor output!!!
-			}
-        } else {
-			if (!ARMING_FLAG(SIMULATOR_MODE_HITL)) { // Just once
+                disarm(DISARM_SWITCH);  // Disarm to prevent motor output!!!
+            }
+        } else if (!areSensorsCalibrating()) {
+            if (!ARMING_FLAG(SIMULATOR_MODE)) { // Just once
 #ifdef USE_BARO
-                if ( requestedSensors[SENSOR_INDEX_BARO] != BARO_NONE ) {
-                    sensorsSet(SENSOR_BARO);
-                    setTaskEnabled(TASK_BARO, true);
-                    DISABLE_ARMING_FLAG(ARMING_DISABLED_HARDWARE_FAILURE);
-				    baroStartCalibration();
-                }
+                baroStartCalibration();
 #endif
 
 #ifdef USE_MAG
-				if (compassConfig()->mag_hardware != MAG_NONE) {
-					sensorsSet(SENSOR_MAG);
-					ENABLE_STATE(COMPASS_CALIBRATED);
-					DISABLE_ARMING_FLAG(ARMING_DISABLED_HARDWARE_FAILURE);
-					mag.magADC[X] = 800;
-					mag.magADC[Y] = 0;
-					mag.magADC[Z] = 0;
-				}
+                if (compassConfig()->mag_hardware != MAG_NONE) {
+                    sensorsSet(SENSOR_MAG);
+                    ENABLE_STATE(COMPASS_CALIBRATED);
+                    DISABLE_ARMING_FLAG(ARMING_DISABLED_HARDWARE_FAILURE);
+                    mag.magADC[X] = 800;
+                    mag.magADC[Y] = 0;
+                    mag.magADC[Z] = 0;
+                }
 #endif
-				ENABLE_ARMING_FLAG(SIMULATOR_MODE_HITL);
-                ENABLE_STATE(ACCELEROMETER_CALIBRATED);
-				LOG_DEBUG(SYSTEM, "Simulator enabled");
-			}
+                ENABLE_ARMING_FLAG(SIMULATOR_MODE);
+                LOG_DEBUG(SYSTEM, "Simulator enabled");
+            }
 
 			if (dataSize >= 14) {
 
