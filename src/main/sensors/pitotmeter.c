@@ -249,7 +249,7 @@ STATIC_PROTOTHREAD(pitotThread)
         }
 #ifdef USE_SIMULATOR
     	if (SIMULATOR_HAS_OPTION(HITL_AIRSPEED)) {
-        	    pitot.airSpeed = simulatorData.airSpeed;
+            pitot.airSpeed = simulatorData.airSpeed;
     	}
 #endif
     }
