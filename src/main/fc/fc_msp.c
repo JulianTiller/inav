@@ -91,6 +91,7 @@
 #include "io/serial.h"
 #include "io/serial_4way.h"
 #include "io/vtx.h"
+#include "io/vtx_msp.h"
 #include "io/vtx_string.h"
 #include "io/gps_private.h"  //for MSP_SIMULATOR
 
@@ -1431,6 +1432,7 @@ static bool mspFcProcessOutCommand(uint16_t cmdMSP, sbuf_t *dst, mspPostProcessF
                 sbufWriteU8(dst, vtxCommonDeviceIsReady(vtxDevice) ? 1 : 0);
                 sbufWriteU8(dst, vtxSettingsConfig()->lowPowerDisarm);
                 // future extensions here...
+                setMspVtxDeviceStatusReady(0);
             }
             else {
                 sbufWriteU8(dst, VTXDEV_UNKNOWN); // no VTX configured
