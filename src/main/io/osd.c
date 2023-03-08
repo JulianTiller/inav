@@ -106,6 +106,7 @@ bool osdUsingScaledThrottle()
 #include "sensors/acceleration.h"
 #include "sensors/battery.h"
 #include "sensors/boardalignment.h"
+#include "sensors/compass.h"
 #include "sensors/diagnostics.h"
 #include "sensors/sensors.h"
 #include "sensors/pitotmeter.h"
@@ -5201,7 +5202,7 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
     }
 
     /* --- WARNINGS --- */
-    const char *messages[6];
+    const char *messages[7];
     uint8_t messageCount = 0;
     bool warningCondition = false;
     warningsCount = 0;
@@ -5240,6 +5241,16 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
     // Altitude sanity (warning if significant mismatch between estimated and GPS altitude)
     if (osdCheckWarning(posControl.flags.gpsCfEstimatedAltitudeMismatch, warningFlagID <<= 1, &warningsCount)) {
         messages[messageCount++] = "ALT SANITY";
+    }
+#endif
+
+#if defined(USE_MAG)
+    // Magnetometer failure
+    if (requestedSensors[SENSOR_INDEX_MAG] != MAG_NONE) {
+        hardwareSensorStatus_e magStatus = getHwCompassStatus();
+        if (osdCheckWarning(magStatus == HW_SENSOR_UNAVAILABLE || magStatus == HW_SENSOR_UNHEALTHY, warningFlagID <<= 1, &warningsCount)) {
+            messages[messageCount++] = "MAG FAILED";
+        }
     }
 #endif
 
