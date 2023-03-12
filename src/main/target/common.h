@@ -197,3 +197,5 @@
 #define USE_24CHANNELS
 
 #endif
+
+#define USE_EZ_TUNE
