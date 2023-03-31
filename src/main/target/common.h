@@ -183,6 +183,8 @@
 #define USE_PITOT_VIRTUAL //n.V. in INAV2.4.0
 #define USE_FAKE_BATT_SENSOR //n.V. in INAV2.4.0
 
+#define USE_CMS_FONT_PREVIEW
+
 //Designed to free space of F722 and F411 MCUs
 #if (MCU_FLASH_SIZE > 512)
 #define USE_VTX_FFPV
