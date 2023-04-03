@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  * This file is part of INAV.
  *
  * INAV is free software: you can redistribute it and/or modify
+=======
+ * This file is part of Cleanflight.
+ *
+ * Cleanflight is free software: you can redistribute it and/or modify
+>>>>>>> 8a8169977 (Add the "GEPRCF722_BT_HD" target)
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
+<<<<<<< HEAD
  * INAV is distributed in the hope that it will be useful,
+=======
+ * Cleanflight is distributed in the hope that it will be useful,
+>>>>>>> 8a8169977 (Add the "GEPRCF722_BT_HD" target)
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  * along with INAV.  If not, see <http://www.gnu.org/licenses/>.
+=======
+ * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
+>>>>>>> 8a8169977 (Add the "GEPRCF722_BT_HD" target)
  */
 
 #include <stdbool.h>

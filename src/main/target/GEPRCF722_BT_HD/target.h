@@ -1,18 +1,18 @@
 /*
  * This file is part of INAV Project.
  *
- * INAV is free software: you can redistribute it and/or modify
+ * Cleanflight is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * INAV is distributed in the hope that it will be useful,
+ * Cleanflight is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with INAV.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
@@ -140,11 +140,7 @@
 #define UART5_RX_PIN            PD2
 #define UART5_TX_PIN            PC12
 
-#define USE_UART6
-#define UART6_RX_PIN            PC7
-#define UART6_TX_PIN            PC6
-
-#define SERIAL_PORT_COUNT       6
+#define SERIAL_PORT_COUNT       5
 
 #define DEFAULT_RX_TYPE         RX_TYPE_SERIAL
 #define SERIALRX_PROVIDER       SERIALRX_SBUS
