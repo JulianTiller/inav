@@ -2026,6 +2026,16 @@ static bool osdDrawSingleElement(uint8_t item)
     case OSD_ALTITUDE:
         {
             int32_t alt = osdGetAltitude();
+
+#ifndef DISABLE_MSP_BF_COMPAT   // IF BFCOMPAT is not supported, there's no need to check for it
+            if (isBfCompatibleVideoSystem(osdConfig())) {
+                // Use the same formatting function used for distance, which provides the proper scaling functionality
+                osdFormatDistanceSymbol(buff, alt, 0);
+            } else {
+                osdFormatAltitudeSymbol(buff, alt);
+            }
+#else
+            // BFCOMPAT mode not supported, directly call original altitude formatting function
             osdFormatAltitudeSymbol(buff, alt);
 
             uint16_t alt_alarm = osdConfig()->alt_alarm;
@@ -5215,12 +5225,12 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
         messages[messageCount++] = batteryState == BATTERY_CRITICAL ? "BATT EMPTY" : "BATT LOW !";
     }
 
-    // Vibration levels
-    const float vibrationLevel = accGetVibrationLevel();
-    warningCondition = vibrationLevel > 1.5f;
-    if (osdCheckWarning(warningCondition, warningFlagID <<= 1, &warningsCount)) {
-        messages[messageCount++] = vibrationLevel > 2.5f ? "BAD VIBRTN" : "VIBRATION!";
-    }
+    // Vibration levels   TODO - needs better vibration measurement to be useful
+    // const float vibrationLevel = accGetVibrationLevel();
+    // warningCondition = vibrationLevel > 1.5f;
+    // if (osdCheckWarning(warningCondition, warningFlagID <<= 1, &warningsCount)) {
+        // messages[messageCount++] = vibrationLevel > 2.5f ? "BAD VIBRTN" : "VIBRATION!";
+    // }
 
 #if defined(USE_GPS)
     // GPS Fix and Failure
