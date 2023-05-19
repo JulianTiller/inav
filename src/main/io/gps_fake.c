@@ -47,7 +47,7 @@ void gpsFakeRestart(void)
 
 void gpsFakeHandle(void)
 {
-    gpsProcessNewSolutionData();
+    gpsProcessNewSolutionData(false);
 }
 
 void gpsFakeSet(
@@ -80,7 +80,6 @@ void gpsFakeSet(
     gpsSolDRV.flags.validVelNE = true;
     gpsSolDRV.flags.validVelD = true;
     gpsSolDRV.flags.validEPE = true;
-    gpsSolDRV.flags.hasNewData = true;
     
     if (time) {
         struct tm* gTime = gmtime(&time);
