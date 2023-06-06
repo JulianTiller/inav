@@ -1422,13 +1422,13 @@ Which SBAS mode to be used
 
 ---
 
-### gps_ublox_use_beidou
+### gps_ublox7_nav_hz
 
-Enable use of Beidou satellites. This is at the expense of other regional constellations, so benefit may also be regional. Requires gps hardware support [OFF/ON].
+Navigation update rate for UBLOX7 receivers. Some receivers may limit the maximum number of satellites tracked when the value is too high.
 
 | Default | Min | Max |
 | --- | --- | --- |
-| OFF | OFF | ON |
+| 10 | 5 | 200 |
 
 ---
 

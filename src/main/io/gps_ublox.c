@@ -691,6 +691,11 @@ static bool gpsNewFrameUBLOX(uint8_t data)
     return parsed;
 }
 
+uint16_t hz2rate(uint8_t hz)
+{
+    return 1000 / hz;
+}
+
 STATIC_PROTOTHREAD(gpsConfigure)
 {
     ptBegin(gpsConfigure);
@@ -761,7 +766,7 @@ STATIC_PROTOTHREAD(gpsConfigure)
         ptWait(_ack_state == UBX_ACK_GOT_ACK);
 
         if ((gpsState.gpsConfig->provider == GPS_UBLOX7PLUS) && (gpsState.hwVersion >= UBX_HW_VERSION_UBLOX7)) {
-            configureRATE(100); // 10Hz
+            configureRATE(hd2rate(gpsState.gpsConfig->ubloxNavHz)); // defautl 10Hz
         } else {
             configureRATE(200); // 5Hz
         }
@@ -793,7 +798,7 @@ STATIC_PROTOTHREAD(gpsConfigure)
             ptWait(_ack_state == UBX_ACK_GOT_ACK);
 
             if ((gpsState.gpsConfig->provider == GPS_UBLOX7PLUS) && (gpsState.hwVersion >= UBX_HW_VERSION_UBLOX7)) {
-                configureRATE(100); // 10Hz
+                configureRATE(hd2rate(gpsState.gpsConfig->ubloxNavHz)); // defautl 10Hz
             }
             else {
                 configureRATE(200); // 5Hz
