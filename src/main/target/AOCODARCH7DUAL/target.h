@@ -30,7 +30,6 @@
 #define BEEPER_INVERTED
 #define BEEPER_PWM_FREQUENCY    2500
 
-
 // *************** IMU generic ***********************
 #define USE_DUAL_GYRO
 #define USE_TARGET_IMU_HARDWARE_DESCRIPTORS
