@@ -98,7 +98,9 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT + 1] = {
     { .boxId = BOXPLANWPMISSION,    .boxName = "WP PLANNER",        .permanentId = 55 },
     { .boxId = BOXSOARING,          .boxName = "SOARING",           .permanentId = 56 },
     { .boxId = BOXCHANGEMISSION,    .boxName = "MISSION CHANGE",    .permanentId = 59 },
-    { .boxId = BOXMULTIFUNCTION,    .boxName = "MULTI FUNCTION",    .permanentId = 60 },
+    { .boxId = BOXBEEPERMUTE,       .boxName = "BEEPER MUTE",       .permanentId = 60 },
+    { .boxId = BOXMIXERPROFILE,     .boxName = "MIXER RPROFILE 2",  .permanentId = 61 },
+    { .boxId = BOXMIXERTRANSITION,  .boxName = "MIXER TRANSITION",  .permanentId = 62 },
     { .boxId = CHECKBOX_ITEM_COUNT, .boxName = NULL,                .permanentId = 0xFF }
 };
 

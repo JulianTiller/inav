@@ -44,7 +44,7 @@
 #include "sensors/rangefinder.h"
 
 #include "io/serial.h"
-#ifdef AURIX
+#ifdef AURIX //TODO outdated code duplication
 enum {
     MAP_TO_NONE,
     MAP_TO_PPM_INPUT,
@@ -453,28 +453,12 @@ static bool checkPwmTimerConflicts(const timerHardware_t *timHw)
 }
 
 static void timerHardwareOverride(timerHardware_t * timer) {
-    
-    switch (timerOverrides(timer2id(timer->tim))->outputMode) {
-        case OUTPUT_MODE_MOTORS:
-            if (TIM_IS_SERVO(timer->usageFlags)) {
-                timer->usageFlags &= ~TIM_USE_SERVO;
-                timer->usageFlags |= TIM_USE_MOTOR;
-            }
-            break;
-        case OUTPUT_MODE_SERVOS:
-            if (TIM_IS_MOTOR(timer->usageFlags)) {
-                timer->usageFlags &= ~TIM_USE_MOTOR;
-                timer->usageFlags |= TIM_USE_SERVO;
-            }
-            break;
-    }
-}
-
-bool pwmHasMotorOnTimer(timMotorServoHardware_t * timOutputs, HAL_Timer_t *tim)
-{
-    for (int i = 0; i < timOutputs->maxTimMotorCount; ++i) {
-        if (timOutputs->timMotors[i]->tim == tim) {
-            return true;
+    if (currentMixerConfig.outputMode == OUTPUT_MODE_SERVOS) {
+        
+        //Motors are rewritten as servos
+        if (timer->usageFlags & TIM_USE_MC_MOTOR) {
+            timer->usageFlags = timer->usageFlags & ~TIM_USE_MC_MOTOR;
+            timer->usageFlags = timer->usageFlags | TIM_USE_MC_SERVO;
         }
     }
 
@@ -487,18 +471,13 @@ bool pwmHasServoOnTimer(timMotorServoHardware_t * timOutputs, HAL_Timer_t *tim)
         if (timOutputs->timServos[i]->tim == tim) {
             return true;
         }
-    }
-
-    return false;
-}
-
-uint8_t pwmClaimTimer(HAL_Timer_t *tim, uint32_t usageFlags) {
-    uint8_t changed = 0;
-    for (int idx = 0; idx < timerHardwareCount; idx++) {
-        timerHardware_t *timHw = &timerHardware[idx];
-        if (timHw->tim == tim && timHw->usageFlags != usageFlags) {
-            timHw->usageFlags = usageFlags;
-            changed++;
+        
+    } else if (currentMixerConfig.outputMode == OUTPUT_MODE_MOTORS) {
+        
+        // Servos are rewritten as motors
+        if (timer->usageFlags & TIM_USE_MC_SERVO) {
+            timer->usageFlags = timer->usageFlags & ~TIM_USE_MC_SERVO;
+            timer->usageFlags = timer->usageFlags | TIM_USE_MC_MOTOR;
         }
     }
 
@@ -566,12 +545,9 @@ void pwmBuildTimerOutputList(timMotorServoHardware_t * timOutputs, bool isMixerU
             continue;
         }
 
-        // Make sure first motorCount motor outputs get assigned to motor
-        if (TIM_IS_MOTOR(timHw->usageFlags) && (motorIdx < motorCount)) {
-            timHw->usageFlags &= ~TIM_USE_SERVO;
-            pwmClaimTimer(timHw->tim, timHw->usageFlags);
-            motorIdx += 1;
-        }
+        // Determine if timer belongs to motor/servo
+        if (currentMixerConfig.platformType == PLATFORM_MULTIROTOR || currentMixerConfig.platformType == PLATFORM_TRICOPTER) {
+            // Multicopter
 
             // Make sure first motorCount outputs get assigned to motor
             if ((timHw->usageFlags & TIM_USE_MC_MOTOR) && (motorIdx < motorCount)) {

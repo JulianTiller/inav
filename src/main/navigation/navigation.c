@@ -4172,8 +4172,8 @@ void navigationUsePIDs(void)
 
 void navigationInitYawControl(void){
     if (
-        mixerConfig()->platformType == PLATFORM_BOAT ||
-        mixerConfig()->platformType == PLATFORM_ROVER ||
+        currentMixerConfig.platformType == PLATFORM_BOAT ||
+        currentMixerConfig.platformType == PLATFORM_ROVER ||
         navConfig()->fw.useFwNavYawControl
     ) {
         ENABLE_STATE(FW_HEADING_USE_YAW);
@@ -4218,8 +4218,8 @@ void navigationInit(void)
     navigationUsePIDs();
 
     if (
-        mixerConfig()->platformType == PLATFORM_BOAT ||
-        mixerConfig()->platformType == PLATFORM_ROVER ||
+        currentMixerConfig.platformType == PLATFORM_BOAT ||
+        currentMixerConfig.platformType == PLATFORM_ROVER ||
         navConfig()->fw.useFwNavYawControl
     ) {
         ENABLE_STATE(FW_HEADING_USE_YAW);
@@ -4346,7 +4346,7 @@ bool navigationIsExecutingAnEmergencyLanding(void)
 bool navigationInAnyMode(void)
 {
     navigationFSMStateFlags_t stateFlags = navGetCurrentStateFlags();
-    return !(stateFlags ==0);
+    return !(stateFlags == 0);
 }
 
 bool navigationInAutomaticThrottleMode(void)
