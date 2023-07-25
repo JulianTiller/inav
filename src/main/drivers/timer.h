@@ -140,8 +140,10 @@ typedef enum {
     TIM_USE_MOTOR           = (1 << 2),     // Motor output
     TIM_USE_SERVO           = (1 << 3),     // Servo output
     TIM_USE_MC_CHNFW        = (1 << 4),     // Deprecated and not used after removal of CHANNEL_FORWARDING feature
-    //TIM_USE_FW_MOTOR        = (1 << 5),   // We no longer differentiate mc from fw on pwm allocation
-    //TIM_USE_FW_SERVO        = (1 << 6),
+    TIM_USE_FW_MOTOR        = (1 << 5),
+    TIM_USE_FW_SERVO        = (1 << 6),
+    TIM_USE_VTOL_SERVO      = (TIM_USE_FW_SERVO | TIM_USE_MC_SERVO),
+    TIM_USE_VTOL_MOTOR      = (TIM_USE_FW_MOTOR | TIM_USE_MC_MOTOR),
     TIM_USE_LED             = (1 << 24),
     TIM_USE_BEEPER          = (1 << 25),
 } timerUsageFlag_e;
