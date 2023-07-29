@@ -2002,6 +2002,16 @@ Used to prevent Iterm accumulation on during maneuvers. Iterm will be dampened w
 
 ---
 
+### led_pin_pwm_mode
+
+PWM mode of LED pin.
+
+| Default | Min | Max |
+| --- | --- | --- |
+| SHARED_LOW |  |  |
+
+---
+
 ### ledstrip_visual_beeper
 
 _// TODO_
@@ -4422,13 +4432,63 @@ Temperature under which the IMU temperature OSD element will start blinking (dec
 
 ---
 
-### osd_inav_to_pilot_logo_spacing
+### osd_joystick_down
 
-The space between the INAV and pilot logos, if `osd_use_pilot_logo` is `ON`. This number may be adjusted so that it fits the odd/even col width displays. For example, if using an odd column width display, such as Walksnail, and this is set to 4. 1 will be added so that the logos are equally spaced from the centre of the screen.
+PWM value for DOWN key
 
 | Default | Min | Max |
 | --- | --- | --- |
-| 8 | 0 | 20 |
+| 0 | 0 | 100 |
+
+---
+
+### osd_joystick_enabled
+
+Enable OSD Joystick emulation
+
+| Default | Min | Max |
+| --- | --- | --- |
+| OFF | OFF | ON |
+
+---
+
+### osd_joystick_enter
+
+PWM value for ENTER key
+
+| Default | Min | Max |
+| --- | --- | --- |
+| 75 | 0 | 100 |
+
+---
+
+### osd_joystick_left
+
+PWM value for LEFT key
+
+| Default | Min | Max |
+| --- | --- | --- |
+| 63 | 0 | 100 |
+
+---
+
+### osd_joystick_right
+
+PWM value for RIGHT key
+
+| Default | Min | Max |
+| --- | --- | --- |
+| 28 | 0 | 100 |
+
+---
+
+### osd_joystick_up
+
+PWM value for UP key
+
+| Default | Min | Max |
+| --- | --- | --- |
+| 48 | 0 | 100 |
 
 ---
 
