@@ -327,6 +327,7 @@ typedef struct {
     int32_t                     course;
     int32_t                     previousCourse;
     timeMs_t                    lastCourseAdjustmentTime;
+    float                       multicopterSpeed;
 } navCruise_t;
 
 typedef struct {
@@ -462,7 +463,7 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
 
 bool isNavHoldPositionActive(void);
 bool isLastMissionWaypoint(void);
-float getActiveWaypointSpeed(void);
+float getActiveSpeed(void);
 bool isWaypointNavTrackingActive(void);
 
 void updateActualHeading(bool headingValid, int32_t newHeading, int32_t newGroundCourse);
