@@ -4172,106 +4172,7 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
         displayWrite(osdDisplayPort, statNameX, top++, "--- STATS ---   <- 2/2");
     }
 
-    displayWrite(osdDisplayPort, statNameX, top, "MAX ALTITUDE     :");
-    osdFormatAltitudeStr(buff, stats.max_altitude);
-    displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-    switch (rxConfig()->serialrx_provider) {
-        case SERIALRX_CRSF:
-            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI %       :");
-            itoa(stats.min_rssi, buff, 10);
-            strcat(buff, "%");
-            displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI DBM     :");
-            itoa(stats.min_rssi_dbm, buff, 10);
-            tfp_sprintf(buff, "%s%c", buff, SYM_DBM);
-            displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-            displayWrite(osdDisplayPort, statNameX, top, "MIN LQ           :");
-            itoa(stats.min_lq, buff, 10);
-            strcat(buff, "%");
-            displayWrite(osdDisplayPort, statValuesX, top++, buff);
-            break;
-        default:
-            displayWrite(osdDisplayPort, statNameX, top, "MIN RSSI         :");
-            itoa(stats.min_rssi, buff, 10);
-            strcat(buff, "%");
-            displayWrite(osdDisplayPort, statValuesX, top++, buff);
-        }
-
-    displayWrite(osdDisplayPort, statNameX, top, "FLY TIME         :");
-    uint16_t flySeconds = getFlightTime();
-    uint16_t flyMinutes = flySeconds / 60;
-    flySeconds %= 60;
-    uint16_t flyHours = flyMinutes / 60;
-    flyMinutes %= 60;
-    tfp_sprintf(buff, "%02u:%02u:%02u", flyHours, flyMinutes, flySeconds);
-    displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-    displayWrite(osdDisplayPort, statNameX, top, "DISARMED BY      :");
-    displayWrite(osdDisplayPort, statValuesX, top++, disarmReasonStr[getDisarmReason()]);
-
-    if (savingSettings == true) {
-        displayWrite(osdDisplayPort, statNameX, top++, OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS));
-    } else if (notify_settings_saved > 0) {
-        if (millis() > notify_settings_saved) {
-            notify_settings_saved = 0;
-        } else {
-            displayWrite(osdDisplayPort, statNameX, top++, OSD_MESSAGE_STR(OSD_MSG_SETTINGS_SAVED));
-        }
-    }
-
-    displayCommitTransaction(osdDisplayPort);
-}
-
-static void osdShowStatsPage2(void)
-{
-    uint8_t top = 1;    /* first fully visible line */
-    const uint8_t statNameX = osdDisplayIsHD() ? 11 : 1;
-    const uint8_t statValuesX = osdDisplayIsHD() ? 30 : 20;
-    char buff[10];
-    statsPagesCheck = 1;
-
-    displayBeginTransaction(osdDisplayPort, DISPLAY_TRANSACTION_OPT_RESET_DRAWING);
-    displayClearScreen(osdDisplayPort);
-
-    displayWrite(osdDisplayPort, statNameX, top++, "--- STATS ---   <- 2/2");
-
-    if (osdConfig()->stats_min_voltage_unit == OSD_STATS_MIN_VOLTAGE_UNIT_BATTERY) {
-        displayWrite(osdDisplayPort, statNameX, top, "MIN BATTERY VOLT :");
-        osdFormatCentiNumber(buff, stats.min_voltage, 0, osdConfig()->main_voltage_decimals, 0, osdConfig()->main_voltage_decimals + 2);
-    } else {
-        displayWrite(osdDisplayPort, statNameX, top, "MIN CELL VOLTAGE :");
-        osdFormatCentiNumber(buff, stats.min_voltage/getBatteryCellCount(), 0, 2, 0, 3);
-    }
-    tfp_sprintf(buff, "%s%c", buff, SYM_VOLT);
-    displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-    if (feature(FEATURE_CURRENT_METER)) {
-        displayWrite(osdDisplayPort, statNameX, top, "MAX CURRENT      :");
-        osdFormatCentiNumber(buff, stats.max_current, 0, 2, 0, 3);
-        tfp_sprintf(buff, "%s%c", buff, SYM_AMP);
-        displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-        displayWrite(osdDisplayPort, statNameX, top, "MAX POWER        :");
-        bool kiloWatt = osdFormatCentiNumber(buff, stats.max_power, 1000, 2, 2, 3);
-        buff[3] = kiloWatt ? SYM_KILOWATT : SYM_WATT;
-        buff[4] = '\0';
-        displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-        displayWrite(osdDisplayPort, statNameX, top, "USED CAPACITY    :");
-        if (osdConfig()->stats_energy_unit == OSD_STATS_ENERGY_UNIT_MAH) {
-            tfp_sprintf(buff, "%d%c", (int)getMAhDrawn(), SYM_MAH);
-        } else {
-            osdFormatCentiNumber(buff, getMWhDrawn() / 10, 0, 2, 0, 3);
-            tfp_sprintf(buff, "%s%c", buff, SYM_WH);
-        }
-        displayWrite(osdDisplayPort, statValuesX, top++, buff);
-
-        int32_t totalDistance = getTotalTravelDistance();
-        bool moreThanAh = false;
-        bool efficiencyValid = totalDistance >= 10000;
+    if (isSinglePageStatsCompatible || page == 0) {
         if (feature(FEATURE_GPS)) {
             if (isSinglePageStatsCompatible) {
                 displayWrite(osdDisplayPort, statNameX, top, "MAX/AVG SPEED    :");
@@ -5020,6 +4921,16 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                         // right now). If if requires ANGLE, its display is handled
                         // by OSD_FLYMODE.
                         messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_ALTITUDE_HOLD);
+                    }
+                    if (STATE(MULTIROTOR) && FLIGHT_MODE(NAV_COURSE_HOLD_MODE)) {
+                        if (posControl.cruise.multicopterSpeed >= 50.0f) {
+                            char buf[6];
+                            osdFormatVelocityStr(buf, posControl.cruise.multicopterSpeed, false, false);
+                            tfp_sprintf(messageBuf, "(SPD %s)", buf);
+                        } else {
+                            strcpy(messageBuf, "(HOLD)");
+                        }
+                        messages[messageCount++] = messageBuf;
                     }
                     if (IS_RC_MODE_ACTIVE(BOXAUTOTRIM) && !feature(FEATURE_FW_AUTOTRIM)) {
                         messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_AUTOTRIM);
