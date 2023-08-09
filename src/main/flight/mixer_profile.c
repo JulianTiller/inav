@@ -193,6 +193,30 @@ bool checkMixerProfileHotSwitchAvalibility(void)
     {
         return false;
     }
+    if (allow_hot_switch == 0)
+    {
+        return false;
+    }
+    if (allow_hot_switch == 1)
+    {
+        return true;
+    }
+#ifdef ENABLE_MIXER_PROFILE_MCFW_HOTSWAP
+    bool MCFW_hotswap_available = true;
+#else
+    bool MCFW_hotswap_available = false;
+#endif
+    uint8_t platform_type0 = mixerConfigByIndex(0)->platformType;
+    uint8_t platform_type1 = mixerConfigByIndex(1)->platformType;
+    bool platform_type_mc0 = (platform_type0 == PLATFORM_MULTIROTOR) || (platform_type0 == PLATFORM_TRICOPTER || (platform_type0 == PLATFORM_TAILSITTER));
+    bool platform_type_mc1 = (platform_type1 == PLATFORM_MULTIROTOR) || (platform_type1 == PLATFORM_TRICOPTER || (platform_type1 == PLATFORM_TAILSITTER));
+    bool is_mcfw_switching = platform_type_mc0 ^ platform_type_mc1;
+    if ((!MCFW_hotswap_available) && is_mcfw_switching)
+    {
+        allow_hot_switch = 0;
+        return false;
+    }
+    allow_hot_switch = 1;
     return true;
 }
 
