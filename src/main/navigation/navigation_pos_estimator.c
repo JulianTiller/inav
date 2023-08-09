@@ -115,8 +115,9 @@ PG_RESET_TEMPLATE(positionEstimationConfig_t, positionEstimationConfig,
 
         .max_eph_epv = SETTING_INAV_MAX_EPH_EPV_DEFAULT,
         .baro_epv = SETTING_INAV_BARO_EPV_DEFAULT,
-
+#ifdef USE_GPS_FIX_ESTIMATION
         .allow_gps_fix_estimation = SETTING_INAV_ALLOW_GPS_FIX_ESTIMATION_DEFAULT
+#endif
 );
 
 #define resetTimer(tim, currentTimeUs) { (tim)->deltaTime = 0; (tim)->lastTriggeredTime = currentTimeUs; }
@@ -194,12 +195,14 @@ static bool detectGPSGlitch(timeUs_t currentTimeUs)
 
     bool isGlitching = false;
 
+#ifdef USE_GPS_FIX_ESTIMATION
     if (STATE(GPS_ESTIMATED_FIX)) {
         //disable sanity checks in GPS estimation mode
         //when estimated GPS fix is replaced with real fix, coordinates may jump 
         previousTime = 0;
         return true;
     }
+#endif
 
     if (previousTime == 0) {
         isGlitching = false;
@@ -252,8 +255,16 @@ void onNewGPSData(void)
     newLLH.lon = gpsSol.llh.lon;
     newLLH.alt = gpsSol.llh.alt;
 
-    if (sensors(SENSOR_GPS) || STATE(GPS_ESTIMATED_FIX)) {
-        if (!(STATE(GPS_FIX) || STATE(GPS_ESTIMATED_FIX))) {
+    if (sensors(SENSOR_GPS) 
+#ifdef USE_GPS_FIX_ESTIMATION
+            || STATE(GPS_ESTIMATED_FIX)
+#endif
+        ) {
+        if (!(STATE(GPS_FIX) 
+#ifdef USE_GPS_FIX_ESTIMATION
+                || STATE(GPS_ESTIMATED_FIX)
+#endif
+            )) {
             isFirstGPSUpdate = true;
             return;
         }
@@ -535,7 +546,11 @@ static bool navIsAccelerationUsable(void)
 
 static bool navIsHeadingUsable(void)
 {
-    if (sensors(SENSOR_GPS) || STATE(GPS_ESTIMATED_FIX)) {
+    if (sensors(SENSOR_GPS)
+#ifdef USE_GPS_FIX_ESTIMATION
+        || STATE(GPS_ESTIMATED_FIX)
+#endif
+        ) {
         // If we have GPS - we need true IMU north (valid heading)
         return isImuHeadingValid();
     }
@@ -550,7 +565,11 @@ static uint32_t calculateCurrentValidityFlags(timeUs_t currentTimeUs)
     /* Figure out if we have valid position data from our data sources */
     uint32_t newFlags = 0;
 
-    if ((sensors(SENSOR_GPS) || STATE(GPS_ESTIMATED_FIX)) && posControl.gpsOrigin.valid &&
+    if ((sensors(SENSOR_GPS)
+#ifdef USE_GPS_FIX_ESTIMATION
+            || STATE(GPS_ESTIMATED_FIX)
+#endif
+        ) && posControl.gpsOrigin.valid &&
         ((currentTimeUs - posEstimator.gps.lastUpdateTime) <= MS2US(INAV_GPS_TIMEOUT_MS)) &&
         (posEstimator.gps.eph < positionEstimationConfig()->max_eph_epv)) {
         if (posEstimator.gps.epv < positionEstimationConfig()->max_eph_epv) {
@@ -745,7 +764,11 @@ static bool estimationCalculateCorrection_XY_GPS(estimationContext_t * ctx)
 
 static void estimationCalculateGroundCourse(timeUs_t currentTimeUs)
 {
-    if ((STATE(GPS_FIX) || STATE(GPS_ESTIMATED_FIX)) && navIsHeadingUsable()) {
+    if ((STATE(GPS_FIX)
+#ifdef USE_GPS_FIX_ESTIMATION
+            || STATE(GPS_ESTIMATED_FIX)
+#endif
+        ) && navIsHeadingUsable()) {
         static timeUs_t lastUpdateTimeUs = 0;
 
         if (currentTimeUs - lastUpdateTimeUs >= HZ2US(INAV_COG_UPDATE_RATE_HZ)) {   // limit update rate

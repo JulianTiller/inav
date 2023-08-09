@@ -54,7 +54,11 @@ static float lastFuselageDirection[XYZ_AXIS_COUNT];
 
 bool isEstimatedWindSpeedValid(void)
 {
-    return hasValidWindEstimate || STATE(GPS_ESTIMATED_FIX);  //use any wind estimate with GPS fix estimation.
+    return hasValidWindEstimate 
+#ifdef USE_GPS_FIX_ESTIMATION
+        || STATE(GPS_ESTIMATED_FIX)  //use any wind estimate with GPS fix estimation.
+#endif
+        ;
 }
 
 float getEstimatedWindSpeed(int axis)
@@ -92,8 +96,11 @@ void updateWindEstimator(timeUs_t currentTimeUs)
     if (!STATE(FIXED_WING_LEGACY) ||
         !isGPSHeadingValid() ||
         !gpsSol.flags.validVelNE ||
-        !gpsSol.flags.validVelD ||
-        STATE(GPS_ESTIMATED_FIX)) {
+        !gpsSol.flags.validVelD 
+#ifdef USE_GPS_FIX_ESTIMATION
+            || STATE(GPS_ESTIMATED_FIX)
+#endif
+            ) {
         return;
     }
 

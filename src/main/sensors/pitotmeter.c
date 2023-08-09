@@ -244,7 +244,7 @@ STATIC_PROTOTHREAD(pitotThread)
 #if defined(USE_PITOT_FAKE)
         if (pitotmeterConfig()->pitot_hardware == PITOT_FAKE) { 
             pitotPressureTmp = sq(fakePitotGetAirspeed()) * SSL_AIR_DENSITY / 20000.0f + SSL_AIR_PRESSURE;     
-    	} 
+        } 
 #endif
         ptYield();
 
@@ -275,9 +275,14 @@ STATIC_PROTOTHREAD(pitotThread)
         }
 
 #ifdef USE_SIMULATOR
-    	if (SIMULATOR_HAS_OPTION(HITL_AIRSPEED)) {
-        	pitot.airSpeed = simulatorData.airSpeed;
-    	}
+        if (SIMULATOR_HAS_OPTION(HITL_AIRSPEED)) {
+            pitot.airSpeed = simulatorData.airSpeed;
+        }
+#endif
+#if defined(USE_PITOT_FAKE)
+        if (pitotmeterConfig()->pitot_hardware == PITOT_FAKE) { 
+            pitot.airSpeed = fakePitotGetAirspeed();
+        }
 #endif
     }
 

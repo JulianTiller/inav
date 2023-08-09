@@ -973,24 +973,18 @@ STATIC_PROTOTHREAD(gpsConfigure)
     // Configure GNSS for M8N and later
     if (gpsState.hwVersion >= UBX_HW_VERSION_UBLOX8) {
         gpsSetProtocolTimeout(GPS_SHORT_TIMEOUT);
-        bool use_VALSET = 0;
-        if ( (gpsState.swVersionMajor > 23) || (gpsState.swVersionMajor == 23 && gpsState.swVersionMinor > 1) ) {
-            use_VALSET = 1;
-        }
-
-        if ( use_VALSET && (gpsState.hwVersion >= UBX_HW_VERSION_UBLOX10) ) {
+        if(gpsState.hwVersion >= UBX_HW_VERSION_UBLOX10 || (gpsState.swVersionMajor>=23 && gpsState.swVersionMinor >= 1)) {
             configureGNSS10();
         } else {
             configureGNSS();
         }
+        ptWaitTimeout((_ack_state == UBX_ACK_GOT_ACK || _ack_state == UBX_ACK_GOT_NAK), GPS_CFG_CMD_TIMEOUT_MS);
 
-         ptWaitTimeout((_ack_state == UBX_ACK_GOT_ACK || _ack_state == UBX_ACK_GOT_NAK), GPS_CFG_CMD_TIMEOUT_MS);
-
-         if(_ack_state == UBX_ACK_GOT_NAK) {
+        if(_ack_state == UBX_ACK_GOT_NAK) {
             gpsConfigMutable()->ubloxUseGalileo = SETTING_GPS_UBLOX_USE_GALILEO_DEFAULT;
             gpsConfigMutable()->ubloxUseBeidou = SETTING_GPS_UBLOX_USE_BEIDOU_DEFAULT;
             gpsConfigMutable()->ubloxUseGlonass = SETTING_GPS_UBLOX_USE_GLONASS_DEFAULT;
-         }
+        }
     }
 
     ptEnd(0);
@@ -1069,7 +1063,7 @@ STATIC_PROTOTHREAD(gpsProtocolStateThread)
         pollVersion();
         gpsState.autoConfigStep++;
         ptWaitTimeout((gpsState.hwVersion != UBX_HW_VERSION_UNKNOWN), GPS_CFG_CMD_TIMEOUT_MS);
-    } while (gpsState.autoConfigStep < GPS_VERSION_RETRY_TIMES && gpsState.hwVersion == UBX_HW_VERSION_UNKNOWN);
+    } while(gpsState.autoConfigStep < GPS_VERSION_RETRY_TIMES && gpsState.hwVersion == UBX_HW_VERSION_UNKNOWN);
 
     gpsState.autoConfigStep = 0;
     ubx_capabilities.supported = ubx_capabilities.enabledGnss = ubx_capabilities.defaultGnss = 0;
@@ -1095,6 +1089,21 @@ STATIC_PROTOTHREAD(gpsProtocolStateThread)
     while (1) {
         ptSemaphoreWait(semNewDataReady);
         gpsProcessNewSolutionData(false);
+
+        if ((gpsState.gpsConfig->provider == GPS_UBLOX || gpsState.gpsConfig->provider == GPS_UBLOX7PLUS)) {
+            if ((millis() - gpsState.lastCapaPoolMs) > GPS_CAPA_INTERVAL) {
+                gpsState.lastCapaPoolMs = millis();
+
+                if (gpsState.hwVersion == UBX_HW_VERSION_UNKNOWN)
+                {
+                    pollVersion();
+                    ptWaitTimeout((_ack_state == UBX_ACK_GOT_ACK || _ack_state == UBX_ACK_GOT_NAK), GPS_CFG_CMD_TIMEOUT_MS);
+                }
+
+                pollGnssCapabilities();
+                ptWaitTimeout((_ack_state == UBX_ACK_GOT_ACK || _ack_state == UBX_ACK_GOT_NAK), GPS_CFG_CMD_TIMEOUT_MS);
+            }
+        }
     }
 
     ptEnd(0);
