@@ -190,6 +190,10 @@ void mixerUpdateStateFlags(void)
     } else if (currentMixerConfig.platformType == PLATFORM_TRICOPTER) {
         ENABLE_STATE(MULTIROTOR);
         ENABLE_STATE(ALTITUDE_CONTROL);
+    } else if (currentMixerConfig.platformType == PLATFORM_TAILSITTER) {
+        ENABLE_STATE(MULTIROTOR);
+        ENABLE_STATE(ALTITUDE_CONTROL);
+        ENABLE_STATE(TAILSITTER);
     } else if (currentMixerConfig.platformType == PLATFORM_HELICOPTER) {
         ENABLE_STATE(MULTIROTOR);
         ENABLE_STATE(ALTITUDE_CONTROL);
