@@ -107,6 +107,11 @@ void applyBoardAlignment(float *vec)
     vec[X] = lrintf(fpVec.x);
     vec[Y] = lrintf(fpVec.y);
     vec[Z] = lrintf(fpVec.z);
+
+    if (STATE(TAILSITTER)) {
+        vec[X] = lrintf(fpVec.z);
+        vec[Z] = -lrintf(fpVec.x);
+    }
 }
 
 void FAST_CODE applySensorAlignment(float * dest, float * src, uint8_t rotation)
