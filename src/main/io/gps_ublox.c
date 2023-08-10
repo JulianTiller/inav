@@ -55,41 +55,20 @@
 
 
 // SBAS_AUTO, SBAS_EGNOS, SBAS_WAAS, SBAS_MSAS, SBAS_GAGAN, SBAS_NONE
-// note PRNs last upadted 2020-12-18
-/*
- * Find the first occurrence of find in s, where the search is limited to the
- * first slen characters of s.
- */
-char *
-strnstr(const char *s, const char *find, size_t slen)
-{
-	char c, sc;
-	size_t len;
-
-	if ((c = *find++) != '\0') {
-		len = strlen(find);
-		do {
-			do {
-				if (slen-- < 1 || (sc = *s++) == '\0')
-					return (NULL);
-			} while (sc != c);
-			if (len > slen)
-				return (NULL);
-		} while (strncmp(s, find, len) != 0);
-		s--;
-	}
-	return ((char *)s);
-}
+// note PRNs last upadted 2023-08-10
+// https://www.gps.gov/technical/prn-codes/L1-CA-PRN-code-assignments-2023-Apr.pdf
 
 #define SBASMASK1_BASE 120
 #define SBASMASK1_BITS(prn) (1 << (prn-SBASMASK1_BASE))
 
 static const uint32_t ubloxScanMode1[] = {
     0x00000000, // AUTO
-    (SBASMASK1_BITS(123) | SBASMASK1_BITS(126) | SBASMASK1_BITS(136)), // SBAS
-    (SBASMASK1_BITS(131) | SBASMASK1_BITS(133) | SBASMASK1_BITS(138)), // WAAS
-    (SBASMASK1_BITS(129) | SBASMASK1_BITS(137)), // MAAS
-    (SBASMASK1_BITS(127) | SBASMASK1_BITS(128)), // GAGAN
+    (SBASMASK1_BITS(121) | SBASMASK1_BITS(123) | SBASMASK1_BITS(126) | SBASMASK1_BITS(136) | SBASMASK1_BITS(150)), // SBAS_EGNOS
+    (SBASMASK1_BITS(131) | SBASMASK1_BITS(133) | SBASMASK1_BITS(135) | SBASMASK1_BITS(138)), // WAAS
+
+    (SBASMASK1_BITS(129) | SBASMASK1_BITS(137) | SBASMASK1_BITS(139)), // MSAS
+
+    (SBASMASK1_BITS(127) | SBASMASK1_BITS(128) | SBASMASK1_BITS(132)), // GAGAN
     0x00000000, // NONE
 };
 
