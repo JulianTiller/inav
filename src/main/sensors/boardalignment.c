@@ -65,12 +65,19 @@ void initBoardAlignment(void)
     rotationAngles.angles.pitch = DECIDEGREES_TO_RADIANS(boardAlignment()->pitchDeciDegrees);
     rotationAngles.angles.yaw   = DECIDEGREES_TO_RADIANS(boardAlignment()->yawDeciDegrees  );
 
-    rotationMatrixFromAngles(&boardRotMatrix, &rotationAngles);
-    fp_angles_t tailSitter_rotationAngles;
-    tailSitter_rotationAngles.angles.roll  = DECIDEGREES_TO_RADIANS(0);
-    tailSitter_rotationAngles.angles.pitch = DECIDEGREES_TO_RADIANS(900);
-    tailSitter_rotationAngles.angles.yaw   = DECIDEGREES_TO_RADIANS(0);
-    rotationMatrixFromAngles(&tailRotMatrix, &tailSitter_rotationAngles);
+        standardBoardAlignment = false;
+
+        rotationAngles.angles.roll  = DECIDEGREES_TO_RADIANS(boardAlignment()->rollDeciDegrees );
+        rotationAngles.angles.pitch = DECIDEGREES_TO_RADIANS(boardAlignment()->pitchDeciDegrees);
+        rotationAngles.angles.yaw   = DECIDEGREES_TO_RADIANS(boardAlignment()->yawDeciDegrees  );
+
+        rotationMatrixFromAngles(&boardRotMatrix, &rotationAngles);
+    }
+    fp_angles_t rotationAngles;
+    rotationAngles.angles.roll  = DECIDEGREES_TO_RADIANS(0);
+    rotationAngles.angles.pitch = DECIDEGREES_TO_RADIANS(900);
+    rotationAngles.angles.yaw   = DECIDEGREES_TO_RADIANS(0);
+    rotationMatrixFromAngles(&tailRotMatrix, &rotationAngles);
 }
 
 void updateBoardAlignment(int16_t roll, int16_t pitch)
@@ -103,15 +110,12 @@ void applyBoardAlignment(float *vec)
 
     fpVector3_t fpVec = { .v = { vec[X], vec[Y], vec[Z] } };
     rotationMatrixRotateVector(&fpVec, &fpVec, &boardRotMatrix);
-    applyTailSitterAlignment(&fpVec);
+    if (STATE(TAILSITTER)) {
+        rotationMatrixRotateVector(&fpVec, &fpVec, &tailRotMatrix);
+    }
     vec[X] = lrintf(fpVec.x);
     vec[Y] = lrintf(fpVec.y);
     vec[Z] = lrintf(fpVec.z);
-
-    if (STATE(TAILSITTER)) {
-        vec[X] = lrintf(fpVec.z);
-        vec[Z] = -lrintf(fpVec.x);
-    }
 }
 
 void FAST_CODE applySensorAlignment(float * dest, float * src, uint8_t rotation)
