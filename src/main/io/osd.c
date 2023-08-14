@@ -2028,10 +2028,6 @@ static bool osdDrawSingleElement(uint8_t item)
 
                 TEXT_ATTRIBUTES_ADD_BLINK(elemAttr);
             }
-            if (STATE(MULTIROTOR) && posControl.flags.isAdjustingAltitude) {
-                TEXT_ATTRIBUTES_ADD_INVERTED(elemAttr);
-                TEXT_ATTRIBUTES_ADD_BLINK(elemAttr);
-            }
             break;
         }
 
@@ -4898,6 +4894,9 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                     }
                     if (STATE(LANDING_DETECTED)) {
                         messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_LANDED);
+                    }
+                    if (STATE(MULTIROTOR) && posControl.flags.isAdjustingAltitude) {
+                        messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_ALT_ADJUST);
                     }
                 }
             }
