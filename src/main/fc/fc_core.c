@@ -120,6 +120,7 @@ uint8_t motorControlEnable = false;
 static bool isRXDataNew;
 static disarmReason_t lastDisarmReason = DISARM_NONE;
 timeUs_t lastDisarmTimeUs = 0;
+timeMs_t emergInflightRearmTimeout = 0;
 
 static bool prearmWasReset = false; // Prearm must be reset (RC Mode not active) before arming is possible
 static timeMs_t prearmActivationTime = 0;
@@ -435,6 +436,7 @@ void disarm(disarmReason_t disarmReason)
     if (ARMING_FLAG(ARMED)) {
         lastDisarmReason = disarmReason;
         lastDisarmTimeUs = micros();
+        emergInflightRearmTimeout = US2MS(lastDisarmTimeUs) + (isProbablyStillFlying() ?  5000 : 0);
         DISABLE_ARMING_FLAG(ARMED);
 
 #ifdef USE_BLACKBOX
@@ -516,6 +518,11 @@ void releaseSharedTelemetryPorts(void) {
     }
 }
 
+bool emergInflightRearmEnabled(void)
+{
+    return millis() < emergInflightRearmTimeout;
+}
+
 void tryArm(void)
 {
     updateArmingStatus();
@@ -539,9 +546,10 @@ void tryArm(void)
 #endif
 
 #ifdef USE_PROGRAMMING_FRAMEWORK
-    if (!isArmingDisabled() || emergencyArmingIsEnabled() || LOGIC_CONDITION_GLOBAL_FLAG(LOGIC_CONDITION_GLOBAL_FLAG_OVERRIDE_ARMING_SAFETY)) {
+    if (!isArmingDisabled() || emergencyArmingIsEnabled() || emergInflightRearmEnabled() ||
+        LOGIC_CONDITION_GLOBAL_FLAG(LOGIC_CONDITION_GLOBAL_FLAG_OVERRIDE_ARMING_SAFETY)) {
 #else
-    if (!isArmingDisabled() || emergencyArmingIsEnabled()) {
+    if (!isArmingDisabled() || emergencyArmingIsEnabled() || emergInflightRearmEnabled()) {
 #endif
         // If nav_extra_arming_safety was bypassed we always
         // allow bypassing it even without the sticks set
