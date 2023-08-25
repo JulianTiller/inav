@@ -2028,6 +2028,7 @@ static bool osdDrawSingleElement(uint8_t item)
 
                 TEXT_ATTRIBUTES_ADD_BLINK(elemAttr);
             }
+            displayWriteWithAttr(osdDisplayPort, elemPosX, elemPosY, buff, elemAttr);
 
             if (STATE(MULTIROTOR) && posControl.flags.isAdjustingAltitude) {
                 /* Indicate MR altitude adjustment active with constant symbol at first blank position.
@@ -2045,6 +2046,7 @@ static bool osdDrawSingleElement(uint8_t item)
             }
             return true;
         }
+
 
     case OSD_ALTITUDE_MSL:
         {
