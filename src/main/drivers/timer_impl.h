@@ -136,3 +136,8 @@ void impl_timerPWMPrepareDMA(TCH_t * tch, uint32_t dmaBufferElementCount);
 void impl_timerPWMStartDMA(TCH_t * tch);
 void impl_timerPWMStopDMA(TCH_t * tch);
 #endif
+
+#ifdef USE_DSHOT_DMAR
+bool impl_timerPWMConfigDMABurst(burstDmaTimer_t *burstDmaTimer, TCH_t * tch, void * dmaBuffer, uint8_t dmaBufferElementSize, uint32_t dmaBufferElementCount);
+void impl_pwmBurstDMAStart(burstDmaTimer_t * burstDmaTimer, uint32_t BurstBaseAddress, uint32_t BurstUnit, uint32_t BurstLength);
+#endif

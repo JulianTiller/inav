@@ -214,6 +214,10 @@ typedef struct timHardwareContext_s {
     TIM_HandleTypeDef * timHandle;
 #endif
     TCH_t               ch[CC_CHANNELS_PER_TIMER];
+#ifdef USE_DSHOT_DMAR
+    DMA_t dmaBurstRef;
+    uint16_t DMASource;
+#endif
 } timHardwareContext_t;
 #endif
 
@@ -230,6 +234,16 @@ extern const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT];
 extern const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT];
 extern const timerHardware_t timerHardware[];
 extern const int timerHardwareCount;
+
+#ifdef USE_DSHOT_DMAR
+typedef struct {
+    TIM_TypeDef *timer;
+    DMA_Stream_TypeDef *dmaBurstStream;
+    timerDMASafeType_t *dmaBurstBuffer;
+    uint16_t burstRequestSource;
+} burstDmaTimer_t;
+#endif
+
 typedef enum {
     TYPE_FREE,
     TYPE_PWMINPUT,
@@ -302,7 +316,9 @@ void timerPWMStartDMA(TCH_t * tch);
 void timerPWMStopDMA(TCH_t * tch);
 bool timerPWMDMAInProgress(TCH_t * tch);
 volatile timCCR_t *timerCCR(TCH_t * tch);
-uint8_t timer2id(const HAL_Timer_t *tim);
 #endif
 
-
+#ifdef USE_DSHOT_DMAR
+bool timerPWMConfigDMABurst(burstDmaTimer_t *burstDmaTimer, TCH_t * tch, void * dmaBuffer, uint8_t dmaBufferElementSize, uint32_t dmaBufferElementCount);
+void pwmBurstDMAStart(burstDmaTimer_t * burstDmaTimer, uint32_t BurstBaseAddress, uint32_t BurstUnit, uint32_t BurstLength);
+#endif
