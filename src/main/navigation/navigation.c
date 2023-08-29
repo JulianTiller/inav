@@ -2958,16 +2958,12 @@ void updateLandingStatus(timeMs_t currentTimeMs)
     DEBUG_SET(DEBUG_LANDING, 1, STATE(LANDING_DETECTED));
 
     if (!ARMING_FLAG(ARMED)) {
-        if (STATE(LANDING_DETECTED)) {
-            resetLandingDetector();
-            landingDetectorIsActive = false;
-        }
+        resetLandingDetector();
+
         if (!IS_RC_MODE_ACTIVE(BOXARM)) {
             DISABLE_ARMING_FLAG(ARMING_DISABLED_LANDING_DETECTED);
         }
         return;
-    } else if (getArmTime() < 0.25f && landingDetectorIsActive) {  // force reset landing detector immediately after arming
-        landingDetectorIsActive = false;
     }
 
     if (!landingDetectorIsActive) {
@@ -2998,6 +2994,11 @@ void resetLandingDetector(void)
 {
     DISABLE_STATE(LANDING_DETECTED);
     posControl.flags.resetLandingDetector = true;
+}
+
+void resetLandingDetectorActiveState(void)
+{
+    landingDetectorIsActive = false;
 }
 
 bool isFlightDetected(void)
