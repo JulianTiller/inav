@@ -5172,7 +5172,6 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
     /* --- FUNCTIONS --- */
     multi_function_e selectedFunction = multiFunctionSelection();
     if (selectedFunction) {
-        message = "N/A NEXT >";     // Default message if function unavailable
         switch (selectedFunction) {
         case MULTI_FUNC_NONE:
         case MULTI_FUNC_1:
@@ -5207,7 +5206,16 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
             break;
         }
 
-        strcpy(buff, message);
+        if (message == NULL) {
+            incrementMultifunctionSelection();   // skip to next selection if function unavailable
+        } else {
+            strcpy(buff, message);
+
+            if (isNextMultifunctionItemAvailable()) {
+                // provides feedback indicating when a new selection command has been received by flight controller
+                buff[9] = '>';
+            }
+        }
         return elemAttr;
     }
 
@@ -5224,13 +5232,6 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
     if (osdCheckWarning(warningCondition, warningFlagID, &warningsCount)) {
         messages[messageCount++] = batteryState == BATTERY_CRITICAL ? "BATT EMPTY" : "BATT LOW !";
     }
-
-    // Vibration levels   TODO - needs better vibration measurement to be useful
-    // const float vibrationLevel = accGetVibrationLevel();
-    // warningCondition = vibrationLevel > 1.5f;
-    // if (osdCheckWarning(warningCondition, warningFlagID <<= 1, &warningsCount)) {
-        // messages[messageCount++] = vibrationLevel > 2.5f ? "BAD VIBRTN" : "VIBRATION!";
-    // }
 
 #if defined(USE_GPS)
     // GPS Fix and Failure
@@ -5263,6 +5264,12 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
         }
     }
 #endif
+    // Vibration levels   TODO - needs better vibration measurement to be useful
+    // const float vibrationLevel = accGetVibrationLevel();
+    // warningCondition = vibrationLevel > 1.5f;
+    // if (osdCheckWarning(warningCondition, warningFlagID <<= 1, &warningsCount)) {
+        // messages[messageCount++] = vibrationLevel > 2.5f ? "BAD VIBRTN" : "VIBRATION!";
+    // }
 
 #ifdef USE_DEV_TOOLS
     if (osdCheckWarning(systemConfig()->groundTestMode, warningFlagID <<= 1, &warningsCount)) {
