@@ -479,7 +479,7 @@ static void timerHardwareOverride(timerHardware_t * timer) {
     }
 }
 
-bool pwmHasMotorOnTimer(timMotorServoHardware_t * timOutputs, TIM_TypeDef *tim)
+bool pwmHasMotorOnTimer(timMotorServoHardware_t * timOutputs, HAL_Timer_t *tim)
 {
     for (int i = 0; i < timOutputs->maxTimMotorCount; ++i) {
         if (timOutputs->timMotors[i]->tim == tim) {
@@ -490,7 +490,7 @@ bool pwmHasMotorOnTimer(timMotorServoHardware_t * timOutputs, TIM_TypeDef *tim)
     return false;
 }
 
-bool pwmHasServoOnTimer(timMotorServoHardware_t * timOutputs, TIM_TypeDef *tim)
+bool pwmHasServoOnTimer(timMotorServoHardware_t * timOutputs, HAL_Timer_t *tim)
 {
     for (int i = 0; i < timOutputs->maxTimServoCount; ++i) {
         if (timOutputs->timServos[i]->tim == tim) {

@@ -72,8 +72,9 @@ typedef uint32_t timCNT_t;
 #endif
 //  tmr_type instead in AT32 
 #if defined(AT32F43x)
+typedef tmr_type HAL_Timer_t;
 typedef struct timerDef_s {
-    tmr_type   * tim;
+    HAL_Timer_t   * tim;
     rccPeriphTag_t  rcc;
     uint8_t         irq;
     uint8_t         secondIrq;
@@ -91,8 +92,9 @@ typedef struct timerHardware_s {
     uint32_t dmaMuxid; //DMAMUX ID
 } timerHardware_t;
 #else
+typedef TIM_TypeDef HAL_Timer_t;
 typedef struct timerDef_s {
-    TIM_TypeDef   * tim;
+    HAL_Timer_t * tim;
 #ifdef AURIX
     volatile Ifx_SRC_SRCR* src;
     uint16_t irqPrio;
@@ -260,7 +262,7 @@ const timerHardware_t * timerGetByTag(ioTag_t tag, timerUsageFlag_e flag);
 #ifndef AURIX
 uint32_t timerGetBaseClock(TCH_t * tch);
 #endif
-void timerConfigure(const timerHardware_t *timHw, uint16_t period, uint8_t mhz); // This interface should be replaced. //MAYBE ÄNDERNUNG NOTWENDIG
+void timerConfigure(const timerHardware_t *timHw, uint16_t period, uint8_t mhz); // This interface should be replaced. //MAYBE ï¿½NDERNUNG NOTWENDIG
 void timerChConfigIC(const timerHardware_t *timHw, bool polarityRising, unsigned inputFilterSamples);
 
 #ifndef AURIX
@@ -275,8 +277,8 @@ void timerStart(void);
 #ifdef AURIX
 void timerConfigBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz);  // TODO - just for migration
 #else
-void timerConfigBase(TCH_t * tch, uint16_t period, uint32_t hz);  // TODO - just for migration //MAYBE ÄNDERNUNG NOTWENDIG
-uint16_t timerGetPeriod(TCH_t * tch); //MAYBE ÄNDERNUNG NOTWENDIG
+void timerConfigBase(TCH_t * tch, uint16_t period, uint32_t hz);  // TODO - just for migration //MAYBE ï¿½NDERNUNG NOTWENDIG
+uint16_t timerGetPeriod(TCH_t * tch); //MAYBE ï¿½NDERNUNG NOTWENDIG
 #endif
 
 
