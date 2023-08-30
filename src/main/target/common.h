@@ -165,7 +165,8 @@
 #define USE_SERIAL_PASSTHROUGH
 #define NAV_MAX_WAYPOINTS       120
 #define USE_RCDEVICE
-#define USE_MULTI_MISSION //n.V. in INAV2.4.0
+#define USE_MULTI_MISSION
+#define USE_MULTI_FUNCTIONS  // defines functions only, warnings always defined
 
 //Enable VTX control
 #define USE_VTX_CONTROL

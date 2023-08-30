@@ -5169,6 +5169,7 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
     static uint8_t warningsCount;
     const char *message = NULL;
 
+#ifdef USE_MULTI_FUNCTIONS
     /* --- FUNCTIONS --- */
     multi_function_e selectedFunction = multiFunctionSelection();
 
@@ -5202,7 +5203,7 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
         case MULTI_FUNC_5:
 #ifdef USE_DSHOT
             if (STATE(MULTIROTOR)) {
-                message = MULTI_FUNC_FLAG(MF_TURTLE_MODE) ? "USE TURTLE" : "END TURTLE";
+                message = MULTI_FUNC_FLAG(MF_TURTLE_MODE) ? "END TURTLE" : "USE TURTLE";
                 break;
             }
 #endif
@@ -5228,6 +5229,7 @@ static textAttributes_t osdGetMultiFunctionMessage(char *buff)
 
         return elemAttr;
     }
+#endif  // MULTIFUNCTION - functions only, warnings always defined
 
     /* --- WARNINGS --- */
     const char *messages[7];
