@@ -25,6 +25,10 @@
 #include "drivers/rcc_types.h"
 #include "drivers/timer_def.h"
 
+#include "platform.h"
+
+#include "platform.h"
+
 #ifndef AURIX
 #define CC_CHANNELS_PER_TIMER       4   // TIM_Channel_1..4
 #endif
@@ -297,6 +301,7 @@ void timerPWMStartDMA(TCH_t * tch);
 void timerPWMStopDMA(TCH_t * tch);
 bool timerPWMDMAInProgress(TCH_t * tch);
 volatile timCCR_t *timerCCR(TCH_t * tch);
+uint8_t timer2id(const HAL_Timer_t *tim);
 #endif
 
 
