@@ -644,7 +644,8 @@ void FAST_CODE mixTable(void)
 
 int16_t getThrottlePercent(bool useScaled)
 {
-    int16_t thr = constrain(mixerThrottleCommand, PWM_RANGE_MIN, PWM_RANGE_MAX);
+    int16_t thr = constrain(rcCommand[THROTTLE], PWM_RANGE_MIN, PWM_RANGE_MAX);
+    const int idleThrottle = getThrottleIdleValue();
 
     if (useScaled) {
        thr = (thr - throttleIdleValue) * 100 / (motorConfig()->maxthrottle - throttleIdleValue);
@@ -656,11 +657,7 @@ int16_t getThrottlePercent(bool useScaled)
 
 motorStatus_e getMotorStatus(void)
 {
-    if (failsafeRequiresMotorStop()) {
-        return MOTOR_STOPPED_AUTO;
-    }
-
-    if (!failsafeIsActive() && STATE(NAV_MOTOR_STOP_OR_IDLE)) {
+    if (STATE(NAV_MOTOR_STOP_OR_IDLE)) {
         return MOTOR_STOPPED_AUTO;
     }
 
