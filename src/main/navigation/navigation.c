@@ -2958,6 +2958,9 @@ void updateLandingStatus(timeMs_t currentTimeMs)
     DEBUG_SET(DEBUG_LANDING, 1, STATE(LANDING_DETECTED));
 
     if (!ARMING_FLAG(ARMED)) {
+        if (STATE(LANDING_DETECTED)) {
+            landingDetectorIsActive = false;
+        }
         resetLandingDetector();
 
         if (!IS_RC_MODE_ACTIVE(BOXARM)) {
