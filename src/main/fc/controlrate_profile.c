@@ -45,11 +45,12 @@ void pgResetFn_controlRateProfiles(controlRateConfig_t *instance)
     for (int i = 0; i < MAX_CONTROL_RATE_PROFILE_COUNT; i++) {
         RESET_CONFIG(controlRateConfig_t, &instance[i],
             .throttle = {
-                .rcMid8 = 50,
-                .rcExpo8 = 0,
-                .dynPID = 0,
-                .pa_breakpoint = 1500,
-                .fixedWingTauMs = 0
+                .rcMid8 = SETTING_THR_MID_DEFAULT,
+                .rcExpo8 = SETTING_THR_EXPO_DEFAULT,
+                .dynPID = SETTING_TPA_RATE_DEFAULT,
+                .dynPID_on_YAW = SETTING_TPA_ON_YAW_DEFAULT,
+                .pa_breakpoint = SETTING_TPA_BREAKPOINT_DEFAULT,
+                .fixedWingTauMs = SETTING_FW_TPA_TIME_CONSTANT_DEFAULT
             },
 
             .stabilized = {
