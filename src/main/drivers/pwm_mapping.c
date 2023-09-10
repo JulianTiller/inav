@@ -284,7 +284,7 @@ const char * getPwmInitErrorMessage(void)
     return pwmInitErrorMsg[pwmInitError];
 }
 
-#else
+#else //AURIX
 enum {
     MAP_TO_NONE,
     MAP_TO_MOTOR_OUTPUT,
@@ -456,9 +456,55 @@ static void timerHardwareOverride(timerHardware_t * timer) {
     if (currentMixerConfig.outputMode == OUTPUT_MODE_SERVOS) {
         
         //Motors are rewritten as servos
-        if (timer->usageFlags & TIM_USE_MC_MOTOR) {
-            timer->usageFlags = timer->usageFlags & ~TIM_USE_MC_MOTOR;
-            timer->usageFlags = timer->usageFlags | TIM_USE_MC_SERVO;
+        if (timer->usageFlags & (TIM_USE_MC_MOTOR|TIM_USE_FW_MOTOR)) {
+            timer->usageFlags &= ~(TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR);
+            timer->usageFlags |= TIM_USE_MC_SERVO | TIM_USE_FW_SERVO;
+        }
+        
+    } else if (currentMixerConfig.outputMode == OUTPUT_MODE_MOTORS) {
+        
+        // Servos are rewritten as motors
+        if (timer->usageFlags & (TIM_USE_MC_SERVO | TIM_USE_FW_SERVO)) {
+            timer->usageFlags &= ~(TIM_USE_MC_SERVO | TIM_USE_FW_SERVO);
+            timer->usageFlags |= TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR;
+        }
+    }
+
+    switch (timerOverrides(timer2id(timer->tim))->outputMode) {
+        case OUTPUT_MODE_MOTORS:
+            if (timer->usageFlags & (TIM_USE_MC_SERVO | TIM_USE_FW_SERVO)) {
+                timer->usageFlags &= ~(TIM_USE_MC_SERVO | TIM_USE_FW_SERVO);
+                timer->usageFlags |= TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR;
+            }
+            break;
+        case OUTPUT_MODE_SERVOS:
+            if (timer->usageFlags & (TIM_USE_MC_MOTOR|TIM_USE_FW_MOTOR)) {
+                timer->usageFlags &= ~(TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR);
+                timer->usageFlags |= TIM_USE_MC_SERVO | TIM_USE_FW_SERVO;
+            }
+            break;
+    }
+}
+
+bool check_pwm_assigned_to_motor_or_servo(void)
+{  
+    // Check TIM_USE_FW_* and TIM_USE_MC_* is consistent, If so, return true, means the pwm mapping will remain same between FW and MC
+    bool pwm_assigned_to_motor_or_servo = true;
+    for (int idx = 0; idx < timerHardwareCount; idx++) {
+        timerHardware_t *timHw = &timerHardware[idx];
+        if (timHw->usageFlags & (TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR | TIM_USE_MC_SERVO | TIM_USE_FW_SERVO)) {
+            pwm_assigned_to_motor_or_servo &= (timHw->usageFlags == TIM_USE_VTOL_SERVO) | (timHw->usageFlags == TIM_USE_VTOL_MOTOR);
+        }
+    }
+    return pwm_assigned_to_motor_or_servo;
+}
+
+
+bool pwmHasMotorOnTimer(timMotorServoHardware_t * timOutputs, HAL_Timer_t *tim)
+{
+    for (int i = 0; i < timOutputs->maxTimMotorCount; ++i) {
+        if (timOutputs->timMotors[i]->tim == tim) {
+            return true;
         }
     }
 
