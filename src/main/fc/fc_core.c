@@ -676,31 +676,25 @@ void processRx(timeUs_t currentTimeUs)
         processRcAdjustments(CONST_CAST(controlRateConfig_t*, currentControlRateProfile), canUseRxData);
     }
 
-    // Angle mode forced on briefly after emergency inflight rearm to help stabilise attitude (currently limited to MR)
-    bool emergRearmAngleEnforce = STATE(MULTIROTOR) && emergRearmStabiliseTimeout > US2MS(currentTimeUs);
-    bool autoEnableAngle = failsafeRequiresAngleMode() || navigationRequiresAngleMode() || emergRearmAngleEnforce;
-    bool canUseHorizonMode = true;
+    /* Disable modes initially, will be enabled as required with priority ANGLE > HORIZON > ATTITUDE HOLD */
+    DISABLE_FLIGHT_MODE(ANGLE_MODE);
+    DISABLE_FLIGHT_MODE(HORIZON_MODE);
+    DISABLE_FLIGHT_MODE(ATTIHOLD_MODE);
 
-    if (sensors(SENSOR_ACC) && (IS_RC_MODE_ACTIVE(BOXANGLE) || autoEnableAngle)) {
-        // bumpless transfer to Level mode
-        canUseHorizonMode = false;
-
-        if (!FLIGHT_MODE(ANGLE_MODE)) {
-            ENABLE_FLIGHT_MODE(ANGLE_MODE);
+    if (sensors(SENSOR_ACC)) {
+        if (IS_RC_MODE_ACTIVE(BOXANGLE) || failsafeRequiresAngleMode() || navigationRequiresAngleMode()) {
+            if (!FLIGHT_MODE(ANGLE_MODE)) {
+                ENABLE_FLIGHT_MODE(ANGLE_MODE);
+            }
+        } else if (IS_RC_MODE_ACTIVE(BOXHORIZON)) {
+            if (!FLIGHT_MODE(HORIZON_MODE)) {
+                ENABLE_FLIGHT_MODE(HORIZON_MODE);
+            }
+        } else if (STATE(AIRPLANE) && IS_RC_MODE_ACTIVE(BOXATTIHOLD)) {
+            if (!FLIGHT_MODE(ATTIHOLD_MODE)) {
+                ENABLE_FLIGHT_MODE(ATTIHOLD_MODE);
+            }
         }
-    } else {
-        DISABLE_FLIGHT_MODE(ANGLE_MODE); // failsafe support
-    }
-
-    if (IS_RC_MODE_ACTIVE(BOXHORIZON) && canUseHorizonMode) {
-
-        DISABLE_FLIGHT_MODE(ANGLE_MODE);
-
-        if (!FLIGHT_MODE(HORIZON_MODE)) {
-            ENABLE_FLIGHT_MODE(HORIZON_MODE);
-        }
-    } else {
-        DISABLE_FLIGHT_MODE(HORIZON_MODE);
     }
 
     if (FLIGHT_MODE(ANGLE_MODE) || FLIGHT_MODE(HORIZON_MODE)) {
