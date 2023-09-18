@@ -4828,7 +4828,7 @@ Selection of pitot hardware.
 
 | Default | Min | Max |
 | --- | --- | --- |
-| NONE |  |  |
+| VIRTUAL |  |  |
 
 ---
 
