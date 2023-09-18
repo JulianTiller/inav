@@ -85,14 +85,13 @@ PG_RESET_TEMPLATE(reversibleMotorsConfig_t, reversibleMotorsConfig,
 PG_REGISTER_WITH_RESET_TEMPLATE(mixerConfig_t, mixerConfig, PG_MIXER_CONFIG, 5);
 
 PG_RESET_TEMPLATE(mixerConfig_t, mixerConfig,
-    .motorDirectionInverted = 1,
-    .platformType = PLATFORM_MULTIROTOR,
-    .hasFlaps = false,
-    .appliedMixerPreset = -1, //This flag is not available in CLI and used by Configurator only
-    .outputMode = 1,
+    .motorDirectionInverted = SETTING_MOTOR_DIRECTION_INVERTED_DEFAULT,
+    .platformType = SETTING_PLATFORM_TYPE_DEFAULT,
+    .hasFlaps = SETTING_HAS_FLAPS_DEFAULT,
+    .appliedMixerPreset = SETTING_MODEL_PREVIEW_TYPE_DEFAULT, //This flag is not available in CLI and used by Configurator only
 );
 
-PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 9);
+PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 10);
 
 #ifdef BRUSHED_MOTORS
 #define DEFAULT_PWM_PROTOCOL    PWM_TYPE_BRUSHED
