@@ -151,6 +151,9 @@ typedef struct pidProfile_s {
 
     float fixedWingLevelTrim;
     float fixedWingLevelTrimGain;
+
+    bool fixedWingAcroAttiStab;
+
 #ifdef USE_SMITH_PREDICTOR
     float smithPredictorStrength;
     float smithPredictorDelay;
