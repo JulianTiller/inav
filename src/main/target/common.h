@@ -123,7 +123,7 @@
 //#define USE_D_BOOST
 #define USE_ANTIGRAVITY
 
-//#define USE_I2C_IO_EXPANDER //n.V. in INAV2.4.0
+//#define USE_I2C_IO_EXPANDER
 
 #define USE_GPS_PROTO_NMEA
 
