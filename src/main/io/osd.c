@@ -4753,10 +4753,14 @@ static void osdRefresh(timeUs_t currentTimeUs)
             statsDisplayed = false;
             osdResetStats();
             osdShowArmed();
-            uint32_t delay = osdConfig()->arm_screen_display_time;
+            uint32_t delay = ARMED_SCREEN_DISPLAY_TIME;
+            if (STATE(IN_FLIGHT_EMERG_REARM)) {
+                delay /= 3;
+            }
 #if defined(USE_SAFE_HOME)
-            if (safehome_distance)
-                delay+= 3000;
+            else if (posControl.safehomeState.distance) {
+                delay *= 3;
+            }
 #endif
             osdSetNextRefreshIn(delay);
         } else {
