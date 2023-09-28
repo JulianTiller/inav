@@ -138,6 +138,7 @@ static bool pwmMotorsEnabled = true;
 static timeUs_t digitalMotorUpdateIntervalUs = 0;
 static timeUs_t digitalMotorLastUpdateUs;
 static timeUs_t lastCommandSent = 0;
+static timeUs_t commandPostDelay = 0;
     
 static circularBuffer_t commandsCircularBuffer;
 static uint8_t commandsBuff[DHSOT_COMMAND_QUEUE_SIZE];
@@ -1123,8 +1124,16 @@ static bool executeDShotCommands(void){
             dshotCommands_e cmd;
             circularBufferPopHead(&commandsCircularBuffer, (uint8_t *) &cmd);
             currentExecutingCommand.cmd = cmd;
-            currentExecutingCommand.remainingRepeats = getDShotCommandRepeats(cmd);           
+            currentExecutingCommand.remainingRepeats = getDShotCommandRepeats(cmd);
+            commandPostDelay = DSHOT_COMMAND_INTERVAL_US;
         } else {
+            if (commandPostDelay) {
+                if (tNow - lastCommandSent < commandPostDelay) {
+                    return false;
+                }
+                commandPostDelay = 0;
+            }
+
             return true;
         }  
     }
