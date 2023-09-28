@@ -110,9 +110,7 @@ void applyBoardAlignment(float *vec)
 
     fpVector3_t fpVec = { .v = { vec[X], vec[Y], vec[Z] } };
     rotationMatrixRotateVector(&fpVec, &fpVec, &boardRotMatrix);
-    if (STATE(TAILSITTER)) {
-        rotationMatrixRotateVector(&fpVec, &fpVec, &tailRotMatrix);
-    }
+    applyTailSitterAlignment(&fpVec);
     vec[X] = lrintf(fpVec.x);
     vec[Y] = lrintf(fpVec.y);
     vec[Z] = lrintf(fpVec.z);
