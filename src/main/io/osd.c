@@ -4002,7 +4002,7 @@ uint8_t drawStats(uint8_t row) {
 #ifdef USE_ADC
         if (feature(FEATURE_VBAT) && feature(FEATURE_CURRENT_METER)) {
             displayWrite(osdDisplayPort, statNameX, ++row, "TOTAL ENERGY:");
-            osdFormatCentiNumber(string_buffer, statsConfig()->stats_total_energy / 10, 0, 2, 0, 4);
+            osdFormatCentiNumber(string_buffer, statsConfig()->stats_total_energy / 10, 0, 2, 0, 4, false);
             displayWrite(osdDisplayPort, statValueX-4, row,  string_buffer);
             displayWriteChar(osdDisplayPort, statValueX, row, SYM_WH);
 
@@ -4013,18 +4013,18 @@ uint8_t drawStats(uint8_t row) {
                     case OSD_UNIT_UK:
                         FALLTHROUGH;
                     case OSD_UNIT_IMPERIAL:
-                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10, 0, 2, 0, 3);
+                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10, 0, 2, 0, 3, false);
                         string_buffer[3] = SYM_WH_MI;
                         break;
                     case OSD_UNIT_GA:
-                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10, 0, 2, 0, 3);
+                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10, 0, 2, 0, 3, false);
                         string_buffer[3] = SYM_WH_NM;
                         break;
                     default:
                     case OSD_UNIT_METRIC_MPH:
                         FALLTHROUGH;
                     case OSD_UNIT_METRIC:
-                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10000 * METERS_PER_MILE, 0, 2, 0, 3);
+                        osdFormatCentiNumber(string_buffer, avg_efficiency / 10000 * METERS_PER_MILE, 0, 2, 0, 3, false);
                         string_buffer[3] = SYM_WH_KM;
                         break;
                 }
