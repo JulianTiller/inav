@@ -180,11 +180,18 @@
 #define SYM_LOGO_WIDTH				10
 #define SYM_LOGO_HEIGHT				4
 
-#define SYM_AH_LEFT					0x12C // 300 Arrow left
-#define SYM_AH_RIGHT				0x12D // 301 Arrow right
-#define SYM_AH_DECORATION_MIN		0x12E // 302 to 307 Scrolling
-#define SYM_AH_DECORATION			0x131 // 305 Scrolling
-#define SYM_AH_DECORATION_MAX		0x133 // 307 Scrolling
+
+#define SYM_ADSB                    0xFD // 253 ADSB
+
+#define SYM_LOGO_START              0x101 // 257 to 297, INAV logo
+#define SYM_LOGO_WIDTH              10
+#define SYM_LOGO_HEIGHT             4
+
+#define SYM_AH_LEFT                 0x12C // 300 Arrow left
+#define SYM_AH_RIGHT                0x12D // 301 Arrow right
+#define SYM_AH_DECORATION_MIN       0x12E // 302 to 307 Scrolling
+#define SYM_AH_DECORATION           0x131 // 305 Scrolling
+#define SYM_AH_DECORATION_MAX       0x133 // 307 Scrolling
 #define SYM_AH_DECORATION_COUNT (SYM_AH_DECORATION_MAX - SYM_AH_DECORATION_MIN + 1) // Scrolling
 
 #define SYM_AH_CH_LEFT				0x13A // 314 Crossair left
