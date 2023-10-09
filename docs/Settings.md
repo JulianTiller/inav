@@ -3428,7 +3428,7 @@ Multicopter hover throttle hint for altitude controller. Should be set to approx
 
 | Default | Min | Max |
 | --- | --- | --- |
-| 1500 | 1000 | 2000 |
+| 1300 | 1000 | 2000 |
 
 ---
 
