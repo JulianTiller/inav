@@ -504,9 +504,6 @@ void setConfigMixerProfileAndWriteEEPROM(uint8_t profileIndex)
         resumeRxSignal();
     }
     beeperConfirmationBeeps(profileIndex + 1);
-    if (mixerConfig()->PIDProfileLinking) {
-        setConfigProfileAndWriteEEPROM(profileIndex);
-    }
 }
 
 void setGyroCalibrationAndWriteEEPROM(int16_t getGyroZero[XYZ_AXIS_COUNT]) {
