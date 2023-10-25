@@ -81,9 +81,7 @@ typedef enum {
     LOGIC_CONDITION_TIMER                       = 49,
     LOGIC_CONDITION_DELTA                       = 50,
     LOGIC_CONDITION_APPROX_EQUAL                = 51,
-#ifdef USE_GPS_FIX_ESTIMATION
-    LOGIC_CONDITION_DISABLE_GPS_FIX             = 52,
-#endif
+    LOGIC_CONDITION_RESET_MAG_CALIBRATION       = 52,
     LOGIC_CONDITION_LAST                        = 53,
 } logicOperation_e;
 
