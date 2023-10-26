@@ -1250,7 +1250,7 @@ void pidInit(void)
     navPidInit(
         &fixedWingLevelTrimController,
         0.0f,
-        (float)pidProfile()->fixedWingLevelTrimGain / 50.0f,
+        (float)pidProfile()->fixedWingLevelTrimGain / 100.0f,
         0.0f,
         0.0f,
         2.0f,
