@@ -776,7 +776,7 @@ static int logicConditionGetFlightOperandValue(int operand) {
         case LOGIC_CONDITION_OPERAND_FLIGHT_ACTIVE_PROFILE: // int
             return getConfigProfile() + 1;
             break;
-        
+
         case LOGIC_CONDITION_OPERAND_FLIGHT_ACTIVE_MIXER_PROFILE: // int
             return currentMixerProfileIndex + 1;
             break;
@@ -850,8 +850,8 @@ static int logicConditionGetFlightModeOperandValue(int operand) {
             return (bool) FLIGHT_MODE(HORIZON_MODE);
             break;
 
-        case LOGIC_CONDITION_OPERAND_FLIGHT_MODE_ATTIMODE:
-            return (bool) FLIGHT_MODE(ATTIHOLD_MODE);
+        case LOGIC_CONDITION_OPERAND_FLIGHT_MODE_ANGLEHOLD:
+            return (bool) FLIGHT_MODE(ANGLEHOLD_MODE);
             break;
 
         case LOGIC_CONDITION_OPERAND_FLIGHT_MODE_AIR:
