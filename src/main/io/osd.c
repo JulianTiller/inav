@@ -2241,7 +2241,7 @@ static bool osdDrawSingleElement(uint8_t item)
                 p = " WP ";
             else if (FLIGHT_MODE(NAV_ALTHOLD_MODE) && navigationRequiresAngleMode()) {
                 // If navigationRequiresAngleMode() returns false when ALTHOLD is active,
-                // it means it can be combined with ANGLE, HORIZON, ACRO, etc...
+                // it means it can be combined with ANGLE, HORIZON, ANGLEHOLD, ACRO, etc...
                 // and its display is handled by OSD_MESSAGES rather than OSD_FLYMODE.
                 p = " AH ";
             }
@@ -5138,10 +5138,9 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                     }
                 } else {
                     if (FLIGHT_MODE(NAV_ALTHOLD_MODE) && !navigationRequiresAngleMode()) {
-                        // ALTHOLD might be enabled alongside ANGLE/HORIZON/ACRO
+                        // ALTHOLD might be enabled alongside ANGLE/HORIZON/ANGLEHOLD/ACRO
                         // when it doesn't require ANGLE mode (required only in FW
-                        // right now). If if requires ANGLE, its display is handled
-                        // by OSD_FLYMODE.
+                        // right now). If it requires ANGLE, its display is handled by OSD_FLYMODE.
                         messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_ALTITUDE_HOLD);
                     }
                     if (IS_RC_MODE_ACTIVE(BOXAUTOTRIM) && !feature(FEATURE_FW_AUTOTRIM)) {
