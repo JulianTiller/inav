@@ -147,7 +147,8 @@
 //#define USE_POWER_LIMITS //n.V. in INAV2.4.0
 
 #define NAV_FIXED_WING_LANDING
-#define USE_SAFE_HOME //n.V. in INAV2.4.0
+#define USE_SAFE_HOME
+#define USE_FW_AUTOLAND
 #define USE_AUTOTUNE_FIXED_WING
 #define USE_LOG
 #define USE_STATS
