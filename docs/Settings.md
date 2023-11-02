@@ -3688,7 +3688,7 @@ Minimum ground speed for navigation flight modes [m/s]. Default 7 m/s.
 
 | Default | Min | Max |
 | --- | --- | --- |
-| 7 | 6 | 45 |
+| 7 | 6 | 50 |
 
 ---
 
