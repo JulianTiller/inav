@@ -3513,7 +3513,7 @@ static bool isMaxAltitudeLimitExceeded(void)
     return navGetCurrentActualPositionAndVelocity()->pos.z >= navConfig()->general.max_altitude;
 }
 
-int32_t getDesiredClimbRate(float targetAltitude, timeDelta_t deltaMicros)
+float getDesiredClimbRate(float targetAltitude, timeDelta_t deltaMicros)
 {
     if (navConfig()->general.max_altitude && isMaxAltitudeLimitExceeded()) {
         targetAltitude = MIN(targetAltitude, navConfig()->general.max_altitude);
@@ -3555,11 +3555,8 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
      *
      * ROC_TO_ALT_CONSTANT - constant climb rate. Climb rate and direction required. Target alt not required. */
 
-    // Terrain following uses different altitude measurement
-    const float altitudeToUse = navGetCurrentActualPositionAndVelocity()->pos.z;
-
     if (mode == ROC_TO_ALT_RESET) {
-        posControl.desiredState.pos.z = altitudeToUse;
+        posControl.desiredState.pos.z = navGetCurrentActualPositionAndVelocity()->pos.z;
     } else if (mode == ROC_TO_ALT_TARGET) {
         posControl.desiredState.pos.z = targetAltitude;
     }
@@ -3571,6 +3568,7 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
      */
     if (navConfig()->general.max_altitude && isMaxAltitudeLimitExceeded() && desiredClimbRate >= 0.0f) {
         posControl.desiredState.pos.z = MIN(posControl.desiredState.pos.z, navConfig()->general.max_altitude);
+        posControl.flags.rocToAltMode = ROC_TO_ALT_TARGET;
     }
 
     posControl.desiredState.vel.z = desiredClimbRate;   // only used for ROC_TO_ALT_CONSTANT
