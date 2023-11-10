@@ -3559,6 +3559,8 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
         posControl.desiredState.pos.z = navGetCurrentActualPositionAndVelocity()->pos.z;
     } else if (mode == ROC_TO_ALT_TARGET) {
         posControl.desiredState.pos.z = targetAltitude;
+    } else {    // ROC_TO_ALT_CONSTANT
+        posControl.desiredState.climbRateDemand = desiredClimbRate;
     }
 
     posControl.flags.rocToAltMode = mode;
@@ -3570,8 +3572,6 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
         posControl.desiredState.pos.z = MIN(posControl.desiredState.pos.z, navConfig()->general.max_altitude);
         posControl.flags.rocToAltMode = ROC_TO_ALT_TARGET;
     }
-
-    posControl.desiredState.vel.z = desiredClimbRate;   // only used for ROC_TO_ALT_CONSTANT
 }
 
 static void resetAltitudeController(bool useTerrainFollowing)
