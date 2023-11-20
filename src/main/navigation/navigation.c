@@ -4606,3 +4606,8 @@ int8_t navCheckActiveAngleHoldAxis(void)
 
     return activeAxis;
 }
+
+uint8_t getActiveWpNumber(void)
+{
+    return NAV_Status.activeWpNumber;
+}
