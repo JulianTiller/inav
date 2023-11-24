@@ -2655,6 +2655,7 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
 
     case MSP_SET_WP:
         if (dataSize == 21) {
+            static uint8_t mmIdx = 0;
             const uint8_t msp_wp_no = sbufReadU8(src);     // get the waypoint number
             navWaypoint_t msp_wp;
             msp_wp.action = sbufReadU8(src);    // action
@@ -2666,6 +2667,17 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
             msp_wp.p3 = sbufReadU16(src);       // P3
             msp_wp.flag = sbufReadU8(src);      // future: to set nav flag
             setWaypoint(msp_wp_no, &msp_wp);
+
+            uint8_t fwAppraochStartIdx = 8;
+#ifdef USE_SAFE_HOME
+            fwAppraochStartIdx = MAX_SAFE_HOMES;
+#endif
+            if (msp_wp_no == 0) {
+                mmIdx = 0;
+            } else if (msp_wp.flag == NAV_WP_FLAG_LAST) {
+                mmIdx++;
+            }
+            resetFwAutolandApproach(fwAppraochStartIdx + mmIdx);
         } else
             return MSP_RESULT_ERROR;
         break;
@@ -3124,6 +3136,7 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
             safeHomeConfigMutable(i)->enabled = sbufReadU8(src);
             safeHomeConfigMutable(i)->lat = sbufReadU32(src);
             safeHomeConfigMutable(i)->lon = sbufReadU32(src);
+            resetFwAutolandApproach(i);
         } else {
             return MSP_RESULT_ERROR;
         }
