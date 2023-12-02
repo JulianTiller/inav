@@ -3165,13 +3165,27 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
             return MSP_RESULT_ERROR;
         }
         break;
-#endif
-    case MSP2_INAV_GPS_UBLOX_COMMAND:
-        if(dataSize < 8 || !isGpsUblox()) {
-            return MSP_RESULT_ERROR;
-        }
 
-        gpsUbloxSendCommand(src->ptr, dataSize, 0);
+#ifdef USE_EZ_TUNE
+
+    case MSP2_INAV_EZ_TUNE_SET:
+        {
+            if (dataSize == 10) {
+                ezTuneMutable()->enabled = sbufReadU8(src);
+                ezTuneMutable()->filterHz = sbufReadU16(src);
+                ezTuneMutable()->axisRatio = sbufReadU8(src);
+                ezTuneMutable()->response = sbufReadU8(src);
+                ezTuneMutable()->damping = sbufReadU8(src);
+                ezTuneMutable()->stability = sbufReadU8(src);
+                ezTuneMutable()->aggressiveness = sbufReadU8(src);
+                ezTuneMutable()->rate = sbufReadU8(src);
+                ezTuneMutable()->expo = sbufReadU8(src);
+
+                ezTuneUpdate();
+            } else {
+                return MSP_RESULT_ERROR;
+            }
+        }
         break;
 
 #ifdef USE_RATE_DYNAMICS
