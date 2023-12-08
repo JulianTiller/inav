@@ -2913,10 +2913,10 @@ bool validateRTHSanityChecker(void)
 #ifdef USE_GPS_FIX_ESTIMATION
     if (STATE(GPS_ESTIMATED_FIX)) {
         //disable sanity checks in GPS estimation mode
-        //when estimated GPS fix is replaced with real fix, coordinates may jump 
+        //when estimated GPS fix is replaced with real fix, coordinates may jump
         posControl.rthSanityChecker.minimalDistanceToHome = 1e10f;
         //schedule check in 5 seconds after getting real GPS fix, when position estimation coords stabilise after jump
-        posControl.rthSanityChecker.lastCheckTime = currentTimeMs + 5000; 
+        posControl.rthSanityChecker.lastCheckTime = currentTimeMs + 5000;
         return true;
     }
 #endif
