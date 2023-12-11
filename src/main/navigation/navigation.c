@@ -1661,8 +1661,8 @@ static navigationFSMEvent_t navOnEnteringState_NAV_STATE_RTH_LOITER_PRIOR_TO_LAN
     // Wait until target heading is reached for MR (with 15 deg margin for error), or continue for Fixed Wing
     if (!pauseLanding && ((ABS(wrap_18000(posControl.rthState.homePosition.heading - posControl.actualState.yaw)) < DEGREES_TO_CENTIDEGREES(15)) || STATE(FIXED_WING_LEGACY))) {
         resetLandingDetector();     // force reset landing detector just in case
-        updateClimbRateToAltitudeController(0, 0, ROC_TO_ALT_RESET);
-        return navigationRTHAllowsLanding() ? NAV_FSM_EVENT_SUCCESS : NAV_FSM_EVENT_SWITCH_TO_RTH_LOITER_ABOVE_HOME; // success = land
+        updateClimbRateToAltitudeController(0, 0, ROC_TO_ALT_CURRENT);
+        return navigationRTHAllowsLanding() ? NAV_FSM_EVENT_SUCCESS : NAV_FSM_EVENT_SWITCH_TO_RTH_HOVER_ABOVE_HOME; // success = land
     } else {
         fpVector3_t * tmpHomePos = rthGetHomeTargetPosition(RTH_HOME_ENROUTE_FINAL);
         setDesiredPosition(tmpHomePos, posControl.rthState.homePosition.heading, NAV_POS_UPDATE_XY | NAV_POS_UPDATE_Z | NAV_POS_UPDATE_HEADING);
@@ -3552,12 +3552,12 @@ void updateClimbRateToAltitudeController(float desiredClimbRate, float targetAlt
     /* ROC_TO_ALT_TARGET - constant climb rate until close to target altitude then reducing down as altitude is reached.
      * Any non zero climb rate sets the max allowed climb rate. Default max climb rate limits are used when set to 0.
      *
-     * ROC_TO_ALT_RESET - similar to ROC_TO_ALT_TARGET except target altitude set to current altitude.
+     * ROC_TO_ALT_CURRENT - similar to ROC_TO_ALT_TARGET except target altitude set to current altitude.
      * No climb rate or altitude target required.
      *
      * ROC_TO_ALT_CONSTANT - constant climb rate. Climb rate and direction required. Target alt not required. */
 
-    if (mode == ROC_TO_ALT_RESET) {
+    if (mode == ROC_TO_ALT_CURRENT) {
         posControl.desiredState.pos.z = navGetCurrentActualPositionAndVelocity()->pos.z;
     } else if (mode == ROC_TO_ALT_TARGET) {
         posControl.desiredState.pos.z = targetAltitude;
