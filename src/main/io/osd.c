@@ -4760,9 +4760,9 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
     displayClearScreen(osdDisplayPort);
 
     if (isSinglePageStatsCompatible) {
-        displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen( statsHeader[0])) / 2, row++, statsHeader[0]);
+        displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen(statsHeader[0])) / 2, row++, statsHeader[0]);
     } else {
-        displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen( statsHeader[page + 1])) / 2, row++, statsHeader[page + 1]);
+        displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen(statsHeader[page + 1])) / 2, row++, statsHeader[page + 1]);
     } 
 
     if (isSinglePageStatsCompatible) {
@@ -4814,12 +4814,12 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
     uint16_t rearmMs = (emergInflightRearmEnabled()) ? emergencyInFlightRearmTimeMS() : 0;
 
     if (savingSettings == true) {
-        displayWrite(osdDisplayPort, statNameX, row++, OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS));
+        displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen(OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS))) / 2, row++, OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS));
     } else if (notify_settings_saved > 0) {
         if (millis() > notify_settings_saved) {
             notify_settings_saved = 0;
         } else {
-            displayWrite(osdDisplayPort, statNameX, row++, OSD_MESSAGE_STR(OSD_MSG_SETTINGS_SAVED));
+            displayWrite(osdDisplayPort, (osdDisplayPort->cols - strlen(OSD_MESSAGE_STR(OSD_MSG_SETTINGS_SAVED))) / 2, row++, OSD_MESSAGE_STR(OSD_MSG_SETTINGS_SAVED));
         }
     }
 
