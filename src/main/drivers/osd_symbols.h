@@ -176,9 +176,26 @@
 #define SYM_GROUND_COURSE			0xDC  // 220 Ground course
 #define SYM_CROSS_TRACK_ERROR		0xFC  // 252 Cross track error
 
-#define SYM_LOGO_START				0x101 // 257 to 297, INAV logo
-#define SYM_LOGO_WIDTH				10
-#define SYM_LOGO_HEIGHT				4
+#define SYM_MAX                     0xCE  // 206 MAX symbol
+#define SYM_PROFILE                 0xCF  // 207 Profile symbol
+#define SYM_SWITCH_INDICATOR_LOW    0xD0  // 208 Switch High
+#define SYM_SWITCH_INDICATOR_MID    0xD1  // 209 Switch Mid
+#define SYM_SWITCH_INDICATOR_HIGH   0xD2  // 210 Switch Low
+#define SYM_AH                      0xD3  // 211 Amphours symbol
+#define SYM_GLIDE_DIST              0xD4  // 212 Glide Distance
+#define SYM_GLIDE_MINS              0xD5  // 213 Glide Minutes
+#define SYM_AH_V_FT_0               0xD6  // 214 mAh/v-ft left
+#define SYM_AH_V_FT_1               0xD7  // 215 mAh/v-ft right
+#define SYM_AH_V_M_0                0xD8  // 216 mAh/v-m left
+#define SYM_AH_V_M_1                0xD9  // 217 mAh/v-m right
+#define SYM_FLIGHT_MINS_REMAINING   0xDA  // 218 Flight time (mins) remaining
+#define SYM_FLIGHT_HOURS_REMAINING  0xDB  // 219 Flight time (hours) remaining
+#define SYM_GROUND_COURSE           0xDC  // 220 Ground course
+#define SYM_ALERT                   0xDD  // 221 General alert symbol
+#define SYM_TERRAIN_FOLLOWING       0xFB  // 251 Terrain following (also Alt adjust)
+#define SYM_CROSS_TRACK_ERROR       0xFC  // 252 Cross track error
+#define SYM_ADSB                    0xFD  // 253 ADBS
+#define SYM_BLACKBOX                0xFE  // 254 Blackbox
 
 
 #define SYM_ADSB                    0xFD // 253 ADSB

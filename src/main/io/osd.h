@@ -278,8 +278,7 @@ typedef enum {
     OSD_PILOT_NAME,
     OSD_PAN_SERVO_CENTRED,
     OSD_PILOT_LOGO,
-    OSD_ADSB_WARNING,
-    OSD_ADSB_INFO,
+    OSD_BLACKBOX,
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 
