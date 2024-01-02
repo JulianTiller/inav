@@ -18,53 +18,33 @@
 
 #pragma once
 
-#define TARGET_BOARD_IDENTIFIER "IB7P"
+#define TARGET_BOARD_IDENTIFIER "IH7P"
 
 #define USBD_PRODUCT_STRING     "IFLIGHT_BLITZ_H7_PRO"
-
-#define USE_TARGET_CONFIG
 
 #define LED0                    PE3
 #define LED1                    PE4
 
-#define BEEPER                  PA15
+#define BEEPER                  PC9
 #define BEEPER_INVERTED
 
-// SPI1
+// SPI Buses
 #define USE_SPI
+
 #define USE_SPI_DEVICE_1
 #define SPI1_SCK_PIN            PA5
 #define SPI1_MISO_PIN           PA6
 #define SPI1_MOSI_PIN           PD7
 
-// SPI2
 #define USE_SPI_DEVICE_2
 #define SPI2_SCK_PIN            PB13
 #define SPI2_MISO_PIN           PB14
 #define SPI2_MOSI_PIN           PB15
 
-// SPI3 - not connected
 #define USE_SPI_DEVICE_3
-#define SPI3_SCK_PIN            PB3
-#define SPI3_MISO_PIN           PB4
-#define SPI3_MOSI_PIN           PB5
-
-// SPI4 - GYRO2 not used in INAV
-#define USE_SPI_DEVICE_4
-#define SPI4_SCK_PIN            PE12
-#define SPI4_MISO_PIN           PE13
-#define SPI4_MOSI_PIN           PE14
-
-// ICM42605
-#define USE_IMU_ICM42605
-#define IMU_ICM42605_ALIGN      CW0_DEG
-#define ICM42605_SPI_BUS        BUS_SPI1
-#define ICM42605_CS_PIN         PC15
-
-// OSD
-#define USE_MAX7456
-#define MAX7456_SPI_BUS         BUS_SPI2
-#define MAX7456_CS_PIN          PB12
+#define SPI3_SCK_PIN            PC10
+#define SPI3_MISO_PIN           PC11
+#define SPI3_MOSI_PIN           PC12
 
 // I2C
 #define USE_I2C
@@ -76,6 +56,17 @@
 #define I2C2_SCL                PB10
 #define I2C2_SDA                PB11
 
+// Gyro
+#define USE_IMU_ICM42605
+#define IMU_ICM42605_ALIGN      CW90_DEG
+#define ICM42605_SPI_BUS        BUS_SPI1
+#define ICM42605_CS_PIN         PC15
+
+// OSD
+// #define USE_MAX7456
+// #define MAX7456_SPI_BUS         BUS_SPI2
+// #define MAX7456_CS_PIN          PB12
+
 #define USE_BARO
 #define BARO_I2C_BUS            BUS_I2C2
 #define USE_BARO_ALL
@@ -84,10 +75,8 @@
 #define MAG_I2C_BUS             BUS_I2C1
 #define USE_MAG_ALL
 
-#define TEMPERATURE_I2C_BUS     BUS_I2C2
-#define PITOT_I2C_BUS           BUS_I2C2
-
-#define USE_RANGEFINDER
+#define TEMPERATURE_I2C_BUS     BUS_I2C1
+#define PITOT_I2C_BUS           BUS_I2C1
 #define RANGEFINDER_I2C_BUS     BUS_I2C1
 
 // *************** UART *****************************
@@ -127,41 +116,40 @@
 #define SERIALRX_PROVIDER       SERIALRX_CRSF
 #define SERIALRX_UART           SERIAL_PORT_USART6
 
-// *************** SDIO SD BLACKBOX*******************
+// SD Card
 #define USE_SDCARD
-#define USE_SDCARD_SDIO
-#define SDCARD_SDIO_DEVICE      SDIODEV_1
-#define SDCARD_SDIO_4BIT
+#define USE_SDCARD_SPI
+#define SDCARD_SPI_BUS          BUS_SPI3
+#define SDCARD_CS_PIN           PA15
 
 #define ENABLE_BLACKBOX_LOGGING_ON_SDCARD_BY_DEFAULT
 
-// *************** ADC *****************************
+// ADC
 #define USE_ADC
 #define ADC_INSTANCE                ADC1
 
-#define ADC_CHANNEL_1_PIN           PC0  //ADC123 VBAT1
-#define ADC_CHANNEL_2_PIN           PC1  //ADC123 CURR1
-#define ADC_CHANNEL_3_PIN           PC5  //ADC12  RSSI
-#define ADC_CHANNEL_4_PIN           PC4  //ADC12  AirS
+#define ADC_CHANNEL_1_PIN           PC0
+#define ADC_CHANNEL_2_PIN           PC1
+#define ADC_CHANNEL_3_PIN           PC5
+#define ADC_CHANNEL_4_PIN           PC4
 
 #define VBAT_ADC_CHANNEL            ADC_CHN_1
 #define CURRENT_METER_ADC_CHANNEL   ADC_CHN_2
 #define RSSI_ADC_CHANNEL            ADC_CHN_3
 #define AIRSPEED_ADC_CHANNEL        ADC_CHN_4
 
-// *************** PINIO ***************************
+// PINIO
 #define USE_PINIO
 #define USE_PINIOBOX
-#define PINIO1_PIN                  PD10  // VTX power switcher
-#define PINIO2_PIN                  PD11  // 2xCamera switcher
+#define PINIO1_PIN                  PD10
+#define PINIO2_PIN                  PD11
 
 // *************** LEDSTRIP ************************
-#define USE_LED_STRIP
-#define WS2811_PIN                  PA8
+// #define USE_LED_STRIP
+// #define WS2811_PIN                  PA8
 
 #define DEFAULT_FEATURES            (FEATURE_OSD | FEATURE_TELEMETRY | FEATURE_CURRENT_METER | FEATURE_VBAT | FEATURE_TX_PROF_SEL | FEATURE_BLACKBOX)
-#define CURRENT_METER_SCALE         212
-#define VBAT_SCALE_DEFAULT          1135
+#define CURRENT_METER_SCALE         250
 
 #define USE_SERIAL_4WAY_BLHELI_INTERFACE
 
@@ -174,3 +162,4 @@
 #define MAX_PWM_OUTPUT_PORTS        12
 #define USE_DSHOT
 #define USE_ESC_SENSOR
+
