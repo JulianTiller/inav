@@ -2018,7 +2018,7 @@ static bool osdDrawSingleElement(uint8_t item)
                 } else {
                     int32_t logNumber = blackboxGetLogNumber();
                     if (logNumber >= 0) {
-                        tfp_sprintf(buff, "%c%05ld", SYM_BLACKBOX, logNumber);
+                        tfp_sprintf(buff, "%c%05" PRId32, SYM_BLACKBOX, logNumber);
                     } else {
                         tfp_sprintf(buff, "%c", SYM_BLACKBOX);
                     }
@@ -4872,7 +4872,7 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
         if (feature(FEATURE_BLACKBOX)) {
             int32_t logNumber = blackboxGetLogNumber();
             if (logNumber >= 0)
-                tfp_sprintf(buff, "%s %c%05ld ", buff, SYM_BLACKBOX, logNumber);
+                tfp_sprintf(buff, "%s %c%05 " PRId32, buff, SYM_BLACKBOX, logNumber);
             else
                 tfp_sprintf(buff, "%s %c ", buff, SYM_BLACKBOX);
         }
