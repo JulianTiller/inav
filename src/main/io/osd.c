@@ -4865,7 +4865,7 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
     displayClearScreen(osdDisplayPort);
 
     if (isSinglePageStatsCompatible) {
-        char buff[20];
+        char buff[25];
         tfp_sprintf(buff, "*** STATS ");
 #ifdef USE_BLACKBOX
 #ifdef USE_SDCARD
@@ -4939,7 +4939,7 @@ static void osdShowStats(bool isSinglePageStatsCompatible, uint8_t page)
             if (logNumber >= 0)
                 tfp_sprintf(buff, ": %05ld ", logNumber);
             else
-                tfp_sprintf(buff, ": %s", "INVALID");
+                strcat(buff, ": INVALID");
 
             displayWrite(osdDisplayPort, statValuesX, row++, buff);
         }
