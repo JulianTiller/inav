@@ -867,6 +867,8 @@ static pwmOutputPort_t *pwmOutConfig(const timerHardware_t *timHw, resourceOwner
     const IO_t io = IOGetByTag(timHw->tag);
     IOInit(io, owner, RESOURCE_OUTPUT, allocatedOutputPortCount);
 
+    pwmOutConfigTimer(p, tch, hz, period, value);
+
     if (enableOutput) {
         IOConfigGPIOAF(io, IOCFG_AF_PP, timHw->alternateFunction);
     }
@@ -876,7 +878,6 @@ static pwmOutputPort_t *pwmOutConfig(const timerHardware_t *timHw, resourceOwner
         IOLo(io);
     }
 
-    pwmOutConfigTimer(p, tch, hz, period, value);
     return p;
 }
 
