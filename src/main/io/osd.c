@@ -1157,7 +1157,14 @@ static void osdFormatThrottlePosition(char *buff, bool useScaled, textAttributes
         TEXT_ATTRIBUTES_ADD_BLINK(*elemAttr);
     }
 #endif
-    tfp_sprintf(buff + 2, "%3d", getThrottlePercent(useScaled));
+    int8_t throttlePercent = getThrottlePercent(useScaled);
+    if ((useScaled && throttlePercent <= 0) || !ARMING_FLAG(ARMED)) {
+        const char* message = ARMING_FLAG(ARMED) ? (throttlePercent == 0 && !ifMotorstopFeatureEnabled()) ? "IDLE" : "STOP" : "DARM";
+        buff[0] = SYM_THR;
+        strcpy(buff + 1, message);
+        return;
+    }
+    tfp_sprintf(buff + 2, "%3d", throttlePercent);
 }
 
 /**
