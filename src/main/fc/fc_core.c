@@ -972,7 +972,7 @@ void taskMainPidLoop(timeUs_t currentTimeUs)
     }
 #endif
     // Check if landed, FW and MR
-    if (STATE(ALTITUDE_CONTROL) || isFwLandInProgess()) {
+    if (STATE(ALTITUDE_CONTROL)) {
         updateLandingStatus(US2MS(currentTimeUs));
     }
 
