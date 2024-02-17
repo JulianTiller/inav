@@ -62,8 +62,8 @@
 
 #define METERS_TO_CENTIMETERS(m)        (m * 100)
 #define METERS_TO_KILOMETERS(m)         (m / 1000.0f)
-#define METERS_TO_MILES(m)              (m / 1609.344f)
-#define METERS_TO_NAUTICALMILES(m)      (m / 1852.00f)
+
+#define MWH_TO_WH(mWh)                  (mWh / 1000.0f)
 
 #define CMSEC_TO_CENTIMPH(cms)          (cms * 2.2369363f)
 #define CMSEC_TO_CENTIKPH(cms)          (cms * 3.6f)
