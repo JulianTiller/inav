@@ -483,10 +483,11 @@ static int logicConditionCompute(
             }
             break;
 
-#ifdef USE_GPS_FIX_ESTIMATION
-        case LOGIC_CONDITION_DISABLE_GPS_FIX:
-            if (operandA > 0) {
-                LOGIC_CONDITION_GLOBAL_FLAG_ENABLE(LOGIC_CONDITION_GLOBAL_FLAG_DISABLE_GPS_FIX);
+#ifdef USE_LED_STRIP
+        case LOGIC_CONDITION_LED_PIN_PWM:
+
+            if (operandA >=0 && operandA <= 100) {
+                ledPinStartPWM((uint8_t)operandA);
             } else {
                 LOGIC_CONDITION_GLOBAL_FLAG_DISABLE(LOGIC_CONDITION_GLOBAL_FLAG_DISABLE_GPS_FIX);
             }
