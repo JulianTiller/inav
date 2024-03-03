@@ -299,6 +299,17 @@ bool validateRTHSanityChecker(void);
 void updateHomePosition(void);
 bool abortLaunchAllowed(void);
 
+// static bool rthAltControlStickOverrideCheck(unsigned axis);
+// static void updateRthTrackback(bool forceSaveTrackPoint);
+// static fpVector3_t * rthGetTrackbackPos(void);
+
+#ifdef USE_FW_AUTOLAND
+static float getLandAltitude(void);
+static int32_t calcWindDiff(int32_t heading, int32_t windHeading);
+static int32_t calcFinalApproachHeading(int32_t approachHeading, int32_t windAngle);
+static void setLandWaypoint(const fpVector3_t *pos, const fpVector3_t *nextWpPos);
+#endif
+
 /*************************************************************************************************/
 static navigationFSMEvent_t navOnEnteringState_NAV_STATE_IDLE(navigationFSMState_t previousState);
 static navigationFSMEvent_t navOnEnteringState_NAV_STATE_ALTHOLD_INITIALIZE(navigationFSMState_t previousState);
