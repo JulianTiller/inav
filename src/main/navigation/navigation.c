@@ -204,11 +204,12 @@ PG_RESET_TEMPLATE(navConfig_t, navConfig,
 
     // Fixed wing
     .fw = {
-        .max_bank_angle = SETTING_NAV_FW_BANK_ANGLE_DEFAULT,                                // degrees
-        .max_manual_climb_rate = SETTING_NAV_FW_MANUAL_CLIMB_RATE_DEFAULT,                  // 3 m/s
-        .max_climb_angle = SETTING_NAV_FW_CLIMB_ANGLE_DEFAULT,                              // degrees
-        .max_dive_angle = SETTING_NAV_FW_DIVE_ANGLE_DEFAULT,                                // degrees
-        .cruise_speed = SETTING_NAV_FW_CRUISE_SPEED_DEFAULT,                                // cm/s
+        .max_bank_angle = SETTING_NAV_FW_BANK_ANGLE_DEFAULT,                    // degrees
+        .max_auto_climb_rate = SETTING_NAV_FW_AUTO_CLIMB_RATE_DEFAULT,          // 5 m/s
+        .max_manual_climb_rate = SETTING_NAV_FW_MANUAL_CLIMB_RATE_DEFAULT,      // 3 m/s
+        .max_climb_angle = SETTING_NAV_FW_CLIMB_ANGLE_DEFAULT,                  // degrees
+        .max_dive_angle = SETTING_NAV_FW_DIVE_ANGLE_DEFAULT,                    // degrees
+        .cruise_speed = SETTING_NAV_FW_CRUISE_SPEED_DEFAULT,                    // cm/s
         .control_smoothness = SETTING_NAV_FW_CONTROL_SMOOTHNESS_DEFAULT,
         .pitch_to_throttle_smooth = SETTING_NAV_FW_PITCH2THR_SMOOTHING_DEFAULT,
         .pitch_to_throttle_thresh = SETTING_NAV_FW_PITCH2THR_THRESHOLD_DEFAULT,
@@ -1925,7 +1926,7 @@ static navigationFSMEvent_t navOnEnteringState_NAV_STATE_WAYPOINT_IN_PROGRESS(na
                                     (posControl.wpDistance - 0.1f * posControl.wpInitialDistance);
                     }
 
-                    if (fabsf(climbRate) >= navConfig()->general.max_auto_climb_rate) {
+                    if (fabsf(climbRate) >= (STATE(AIRPLANE) ? navConfig()->fw.max_auto_climb_rate : navConfig()->mc.max_auto_climb_rate)) {
                         climbRate = 0;
                     }
                     updateClimbRateToAltitudeController(climbRate, posControl.activeWaypoint.pos.z, ROC_TO_ALT_TARGET);
@@ -2252,7 +2253,7 @@ static navigationFSMEvent_t navOnEnteringState_NAV_STATE_FW_LANDING_CLIMB_TO_LOI
     }
 
     if (ABS(getEstimatedActualPosition(Z) - posControl.fwLandState.landAproachAltAgl) < (navConfig()->general.waypoint_enforce_altitude > 0 ? navConfig()->general.waypoint_enforce_altitude : FW_LAND_LOITER_ALT_TOLERANCE)) {
-        updateClimbRateToAltitudeController(0, 0, ROC_TO_ALT_RESET);
+        updateClimbRateToAltitudeController(0, 0, ROC_TO_ALT_CURRENT);
         posControl.fwLandState.landState = FW_AUTOLAND_STATE_LOITER;
         return NAV_FSM_EVENT_SUCCESS;
     }
@@ -3522,13 +3523,13 @@ float getDesiredClimbRate(float targetAltitude, timeDelta_t deltaMicros)
 {
     const bool emergLandingIsActive = navigationIsExecutingAnEmergencyLanding();
 
-    float maxClimbRate = navConfig()->general.max_auto_climb_rate;
+    float maxClimbRate = STATE(MULTIROTOR) ? navConfig()->mc.max_auto_climb_rate : navConfig()->fw.max_auto_climb_rate;
     if (posControl.desiredState.climbRateDemand) {
         maxClimbRate = ABS(posControl.desiredState.climbRateDemand);
     } else if (emergLandingIsActive) {
         maxClimbRate = navConfig()->general.emerg_descent_rate;
     } else if (posControl.flags.isAdjustingAltitude) {
-        maxClimbRate = navConfig()->general.max_manual_climb_rate;
+        maxClimbRate = STATE(MULTIROTOR) ? navConfig()->mc.max_manual_climb_rate : navConfig()->fw.max_manual_climb_rate;
     }
 
     const float targetAltitudeError = targetAltitude - navGetCurrentActualPositionAndVelocity()->pos.z;
