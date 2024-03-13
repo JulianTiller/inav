@@ -699,7 +699,6 @@ bool rthAltControlStickOverrideCheck(uint8_t axis);
 int32_t navigationGetHomeHeading(void);
 
 #ifdef USE_FW_AUTOLAND
-bool isFwLandInProgess(void);
 bool canFwLandCanceld(void);
 #endif
 
