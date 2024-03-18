@@ -56,31 +56,7 @@
 navigationPosEstimator_t posEstimator;
 static float initialBaroAltitudeOffset = 0.0f;
 
-//#define SETTING_INAV_AUTO_MAG_DECL_DEFAULT 1
-//#define SETTING_INAV_RESET_ALTITUDE_DEFAULT NAV_RESET_ON_FIRST_ARM
-//#define SETTING_INAV_RESET_HOME_DEFAULT NAV_RESET_ON_FIRST_ARM
-//#define SETTING_INAV_GRAVITY_CAL_TOLERANCE_DEFAULT 5
-//#define SETTING_INAV_USE_GPS_VELNED_DEFAULT 1
-//#define SETTING_INAV_USE_GPS_NO_BARO_DEFAULT 1
-//#define SETTING_INAV_ALLOW_DEAD_RECKONING_DEFAULT 0
-//#define SETTING_INAV_MAX_SURFACE_ALTITUDE_DEFAULT 200
-//#define SETTING_INAV_W_XYZ_ACC_P_DEFAULT 1.0f
-//#define SETTING_INAV_W_Z_BARO_P_DEFAULT 0.35f
-//#define SETTING_INAV_W_Z_SURFACE_P_DEFAULT 3.500f
-//#define SETTING_INAV_W_Z_SURFACE_V_DEFAULT 6.100f
-//#define SETTING_INAV_W_Z_GPS_P_DEFAULT 0.2f
-//#define SETTING_INAV_W_Z_GPS_V_DEFAULT 0.1f
-//#define SETTING_INAV_W_XY_GPS_P_DEFAULT 1.0f
-//#define SETTING_INAV_W_XY_GPS_V_DEFAULT 2.0f
-//#define SETTING_INAV_W_XY_FLOW_P_DEFAULT 1.0f
-//#define SETTING_INAV_W_XY_FLOW_V_DEFAULT 2.0f
-//#define SETTING_INAV_W_Z_RES_V_DEFAULT 0.5f
-//#define SETTING_INAV_W_XY_RES_V_DEFAULT 0.5f
-//#define SETTING_INAV_W_ACC_BIAS_DEFAULT 0.01f
-//#define SETTING_INAV_MAX_EPH_EPV_DEFAULT 1000.0f
-//#define SETTING_INAV_BARO_EPV_DEFAULT 100.0f
-
-PG_REGISTER_WITH_RESET_TEMPLATE(positionEstimationConfig_t, positionEstimationConfig, PG_POSITION_ESTIMATION_CONFIG, 5);
+PG_REGISTER_WITH_RESET_TEMPLATE(positionEstimationConfig_t, positionEstimationConfig, PG_POSITION_ESTIMATION_CONFIG, 6);
 
 PG_RESET_TEMPLATE(positionEstimationConfig_t, positionEstimationConfig,
         // Inertial position estimator parameters
@@ -88,7 +64,6 @@ PG_RESET_TEMPLATE(positionEstimationConfig_t, positionEstimationConfig,
         .reset_altitude_type = SETTING_INAV_RESET_ALTITUDE_DEFAULT,
         .reset_home_type = SETTING_INAV_RESET_HOME_DEFAULT,
         .gravity_calibration_tolerance = SETTING_INAV_GRAVITY_CAL_TOLERANCE_DEFAULT,  // 5 cm/s/s calibration error accepted (0.5% of gravity)
-        .use_gps_velned = SETTING_INAV_USE_GPS_VELNED_DEFAULT,                        // "Disabled" is mandatory with gps_dyn_model = Pedestrian
         .use_gps_no_baro = SETTING_INAV_USE_GPS_NO_BARO_DEFAULT,                      // Use GPS altitude if no baro is available on all aircrafts
         .allow_dead_reckoning = SETTING_INAV_ALLOW_DEAD_RECKONING_DEFAULT,
 
@@ -253,7 +228,7 @@ void onNewGPSData(void)
 
                 /* Use VELNED provided by GPS if available, calculate from coordinates otherwise */
                 float gpsScaleLonDown = constrainf(cos_approx((ABS(gpsSol.llh.lat) / 10000000.0f) * 0.0174532925f), 0.01f, 1.0f);
-                if (!ARMING_FLAG(SIMULATOR_MODE_SITL) && positionEstimationConfig()->use_gps_velned && gpsSol.flags.validVelNE) {
+                if (!ARMING_FLAG(SIMULATOR_MODE_SITL) && gpsSol.flags.validVelNE) {
                     posEstimator.gps.vel.x = gpsSol.velNED[X];
                     posEstimator.gps.vel.y = gpsSol.velNED[Y];
                 }
@@ -262,7 +237,7 @@ void onNewGPSData(void)
                     posEstimator.gps.vel.y = (posEstimator.gps.vel.y + (gpsScaleLonDown * DISTANCE_BETWEEN_TWO_LONGITUDE_POINTS_AT_EQUATOR * (gpsSol.llh.lon - previousLon) / dT)) / 2.0f;
                 }
 
-                if (positionEstimationConfig()->use_gps_velned && gpsSol.flags.validVelD) {
+                if (gpsSol.flags.validVelD) {
                     posEstimator.gps.vel.z = -gpsSol.velNED[Z];   // NEU
                 }
                 else {
