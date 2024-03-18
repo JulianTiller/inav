@@ -228,7 +228,7 @@ void init(void)
     suspendRxSignal();
     readEEPROM();
     resumeRxSignal();
-#ifndef AURIX
+#ifndef AURIX//TODO?
 #ifdef USE_UNDERCLOCK
     // Re-initialize system clock to their final values (if necessary)
     systemClockSetup(systemConfig()->cpuUnderclock);
