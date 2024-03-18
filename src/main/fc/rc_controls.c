@@ -75,17 +75,16 @@ stickPositions_e rcStickPositions;
 
 FASTRAM int16_t rcCommand[4];           // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW
 
-PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 3);
+PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 4);
 
 PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig,
-    .deadband = 5,
-    .yaw_deadband = 5,
-    .pos_hold_deadband = 20,
-    .control_deadband = 20,
-    .alt_hold_deadband = 50,
-    .mid_throttle_deadband = 50,
-    .airmodeHandlingType = STICK_CENTER,
-    .airmodeThrottleThreshold = AIRMODE_THROTTLE_THRESHOLD,
+    .deadband = SETTING_DEADBAND_DEFAULT,
+    .yaw_deadband = SETTING_YAW_DEADBAND_DEFAULT,
+    .pos_hold_deadband = SETTING_POS_HOLD_DEADBAND_DEFAULT,
+    .alt_hold_deadband = SETTING_ALT_HOLD_DEADBAND_DEFAULT,
+    .mid_throttle_deadband = SETTING_3D_DEADBAND_THROTTLE_DEFAULT,
+    .airmodeHandlingType = SETTING_AIRMODE_TYPE_DEFAULT,
+    .airmodeThrottleThreshold = SETTING_AIRMODE_THROTTLE_THRESHOLD_DEFAULT,
 );
 
 PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG, 2);
@@ -104,7 +103,7 @@ bool areSticksInApModePosition(uint16_t ap_mode)
 
 bool areSticksDeflected(void)
 {
-    return (ABS(rcCommand[ROLL]) > rcControlsConfig()->control_deadband) || (ABS(rcCommand[PITCH]) > rcControlsConfig()->control_deadband) || (ABS(rcCommand[YAW]) > rcControlsConfig()->control_deadband);
+    return (ABS(rcCommand[ROLL]) > CONTROL_DEADBAND) || (ABS(rcCommand[PITCH]) > CONTROL_DEADBAND) || (ABS(rcCommand[YAW]) > CONTROL_DEADBAND);
 }
 
 bool isRollPitchStickDeflected(uint8_t deadband)
