@@ -140,6 +140,8 @@
 
 #define VBAT_ADC_CHANNEL            ADC_CHN_1
 #define CURRENT_METER_ADC_CHANNEL   ADC_CHN_2
+#define RSSI_ADC_CHANNEL            ADC_CHN_3
+#define AIRSPEED_ADC_CHANNEL        ADC_CHN_4
 
 // *************** LEDSTRIP ************************
 #define USE_LED_STRIP
@@ -162,6 +164,4 @@
 
 #define USE_PINIO
 #define USE_PINIOBOX
-#define PINIO1_PIN              PC0
-#define PINIO1_FLAGS            PINIO_FLAGS_INVERTED
-#define PINIO2_PIN              PC14
+#define PINIO1_PIN                  PC13
