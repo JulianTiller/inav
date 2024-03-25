@@ -87,13 +87,12 @@ PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig,
     .airmodeThrottleThreshold = SETTING_AIRMODE_THROTTLE_THRESHOLD_DEFAULT,
 );
 
-PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG, 2);
+PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG, 3);
 
 PG_RESET_TEMPLATE(armingConfig_t, armingConfig,
-    .fixed_wing_auto_arm = 0,
-    .disarm_kill_switch = 1,
-    .switchDisarmDelayMs = DEFAULT_RC_SWITCH_DISARM_DELAY_MS,
-    .prearmTimeoutMs = 10000,
+    .fixed_wing_auto_arm = SETTING_FIXED_WING_AUTO_ARM_DEFAULT,
+    .switchDisarmDelayMs = SETTING_SWITCH_DISARM_DELAY_DEFAULT,
+    .prearmTimeoutMs = SETTING_PREARM_TIMEOUT_DEFAULT,
 );
 
 bool areSticksInApModePosition(uint16_t ap_mode)
@@ -231,19 +230,12 @@ void processRcStickPositions(bool isThrottleLow)
             if (ARMING_FLAG(ARMED) && !IS_RC_MODE_ACTIVE(BOXFAILSAFE) && rxIsReceivingSignal() && !failsafeIsActive()) {
                 const timeMs_t disarmDelay = currentTimeMs - rcDisarmTimeMs;
                 if (disarmDelay > armingConfig()->switchDisarmDelayMs) {
-                    if (armingConfig()->disarm_kill_switch || isThrottleLow) {
-                        disarm(DISARM_SWITCH);
-                    }
+                    disarm(DISARM_SWITCH);
                 }
             }
             else {
                 rcDisarmTimeMs = currentTimeMs;
             }
-        }
-
-        // KILLSWITCH disarms instantly
-        if (IS_RC_MODE_ACTIVE(BOXKILLSWITCH)) {
-            disarm(DISARM_KILLSWITCH);
         }
     }
 
