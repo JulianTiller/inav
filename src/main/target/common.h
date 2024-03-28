@@ -112,11 +112,10 @@
 //#define DASHBOARD_ARMED_BITMAP
 //#define USE_OLED_UG2864
 
-//#define USE_OSD //n.V. in INAV2.4.0
+//#define USE_OSD
 //#define USE_FRSKYOSD
 //#define USE_DJI_HD_OSD
 //#define USE_MSP_OSD
-//#define USE_SMARTPORT_MASTER //n.V. in INAV2.4.0
 
 #define NAV_NON_VOLATILE_WAYPOINT_CLI
 
@@ -206,6 +205,7 @@
 #define USE_HOTT_TEXTMODE
 #define USE_24CHANNELS
 #define MAX_MIXER_PROFILE_COUNT 2
+#define USE_SMARTPORT_MASTER //Aurix disable?
 #elif !defined(STM32F7)
 #define MAX_MIXER_PROFILE_COUNT 1
 #endif
