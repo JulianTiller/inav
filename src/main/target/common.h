@@ -217,3 +217,9 @@
 #endif
 
 #define USE_EZ_TUNE
+
+#ifdef STM32H7
+
+#define USE_ADAPTIVE_FILTER
+
+#endif
