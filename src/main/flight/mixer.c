@@ -57,6 +57,9 @@
 
 #include "sensors/battery.h"
 
+#define MAX_THROTTLE 2000
+#define MAX_THROTTLE_ROVER 1850
+
 FASTRAM int16_t motor[MAX_SUPPORTED_MOTORS];
 FASTRAM int16_t motor_disarmed[MAX_SUPPORTED_MOTORS];
 static float motorMixRange;
@@ -83,7 +86,7 @@ PG_RESET_TEMPLATE(reversibleMotorsConfig_t, reversibleMotorsConfig,
     .neutral = 1460
 );
 
-PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 10);
+PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 11);
 
 #ifdef BRUSHED_MOTORS
 #define DEFAULT_PWM_PROTOCOL    PWM_TYPE_BRUSHED
@@ -95,11 +98,10 @@ PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 10)
 
 #define DEFAULT_MAX_THROTTLE    1850
 PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
-    .motorPwmProtocol = DEFAULT_PWM_PROTOCOL,
-    .motorPwmRate = DEFAULT_PWM_RATE,
-    .maxthrottle = DEFAULT_MAX_THROTTLE,
-    .mincommand = 1000,
-    .motorPoleCount = 14,            // Most brushless motors that we use are 14 poles
+    .motorPwmProtocol = SETTING_MOTOR_PWM_PROTOCOL_DEFAULT,
+    .motorPwmRate = SETTING_MOTOR_PWM_RATE_DEFAULT,
+    .mincommand = SETTING_MIN_COMMAND_DEFAULT,
+    .motorPoleCount = SETTING_MOTOR_POLES_DEFAULT,            // Most brushless motors that we use are 14 poles
 );
 
 #define CRASH_OVER_AFTER_CRASH_FLIP_STICK_MIN 0.15f
@@ -114,7 +116,7 @@ void pgResetFn_timerOverrides(timerOverride_t *instance)
 int getThrottleIdleValue(void)
 {
     if (!throttleIdleValue) {
-        throttleIdleValue = motorConfig()->mincommand + (((motorConfig()->maxthrottle - motorConfig()->mincommand) / 100.0f) * currentBatteryProfile->motor.throttleIdle);
+        throttleIdleValue = motorConfig()->mincommand + (((getMaxThrottle() - motorConfig()->mincommand) / 100.0f) * currentBatteryProfile->motor.throttleIdle);
     }
 
     return throttleIdleValue;
@@ -243,11 +245,11 @@ void mixerResetDisarmedMotors(void)
     if (feature(FEATURE_REVERSIBLE_MOTORS)) {
         motorZeroCommand = reversibleMotorsConfig()->neutral;
         throttleRangeMin = throttleDeadbandHigh;
-        throttleRangeMax = motorConfig()->maxthrottle;
+        throttleRangeMax = getMaxThrottle();
     } else {
         motorZeroCommand = motorConfig()->mincommand;
         throttleRangeMin = throttleIdleValue;
-        throttleRangeMax = motorConfig()->maxthrottle;
+        throttleRangeMax = getMaxThrottle();
     }
 
     reversibleMotorsThrottleState = MOTOR_DIRECTION_FORWARD;
@@ -358,7 +360,7 @@ static void applyTurtleModeToMotors(void) {
 
             motorOutputNormalised = MIN(1.0f, flipPower * motorOutputNormalised);
 
-            motor[i] = (int16_t)scaleRangef(motorOutputNormalised, 0, 1, motorConfig()->mincommand, motorConfig()->maxthrottle);
+            motor[i] = (int16_t)scaleRangef(motorOutputNormalised, 0, 1, motorConfig()->mincommand, getMaxThrottle());
         }
     } else {
         // Disarmed mode
@@ -413,7 +415,7 @@ void FAST_CODE writeMotors(void)
                     throttleIdleValue,
                     DSHOT_DISARM_COMMAND,
                     motorConfig()->mincommand,
-                    motorConfig()->maxthrottle,
+                    getMaxThrottle(),
                     DSHOT_MIN_THROTTLE,
                     DSHOT_MAX_THROTTLE,
                     true
@@ -430,7 +432,7 @@ void FAST_CODE writeMotors(void)
                         throttleRangeMin,
                         throttleRangeMax,
                         reversibleMotorsConfig()->deadband_high,
-                        motorConfig()->maxthrottle,
+                        getMaxThrottle(),
                         true
                     );
                 } else {
@@ -563,7 +565,7 @@ void FAST_CODE mixTable(void)
 #ifdef USE_PROGRAMMING_FRAMEWORK
     if (LOGIC_CONDITION_GLOBAL_FLAG(LOGIC_CONDITION_GLOBAL_FLAG_OVERRIDE_THROTTLE)) {
         throttleRangeMin = throttleIdleValue;
-        throttleRangeMax = motorConfig()->maxthrottle;
+        throttleRangeMax = getMaxThrottle();
         mixerThrottleCommand = constrain(logicConditionValuesByType[LOGIC_CONDITION_OVERRIDE_THROTTLE], throttleRangeMin, throttleRangeMax);
     } else
 #endif
@@ -574,7 +576,7 @@ void FAST_CODE mixTable(void)
              * Throttle is above deadband, FORWARD direction
              */
             reversibleMotorsThrottleState = MOTOR_DIRECTION_FORWARD;
-            throttleRangeMax = motorConfig()->maxthrottle;
+            throttleRangeMax = getMaxThrottle();
             throttleRangeMin = throttleDeadbandHigh;
             DISABLE_STATE(SET_REVERSIBLE_MOTORS_FORWARD);
         } else if (rcCommand[THROTTLE] <= throttleDeadbandLow) {
@@ -603,7 +605,7 @@ void FAST_CODE mixTable(void)
     } else {
         mixerThrottleCommand = rcCommand[THROTTLE];
         throttleRangeMin = throttleIdleValue;
-        throttleRangeMax = motorConfig()->maxthrottle;
+        throttleRangeMax = getMaxThrottle();
 
         // Throttle scaling to limit max throttle when battery is full
 #ifdef USE_PROGRAMMING_FRAMEWORK
@@ -641,31 +643,10 @@ void FAST_CODE mixTable(void)
     for (int i = 0; i < motorCount; i++) {
         motor[i] = rpyMix[i] + constrain(mixerThrottleCommand * currentMixer[i].throttle, throttleMin, throttleMax);
 
-            if (failsafeIsActive()) {
-                motor[i] = constrain(motor[i], motorConfig()->mincommand, motorConfig()->maxthrottle);
-            } else {
-                motor[i] = constrain(motor[i], throttleRangeMin, throttleRangeMax);
-            }
-            
-            //stop motors
-            if (currentMixer[i].throttle <= 0.0f) {
-                motor[i] = motorZeroCommand;
-            }
-            //spin stopped motors only in mixer transition mode
-            if (isMixerTransitionMixing && currentMixer[i].throttle <= -1.05f && currentMixer[i].throttle >= -2.0f && (!feature(FEATURE_REVERSIBLE_MOTORS))) {
-                motor[i] = -currentMixer[i].throttle * 1000;
-                motor[i] = constrain(motor[i], throttleRangeMin, throttleRangeMax);
-            }
-
-            // Motor stop handling
-            if (currentMotorStatus != MOTOR_RUNNING) {
-                motor[i] = motorValueWhenStopped;
-            }
-#ifdef USE_DEV_TOOLS
-            if (systemConfig()->groundTestMode) {
-                motor[i] = motorZeroCommand;
-            }
-#endif
+        if (failsafeIsActive()) {
+            motor[i] = constrain(motor[i], motorConfig()->mincommand, getMaxThrottle());
+        } else {
+            motor[i] = constrain(motor[i], throttleRangeMin, throttleRangeMax);
         }
     } else {
         for (int i = 0; i < motorCount; i++) {
@@ -680,7 +661,7 @@ int16_t getThrottlePercent(bool useScaled)
     const int idleThrottle = getThrottleIdleValue();
 
     if (useScaled) {
-       thr = (thr - throttleIdleValue) * 100 / (motorConfig()->maxthrottle - throttleIdleValue);
+       thr = (thr - throttleIdleValue) * 100 / (getMaxThrottle() - throttleIdleValue);
     } else {
         thr = (rxGetChannelValue(THROTTLE) - PWM_RANGE_MIN) * 100 / (PWM_RANGE_MAX - PWM_RANGE_MIN);
     }
@@ -695,7 +676,7 @@ uint16_t setDesiredThrottle(uint16_t throttle, bool allowMotorStop)
         ENABLE_STATE(NAV_MOTOR_STOP_OR_IDLE);
         return throttle;
     }
-    return constrain(throttle, throttleIdleValue, motorConfig()->maxthrottle);
+    return constrain(throttle, throttleIdleValue, getMaxThrottle());
 }
 
 motorStatus_e getMotorStatus(void)
@@ -752,4 +733,19 @@ bool areMotorsRunning(void)
     }
 
     return false;
+}
+
+uint16_t getMaxThrottle() {
+
+    static uint16_t throttle = 0;
+
+    if (throttle == 0) { 
+        if (STATE(ROVER) || STATE(BOAT)) {
+            throttle = MAX_THROTTLE_ROVER;
+        } else {
+            throttle = MAX_THROTTLE;
+        }
+    }
+
+    return throttle;
 }
