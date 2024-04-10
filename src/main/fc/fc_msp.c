@@ -1194,23 +1194,22 @@ static bool mspFcProcessOutCommand(uint16_t cmdMSP, sbuf_t *dst, mspPostProcessF
         sbufWriteU8(dst, 0);
         break;
 
-    case MSP_PID_ADVANCED:
-        sbufWriteU16(dst, 0); // pidProfile()->rollPitchItermIgnoreRate
-        sbufWriteU16(dst, 0); // pidProfile()->yawItermIgnoreRate
-        sbufWriteU16(dst, 0); //pidProfile()->yaw_p_limit
-        sbufWriteU8(dst, 0); //BF: pidProfile()->deltaMethod
-        sbufWriteU8(dst, 0); //BF: pidProfile()->vbatPidCompensation
-        sbufWriteU8(dst, 0); //BF: pidProfile()->setpointRelaxRatio
-        sbufWriteU8(dst, 0);
-        sbufWriteU16(dst, pidProfile()->pidSumLimit);
-        sbufWriteU8(dst, 0); //BF: pidProfile()->itermThrottleGain
+    case MSP_FILTER_CONFIG :
+        sbufWriteU8(dst, gyroConfig()->gyro_main_lpf_hz);
+        sbufWriteU16(dst, pidProfile()->dterm_lpf_hz);
+        sbufWriteU16(dst, pidProfile()->yaw_lpf_hz);
+        sbufWriteU16(dst, 0); //Was gyroConfig()->gyro_notch_hz
+        sbufWriteU16(dst, 1); //Was  gyroConfig()->gyro_notch_cutoff
+        sbufWriteU16(dst, 0); //BF: pidProfile()->dterm_notch_hz
+        sbufWriteU16(dst, 1); //pidProfile()->dterm_notch_cutoff
 
-        /*
-         * To keep compatibility on MSP frame length level with Betaflight, axis axisAccelerationLimitYaw
-         * limit will be sent and received in [dps / 10]
-         */
-        sbufWriteU16(dst, constrain(pidProfile()->axisAccelerationLimitRollPitch / 10, 0, 65535));
-        sbufWriteU16(dst, constrain(pidProfile()->axisAccelerationLimitYaw / 10, 0, 65535));
+        sbufWriteU16(dst, 0); //BF: masterConfig.gyro_soft_notch_hz_2
+        sbufWriteU16(dst, 1); //BF: masterConfig.gyro_soft_notch_cutoff_2
+
+        sbufWriteU16(dst, accelerometerConfig()->acc_notch_hz);
+        sbufWriteU16(dst, accelerometerConfig()->acc_notch_cutoff);
+
+        sbufWriteU16(dst, 0);    //Was gyroConfig()->gyro_stage2_lowpass_hz
         break;
 
     case MSP_INAV_PID:
@@ -2144,25 +2143,43 @@ static mspResult_e mspFcProcessInCommand(uint16_t cmdMSP, sbuf_t *src)
             return MSP_RESULT_ERROR;
         break;
 
-    case MSP_SET_PID_ADVANCED:
-        if (dataSize == 17) {
-            sbufReadU16(src);   // pidProfileMutable()->rollPitchItermIgnoreRate
-            sbufReadU16(src);   // pidProfileMutable()->yawItermIgnoreRate
-            sbufReadU16(src); //pidProfile()->yaw_p_limit
+    case MSP_SET_FILTER_CONFIG :
+        if (dataSize >= 5) {
+            gyroConfigMutable()->gyro_main_lpf_hz = sbufReadU8(src);
+            pidProfileMutable()->dterm_lpf_hz = constrain(sbufReadU16(src), 0, 500);
+            pidProfileMutable()->yaw_lpf_hz = constrain(sbufReadU16(src), 0, 255);
+            if (dataSize >= 9) {
+                sbufReadU16(src); //Was gyroConfigMutable()->gyro_notch_hz
+                sbufReadU16(src); //Was gyroConfigMutable()->gyro_notch_cutoff
+            } else {
+                return MSP_RESULT_ERROR;
+            }
+            if (dataSize >= 13) {
+                sbufReadU16(src);
+                sbufReadU16(src);
+                pidInitFilters();
+            } else {
+                return MSP_RESULT_ERROR;
+            }
+            if (dataSize >= 17) {
+                sbufReadU16(src); // Was gyroConfigMutable()->gyro_soft_notch_hz_2
+                sbufReadU16(src); // Was gyroConfigMutable()->gyro_soft_notch_cutoff_2
+            } else {
+                return MSP_RESULT_ERROR;
+            }
 
-            sbufReadU8(src); //BF: pidProfileMutable()->deltaMethod
-            sbufReadU8(src); //BF: pidProfileMutable()->vbatPidCompensation
-            sbufReadU8(src); //BF: pidProfileMutable()->setpointRelaxRatio
-            sbufReadU8(src);
-            pidProfileMutable()->pidSumLimit = sbufReadU16(src);
-            sbufReadU8(src); //BF: pidProfileMutable()->itermThrottleGain
+            if (dataSize >= 21) {
+                accelerometerConfigMutable()->acc_notch_hz = constrain(sbufReadU16(src), 0, 255);
+                accelerometerConfigMutable()->acc_notch_cutoff = constrain(sbufReadU16(src), 1, 255);
+            } else {
+                return MSP_RESULT_ERROR;
+            }
 
-            /*
-             * To keep compatibility on MSP frame length level with Betaflight, axis axisAccelerationLimitYaw
-             * limit will be sent and received in [dps / 10]
-             */
-            pidProfileMutable()->axisAccelerationLimitRollPitch = sbufReadU16(src) * 10;
-            pidProfileMutable()->axisAccelerationLimitYaw = sbufReadU16(src) * 10;
+            if (dataSize >= 22) {
+                sbufReadU16(src); //Was gyro_stage2_lowpass_hz
+            } else {
+                return MSP_RESULT_ERROR;
+            }
         } else
             return MSP_RESULT_ERROR;
         break;
