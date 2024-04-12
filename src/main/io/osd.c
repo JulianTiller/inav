@@ -1027,7 +1027,7 @@ static const char * divertingToSafehomeMessage(void)
 	    return OSD_MESSAGE_STR(OSD_MSG_DIVERT_SAFEHOME);
 	}
 #endif
-	return NULL;   
+	return NULL;
 }
 
 
@@ -1052,7 +1052,7 @@ static const char * navigationStateMessage(void)
                         linearDescentMessageMs = millis() + 5000; // Show message for 5 seconds.
 
                     return OSD_MESSAGE_STR(OSD_MSG_RTH_LINEAR_DESCENT);
-                } else 
+                } else
                     return OSD_MESSAGE_STR(OSD_MSG_HEADING_HOME);
             }
         case MW_NAV_STATE_HOLD_INFINIT:
@@ -1093,7 +1093,7 @@ static const char * navigationStateMessage(void)
             // If there is a FS landing delay occurring. That is handled by the calling function.
             if (posControl.landingDelay > 0)
                 break;
-            
+
             return OSD_MESSAGE_STR(OSD_MSG_PREPARING_LAND);
         }
         case MW_NAV_STATE_LAND_START_DESCENT:
@@ -2391,7 +2391,7 @@ static bool osdDrawSingleElement(uint8_t item)
         {
             char *p = "ACRO";
 #ifdef USE_FW_AUTOLAND
-            if (FLIGHT_MODE(NAV_FW_AUTOLAND)) 
+            if (FLIGHT_MODE(NAV_FW_AUTOLAND))
                 p = "LAND";
             else
 #endif
@@ -5694,11 +5694,11 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                     tfp_sprintf(messageBuf, "LANDING DELAY: %3u SECONDS", remainingHoldSec);
 
                     messages[messageCount++] = messageBuf;
-                } 
+                }
 
                 else {
 #ifdef USE_FW_AUTOLAND
-                    if (canFwLandCanceld()) {
+                    if (canFwLandingBeCancelled()) {
                          messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_MOVE_STICKS);
                     } else if (!FLIGHT_MODE(NAV_FW_AUTOLAND)) {
 #endif

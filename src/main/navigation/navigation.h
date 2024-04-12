@@ -699,7 +699,7 @@ bool rthAltControlStickOverrideCheck(uint8_t axis);
 int32_t navigationGetHomeHeading(void);
 
 #ifdef USE_FW_AUTOLAND
-bool canFwLandCanceld(void);
+bool canFwLandingBeCancelled(void);
 #endif
 
 /* Compatibility data */
