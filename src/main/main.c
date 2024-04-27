@@ -26,8 +26,13 @@
 #include "fc/fc_init.h"
 
 #include "scheduler/scheduler.h"
-/* EAL FHTW */
-#include "main.h"
+
+#include "main.h"//AURIX
+
+#if defined(SITL_BUILD)
+#include "target/SITL/serial_proxy.h"
+#endif
+
 
 boolean INIT_INAV;
 #ifdef SOFTSERIAL_LOOPBACK
@@ -72,6 +77,9 @@ int execute_inav(void)
     /* EAL FHTW */
 
     while (true) {
+#if defined(SITL_BUILD)
+        serialProxyProcess();
+#endif
         scheduler();
         processLoopback();
     }
