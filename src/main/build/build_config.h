@@ -43,7 +43,7 @@
 #define FASTRAM
 #else
 #ifdef __APPLE__
-#define FASTRAM                     __attribute__ ((section("__DATA,__.fastram_bss"), aligned(4)))
+#define FASTRAM                     __attribute__ ((section("__DATA,__.fastram_bss"), aligned(8)))
 #else
 #define FASTRAM                     __attribute__ ((section(".fastram_bss"), aligned(4)))
 #endif
