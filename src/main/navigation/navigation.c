@@ -1451,8 +1451,8 @@ static navigationFSMEvent_t navOnEnteringState_NAV_STATE_RTH_INITIALIZE(navigati
             bool trackbackActive = navConfig()->general.flags.rth_trackback_mode == RTH_TRACKBACK_ON ||
                                    (navConfig()->general.flags.rth_trackback_mode == RTH_TRACKBACK_FS && posControl.flags.forcedRTHActivated);
 
-            if (trackbackActive && posControl.activeRthTBPointIndex >= 0 && !isWaypointMissionRTHActive()) {
-                updateRthTrackback(true);       // save final trackpoint for altitude and max trackback distance reference
+            if (trackbackActive && rth_trackback.activePointIndex >= 0 && !isWaypointMissionRTHActive()) {
+                rthTrackBackUpdate(true);  // save final trackpoint for altitude and max trackback distance reference
                 posControl.flags.rthTrackbackActive = true;
                 calculateAndSetActiveWaypointToLocalPosition(getRthTrackBackPosition());
                 return NAV_FSM_EVENT_SWITCH_TO_NAV_STATE_RTH_TRACKBACK;
