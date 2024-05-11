@@ -473,16 +473,16 @@ static void timerHardwareOverride(timerHardware_t * timer) {
 
     switch (timerOverrides(timer2id(timer->tim))->outputMode) {
         case OUTPUT_MODE_MOTORS:
-            if (timer->usageFlags & (TIM_USE_MC_SERVO | TIM_USE_FW_SERVO)) {
-                timer->usageFlags &= ~(TIM_USE_MC_SERVO | TIM_USE_FW_SERVO);
-                timer->usageFlags |= TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR;
-            }
+            timer->usageFlags &= ~(TIM_USE_SERVO|TIM_USE_LED);
+            timer->usageFlags |= TIM_USE_MOTOR;
             break;
         case OUTPUT_MODE_SERVOS:
-            if (timer->usageFlags & (TIM_USE_MC_MOTOR|TIM_USE_FW_MOTOR)) {
-                timer->usageFlags &= ~(TIM_USE_MC_MOTOR | TIM_USE_FW_MOTOR);
-                timer->usageFlags |= TIM_USE_MC_SERVO | TIM_USE_FW_SERVO;
-            }
+            timer->usageFlags &= ~(TIM_USE_MOTOR|TIM_USE_LED);
+            timer->usageFlags |= TIM_USE_SERVO;
+            break;
+        case OUTPUT_MODE_LED:
+            timer->usageFlags &= ~(TIM_USE_MOTOR|TIM_USE_SERVO);
+            timer->usageFlags |= TIM_USE_LED;
             break;
     }
 }
