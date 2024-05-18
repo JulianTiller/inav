@@ -4183,6 +4183,10 @@ uint8_t drawLogos(bool singular, uint8_t row) {
         }
     }
 
+    if (!usePilotLogo && !useINAVLogo) {
+        logoRow += SYM_LOGO_HEIGHT;
+    }
+
     return logoRow;
 }
 
