@@ -5634,7 +5634,7 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
             if (STATE(LANDING_DETECTED)) {
                 messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_LANDED);
             } else if (FLIGHT_MODE(FAILSAFE_MODE) || FLIGHT_MODE(NAV_RTH_MODE) || FLIGHT_MODE(NAV_WP_MODE) || navigationIsExecutingAnEmergencyLanding()) {
-                /* RETURNS MAXIMUM OF 5 MESSAGES */
+                /* ADDS MAXIMUM OF 5 MESSAGES */
                 if (navGetCurrentStateFlags() & NAV_AUTO_WP_DONE) {
                     messages[messageCount++] = STATE(LANDING_DETECTED) ? OSD_MESSAGE_STR(OSD_MSG_WP_LANDED) : OSD_MESSAGE_STR(OSD_MSG_WP_FINISHED);
                 } else if (NAV_Status.state == MW_NAV_STATE_WP_ENROUTE) {
@@ -5691,8 +5691,8 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                     messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_WP_RTH_CANCEL);
                 }
             } else {    /* Messages shown only when Failsafe, WP, RTH or Emergency Landing not active */
-                /* RETURNS MAXIMUM OF 4 MESSAGES */
-                if (STATE(AIRPLANE)) {      /* RETURNS MAXIMUM OF 3 MESSAGES */
+                /* ADDS MAXIMUM OF 4 MESSAGES */
+                if (STATE(AIRPLANE)) {      /* ADDS MAXIMUM OF 3 MESSAGES */
 #ifdef USE_FW_AUTOLAND
                     if (canFwLandingBeCancelled()) {
                          messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_MOVE_STICKS);
@@ -5743,7 +5743,7 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                             messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_ANGLEHOLD_PITCH);
                         }
                     }
-                } else if (STATE(MULTIROTOR)) {     /* RETURNS MAXIMUM OF 2 MESSAGES */
+                } else if (STATE(MULTIROTOR)) {     /* ADDS MAXIMUM OF 2 MESSAGES */
                     if (FLIGHT_MODE(NAV_COURSE_HOLD_MODE)) {
                         if (posControl.cruise.multicopterSpeed >= 50.0f) {
                             char buf[6];
@@ -5769,7 +5769,7 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
                     messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_MISSION_PLANNER);
                 }
             }
-        } else if (ARMING_FLAG(ARMING_DISABLED_ALL_FLAGS)) {    /* RETURNS MAXIMUM OF 2 MESSAGES */
+        } else if (ARMING_FLAG(ARMING_DISABLED_ALL_FLAGS)) {    /* ADDS MAXIMUM OF 2 MESSAGES */
             unsigned invalidIndex;
 
             // Check if we're unable to arm for some reason
@@ -5796,7 +5796,7 @@ textAttributes_t osdGetSystemMessage(char *buff, size_t buff_size, bool isCenter
             }
         }
 
-        /* Messages that are shown regardless of Arming state - RETURNS MAXIMUM OF 1 MESSAGES */
+        /* Messages that are shown regardless of Arming state - ADDS MAXIMUM OF 1 MESSAGES */
 
         if (savingSettings == true) {
            messages[messageCount++] = OSD_MESSAGE_STR(OSD_MSG_SAVING_SETTNGS);
