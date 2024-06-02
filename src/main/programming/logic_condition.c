@@ -806,6 +806,10 @@ static int logicConditionGetFlightOperandValue(int operand) {
             return getConfigProfile() + 1;
             break;
 
+        case LOGIC_CONDITION_OPERAND_FLIGHT_BATT_PROFILE: //int
+            return getConfigBatteryProfile() + 1;
+            break;
+        
         case LOGIC_CONDITION_OPERAND_FLIGHT_ACTIVE_MIXER_PROFILE: // int
             return currentMixerProfileIndex + 1;
             break;
