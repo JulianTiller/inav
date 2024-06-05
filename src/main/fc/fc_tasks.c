@@ -428,12 +428,8 @@ void fcTasksInit(void)
     setTaskEnabled(TASK_SMARTPORT_MASTER, true);
 #endif
 
-#ifdef USE_ADAPTIVE_FILTER
-    setTaskEnabled(TASK_ADAPTIVE_FILTER, (
-        gyroConfig()->gyroFilterMode == GYRO_FILTER_MODE_ADAPTIVE && 
-        gyroConfig()->adaptiveFilterMinHz > 0 && 
-        gyroConfig()->adaptiveFilterMaxHz > 0
-    ));
+#ifdef USE_SERIAL_GIMBAL
+    setTaskEnabled(TASK_GIMBAL, true);
 #endif
 
 #if defined(SITL_BUILD)
@@ -695,7 +691,7 @@ cfTask_t cfTasks[TASK_COUNT] = {
         .taskName = "GIMBAL",
         .taskFunc = taskUpdateGimbal,
         .desiredPeriod = TASK_PERIOD_HZ(50),
-        .staticPriority = TASK_PRIORITY_LOW,
+        .staticPriority = TASK_PRIORITY_MEDIUM,
     }
 #endif
 };
