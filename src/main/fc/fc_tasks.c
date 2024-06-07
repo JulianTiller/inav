@@ -427,6 +427,10 @@ void fcTasksInit(void)
     setTaskEnabled(TASK_SMARTPORT_MASTER, true);
 #endif
 
+#ifdef USE_ADAPTIVE_FILTER
+    setTaskEnabled(TASK_ADAPTIVE_FILTER, (gyroConfig()->gyroFilterMode == GYRO_FILTER_MODE_ADAPTIVE));
+#endif
+
 #if defined(SITL_BUILD)
     serialProxyStart();
 #endif
