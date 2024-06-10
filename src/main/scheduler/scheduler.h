@@ -125,6 +125,11 @@ typedef enum {
 #ifdef USE_SERIAL_GIMBAL
     TASK_GIMBAL,
 #endif
+
+#ifdef USE_HEADTRACKER
+    TASK_HEADTRACKER,
+#endif
+
     /* Count of real tasks */
     TASK_COUNT,
 
