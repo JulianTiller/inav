@@ -112,7 +112,7 @@ typedef struct {
 } pwmOutputMotor_t;
 #endif
 
-static DMA_RAM pwmOutputPort_t pwmOutputPorts[MAX_PWM_OUTPUT_PORTS];
+static DMA_RAM pwmOutputPort_t pwmOutputPorts[MAX_PWM_OUTPUTS];
 
 #ifdef AURIX
 static pwmOutputPort_t *motors[MAX_PWM_MOTORS];
@@ -837,7 +837,7 @@ static void pwmOutConfigTimer(pwmOutputPort_t * p, TCH_t * tch, uint32_t hz, uin
 
 static pwmOutputPort_t *pwmOutAllocatePort(void)
 {
-    if (allocatedOutputPortCount >= MAX_PWM_OUTPUT_PORTS) {
+    if (allocatedOutputPortCount >= MAX_PWM_OUTPUTS) {
         LOG_ERROR(PWM, "Attempt to allocate PWM output beyond MAX_PWM_OUTPUT_PORTS");
         return NULL;
     }

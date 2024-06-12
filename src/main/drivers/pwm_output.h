@@ -35,6 +35,27 @@ typedef enum {
 } motorPwmProtocolTypes_e;
 #endif
 
+#if defined(AURIX)//TODO
+#define ONESHOT125_TIMER_MHZ  64
+#define ONESHOT42_TIMER_MHZ   64
+#define MULTISHOT_TIMER_MHZ   64
+#define PWM_BRUSHED_TIMER_MHZ 64
+
+typedef enum {
+    PWM_TYPE_STANDARD = 0,
+    PWM_TYPE_ONESHOT125,
+    PWM_TYPE_ONESHOT42,
+    PWM_TYPE_MULTISHOT,
+    PWM_TYPE_BRUSHED
+} motorPwmProtocolTypes_e;
+#endif
+
+
+#if defined(WS2811_PIN)
+#define MAX_PWM_OUTPUTS (MAX_PWM_OUTPUT_PORTS + 1)
+#else
+#define MAX_PWM_OUTPUTS (MAX_PWM_OUTPUT_PORTS)
+#endif
 typedef enum {
     DSHOT_CMD_SPIN_DIRECTION_NORMAL = 20,
     DSHOT_CMD_SPIN_DIRECTION_REVERSED = 21,
