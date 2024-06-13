@@ -18,13 +18,13 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 #define FC_VERSION_STRING STR(FC_VERSION_MAJOR) "." STR(FC_VERSION_MINOR) "." STR(FC_VERSION_PATCH_LEVEL)
+#ifndef FC_VERSION_TYPE
+#define FC_VERSION_TYPE ""
+#endif
 #define FC_FIRMWARE_NAME "INAV"
 
-#define MW_VERSION              611
 
-#define FC_VERSION_MAJOR            6  // increment when a major release is made (big new feature, etc)
-#define FC_VERSION_MINOR            1  // increment when a minor release is made (small new feature, change etc)
-#define FC_VERSION_PATCH_LEVEL      0  // increment when a bug is fixed
+#define MW_VERSION              231
 
 extern const char* const compilerVersion;
 extern const char* const targetName;
