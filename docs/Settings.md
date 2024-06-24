@@ -808,7 +808,7 @@ Enable/disable dynamic gyro notch also known as Matrix Filter
 
 | Default | Min | Max |
 | --- | --- | --- |
-| OFF | OFF | ON |
+| ON | OFF | ON |
 
 ---
 
@@ -1768,7 +1768,7 @@ Specifies the type of the software LPF of the gyro signals.
 
 | Default | Min | Max |
 | --- | --- | --- |
-| LULU |  |  |
+| STATIC |  |  |
 
 ---
 
@@ -5848,7 +5848,7 @@ Enable Kalman filter on the gyro data
 
 | Default | Min | Max |
 | --- | --- | --- |
-| OFF | OFF | ON |
+| ON | OFF | ON |
 
 ---
 
