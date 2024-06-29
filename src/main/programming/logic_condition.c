@@ -293,7 +293,7 @@ static int logicConditionCompute(
             ENABLE_STATE(CALIBRATE_MAG);
             return true;
             break;
-#endif  
+#endif
         case LOGIC_CONDITION_SET_VTX_POWER_LEVEL:
 #if defined(USE_VTX_CONTROL)
 #if(defined(USE_VTX_SMARTAUDIO) || defined(USE_VTX_TRAMP))
@@ -763,7 +763,7 @@ static int logicConditionGetFlightOperandValue(int operand) {
 #else
             return ((navGetCurrentStateFlags() & NAV_CTL_LAND)) ? 1 : 0;
 #endif
-            
+
             break;
 
         case LOGIC_CONDITION_OPERAND_FLIGHT_IS_FAILSAFE: // 0/1
@@ -809,7 +809,7 @@ static int logicConditionGetFlightOperandValue(int operand) {
         case LOGIC_CONDITION_OPERAND_FLIGHT_BATT_PROFILE: //int
             return getConfigBatteryProfile() + 1;
             break;
-        
+
         case LOGIC_CONDITION_OPERAND_FLIGHT_ACTIVE_MIXER_PROFILE: // int
             return currentMixerProfileIndex + 1;
             break;
@@ -820,6 +820,11 @@ static int logicConditionGetFlightOperandValue(int operand) {
 
         case LOGIC_CONDITION_OPERAND_FLIGHT_LOITER_RADIUS:
             return getLoiterRadius(navConfig()->fw.loiter_radius);
+            break;
+
+        case LOGIC_CONDITION_OPERAND_FLIGHT_FLOWN_LOITER_RADIUS:
+            return getFlownLoiterRadius();
+            break;
 
         case LOGIC_CONDITION_OPERAND_FLIGHT_AGL_STATUS:
             return isEstimatedAglTrusted();
