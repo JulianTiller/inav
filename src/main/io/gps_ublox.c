@@ -1223,7 +1223,7 @@ STATIC_PROTOTHREAD(gpsProtocolStateThread)
         ptSemaphoreWait(semNewDataReady);
         gpsProcessNewSolutionData(false);
 
-        if ((gpsState.gpsConfig->autoConfig) && (gpsState.gpsConfig->provider == GPS_UBLOX || gpsState.gpsConfig->provider == GPS_UBLOX7PLUS)) {
+        if ((gpsState.gpsConfig->autoConfig) && (gpsState.gpsConfig->provider == GPS_UBLOX)) {
             if ((millis() - gpsState.lastCapaPoolMs) > GPS_CAPA_INTERVAL) {
                 gpsState.lastCapaPoolMs = millis();
 
