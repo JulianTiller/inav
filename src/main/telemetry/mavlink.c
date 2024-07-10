@@ -1267,8 +1267,17 @@ void handleMAVLinkTelemetry(timeUs_t currentTimeUs)
         shouldSendTelemetry = ((currentTimeUs - lastMavlinkMessage) >= TELEMETRY_MAVLINK_DELAY) && !halfDuplexBackoff;
     }
 
-    if (shouldSendTelemetry) {
-        processMAVLinkTelemetry(currentTimeUs);
+    if ((currentTimeUs - lastMavlinkMessage) >= TELEMETRY_MAVLINK_DELAY && txbuff_free >= telemetryConfig()->mavlink.min_txbuff) {
+        // Only process scheduled data if we didn't serve any incoming request this cycle
+        if (!incomingRequestServed ||
+            (
+                 (rxConfig()->receiverType == RX_TYPE_SERIAL) &&
+                 (rxConfig()->serialrx_provider == SERIALRX_MAVLINK) &&
+                 !tristateWithDefaultOnIsActive(rxConfig()->halfDuplex)
+            )
+        ) {
+            processMAVLinkTelemetry(currentTimeUs);
+        }
         lastMavlinkMessage = currentTimeUs;
     }
 }
