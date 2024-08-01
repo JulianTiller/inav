@@ -318,6 +318,12 @@ void tcpSetMode(serialPort_t *instance, portMode_t mode)
     UNUSED(mode);
 }
 
+void tcpSetOptions(serialPort_t *instance, portOptions_t options)
+{
+    UNUSED(instance);
+    UNUSED(options);
+}
+
 static const struct serialPortVTable tcpVTable[] = {
     {
         .serialWrite = tcpWrite,
@@ -327,6 +333,7 @@ static const struct serialPortVTable tcpVTable[] = {
         .serialSetBaudRate = tcpSetBaudRate,
         .isSerialTransmitBufferEmpty = isTcpTransmitBufferEmpty,
         .setMode = tcpSetMode,
+        .setOptions = tcpSetOptions,
         .isConnected = tcpIsConnected,
         .writeBuf = tcpWritBuf,
         .beginWrite = NULL,
