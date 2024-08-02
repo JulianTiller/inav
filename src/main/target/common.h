@@ -213,7 +213,7 @@
 #define USE_SERIALRX_SUMD
 #define USE_TELEMETRY_HOTT
 #define USE_HOTT_TEXTMODE
-#define USE_24CHANNELS
+#define USE_34CHANNELS
 #define MAX_MIXER_PROFILE_COUNT 2
 #define USE_SMARTPORT_MASTER //Aurix disable?
 #elif !defined(STM32F7)
