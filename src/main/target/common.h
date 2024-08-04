@@ -35,10 +35,7 @@
 #define I2C2_OVERCLOCK false
 #define USE_I2C_PULLUP     // Enable built-in pullups on all boards in case external ones are too week
 
-//#define USE_RX_PPM
-#ifdef AURIX
-//#define USE_RX_PWM
-#endif
+
 #define USE_SERIAL_RX
 #define USE_SERIALRX_SPEKTRUM   // Cheap and fairly common protocol
 #define USE_SERIALRX_SBUS       // Very common protocol
@@ -52,12 +49,12 @@
 
 #define USE_SERVO_SBUS
 
-//#define USE_ADC_AVERAGING //n.V. in INAV2.4.0
+//#define USE_ADC_AVERAGING
 #define USE_64BIT_TIME
 #define USE_BLACKBOX
 #define USE_GPS
 #define USE_GPS_PROTO_UBLOX
-//#define USE_GPS_PROTO_MSP //n.V. in INAV2.4.0
+//#define USE_GPS_PROTO_MSP
 #define USE_TELEMETRY
 #define USE_TELEMETRY_LTM
 #define USE_GPS_FIX_ESTIMATION
@@ -74,9 +71,9 @@
 #define USE_PITOT_ADC
 
 //#define USE_DYNAMIC_FILTERS
-//#define USE_GYRO_KALMAN //n.V. in INAV2.4.0
-//#define USE_SMITH_PREDICTOR //n.V. in INAV2.4.0
-#define USE_RATE_DYNAMICS //n.V. in INAV2.4.0
+//#define USE_GYRO_KALMAN
+//#define USE_SMITH_PREDICTOR
+#define USE_RATE_DYNAMICS
 #define USE_EXTENDED_CMS_MENUS
 
 // Allow default rangefinders
@@ -121,7 +118,6 @@
 
 #define NAV_NON_VOLATILE_WAYPOINT_CLI
 
-
 //#define USE_D_BOOST
 #define USE_ANTIGRAVITY
 
@@ -133,20 +129,20 @@
 #define USE_TELEMETRY_MAVLINK
 #define USE_MSP_OVER_TELEMETRY
 
-//#define USE_SERIALRX_SRXL2     // Spektrum SRXL2 protocol //n.V. in INAV2.4.0
+//#define USE_SERIALRX_SRXL2     // Spektrum SRXL2 protocol
 #define USE_SERIALRX_JETIEXBUS
-//#define USE_SERIALRX_MAVLINK //n.V. in INAV2.4.0
-//#define USE_TELEMETRY_SRXL //n.V. in INAV2.4.0
-//#define USE_SPEKTRUM_CMS_TELEMETRY //n.V. in INAV2.4.0
+//#define USE_SERIALRX_MAVLINK
+//#define USE_TELEMETRY_SRXL
+//#define USE_SPEKTRUM_CMS_TELEMETRY
 //#define USE_SPEKTRUM_VTX_CONTROL //Some functions from betaflight still not implemented
-//#define USE_SPEKTRUM_VTX_TELEMETRY //n.V. in INAV2.4.0
+//#define USE_SPEKTRUM_VTX_TELEMETRY
 
-//#define USE_VTX_COMMON //n.V. in INAV2.4.0
+//#define USE_VTX_COMMON
 
-//#define USE_SERIALRX_GHST //n.V. in INAV2.4.0
-//#define USE_TELEMETRY_GHST //n.V. in INAV2.4.0
+//#define USE_SERIALRX_GHST
+//#define USE_TELEMETRY_GHST
 
-//#define USE_POWER_LIMITS //n.V. in INAV2.4.0
+//#define USE_POWER_LIMITS
 
 #define USE_SAFE_HOME
 #define USE_FW_AUTOLAND
@@ -159,7 +155,7 @@
 #define USE_TELEMETRY_IBUS
 #define USE_TELEMETRY_SMARTPORT
 #define USE_TELEMETRY_CRSF
-//#define USE_TELEMETRY_JETIEXBUS //n.V. in INAV2.4.0
+//#define USE_TELEMETRY_JETIEXBUS
 // These are rather exotic serial protocols
 #define USE_RX_MSP
 //#define USE_MSP_RC_OVERRIDE
@@ -176,7 +172,7 @@
 #define USE_VTX_TRAMP
 #define USE_VTX_MSP
 
-#define USE_PROGRAMMING_FRAMEWORK //n.V. in INAV2.4.0
+#define USE_PROGRAMMING_FRAMEWORK
 #define USE_CLI_BATCH
 
 //Enable DST calculations
@@ -184,9 +180,9 @@
 // Wind estimator
 #define USE_WIND_ESTIMATOR
 
-//#define USE_SIMULATOR //n.V. in INAV2.4.0
-#define USE_PITOT_VIRTUAL //n.V. in INAV2.4.0
-#define USE_FAKE_BATT_SENSOR //n.V. in INAV2.4.0
+//#define USE_SIMULATOR
+#define USE_PITOT_VIRTUAL
+#define USE_FAKE_BATT_SENSOR
 
 #define USE_CMS_FONT_PREVIEW
 

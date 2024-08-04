@@ -71,7 +71,7 @@
 #define IFX_INTPRIO_QSPI_SPI3_RX  25
 
 #define IFX_INTPRIO_CAN 26
-#else
+#else //AURIX 
 // NVIC_SetPriority expects priority encoded according to priority grouping
 // We allocate zero bits for sub-priority, therefore we have 16 priorities to use on STM32
 
@@ -96,5 +96,7 @@
     #else
         #define NVIC_PRIORITY_GROUPING NVIC_PriorityGroup_4
     #endif
+
 #endif
 #endif
+#endif//AURIX

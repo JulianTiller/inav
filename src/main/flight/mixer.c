@@ -459,7 +459,11 @@ void FAST_CODE writeMotors(void)
         // We don't define USE_DSHOT
         motorValue = motor[i];
 #endif
-
+//TODO Aurix
+//        if(prev_arm_state != act_arm_state && prev_arm_state == 0)
+//        {
+//          delay(1000);
+//        }
         pwmWriteMotor(i, motorValue);
     }
 #       ifdef AURIX

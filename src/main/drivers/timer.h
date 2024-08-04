@@ -27,8 +27,6 @@
 
 #include "platform.h"
 
-#include "platform.h"
-
 #ifndef AURIX
 #define CC_CHANNELS_PER_TIMER       4   // TIM_Channel_1..4
 #endif
@@ -334,3 +332,4 @@ volatile timCCR_t *timerCCR(TCH_t * tch);
 bool timerPWMConfigDMABurst(burstDmaTimer_t *burstDmaTimer, TCH_t * tch, void * dmaBuffer, uint8_t dmaBufferElementSize, uint32_t dmaBufferElementCount);
 void pwmBurstDMAStart(burstDmaTimer_t * burstDmaTimer, uint32_t BurstLength);
 #endif
+
