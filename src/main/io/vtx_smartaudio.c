@@ -130,9 +130,9 @@ saPowerTable_t saPowerTable[VTX_SMARTAUDIO_MAX_POWER_COUNT] = {
 // Last received device ('hard') states
 
 smartAudioDevice_t saDevice = {
-    .version = SA_UNKNOWN,
-    .channel = SETTING_VTX_CHANNEL_DEFAULT,
-    .power = SETTING_VTX_POWER_DEFAULT,
+    .version = 0,
+    .channel = -1,
+    .power = -1,
     .mode = 0,
     .freq = 0,
     .orfreq = 0,

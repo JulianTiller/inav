@@ -23,7 +23,7 @@
   *
   **************************************************************************
   */
-
+#ifndef AURIX
 #include "i2c_application.h"
 
 /** @addtogroup AT32F435_437_middlewares_i2c_application_library
@@ -2330,3 +2330,4 @@ void i2c_err_irq_handler(i2c_handle_type* hi2c)
 /**
   * @}
   */
+#endif

@@ -60,6 +60,15 @@ baro_t baro;                        // barometer access functions
 
 PG_REGISTER_WITH_RESET_TEMPLATE(barometerConfig_t, barometerConfig, PG_BAROMETER_CONFIG, 4);
 
+#ifdef USE_BARO
+#define BARO_HARDWARE_DEFAULT    BARO_AUTODETECT
+#else
+#define BARO_HARDWARE_DEFAULT    BARO_NONE
+#endif
+
+#define SETTING_BARO_HARDWARE_DEFAULT BARO_HARDWARE_DEFAULT
+#define SETTING_BARO_CAL_TOLERANCE_DEFAULT 150
+
 PG_RESET_TEMPLATE(barometerConfig_t, barometerConfig,
     .baro_hardware = SETTING_BARO_HARDWARE_DEFAULT,
     .baro_calibration_tolerance = SETTING_BARO_CAL_TOLERANCE_DEFAULT

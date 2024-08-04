@@ -1048,7 +1048,7 @@ static bool handleIncoming_RC_CHANNELS_OVERRIDE(void) {
     mavlink_rc_channels_override_t msg;
     mavlink_msg_rc_channels_override_decode(&mavRecvMsg, &msg);
     // Don't check system ID because it's not configurable with systems like Crossfire
-    mavlinkRxHandleMessage(&msg);
+    //mavlinkRxHandleMessage(&msg);
     return true;
 }
 

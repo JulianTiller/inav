@@ -40,7 +40,7 @@
 #include "adc.h"
 #include "adc_impl.h"
 
-
+#ifndef AURIX
 static adcDevice_t adcHardware[ADCDEV_COUNT] = {
     {
         .ADCx = ADC1,
@@ -240,3 +240,4 @@ void adcHardwareInit(drv_adc_config_t *init)
         }
     }
 }
+#endif

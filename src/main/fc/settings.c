@@ -6,13 +6,13 @@
 #include "common/string_light.h"
 #include "common/utils.h"
 
-#include "settings_generated.h"
+#include "iNav_generated/settings_generated.h"
 
 #include "fc/settings.h"
 
 #include "config/general_settings.h"
 #include "flight/rpm_filter.h"
-#include "settings_generated.c"
+#include "iNav_generated/settings_generated.c"
 
 static bool settingGetWord(char *buf, int idx)
 {

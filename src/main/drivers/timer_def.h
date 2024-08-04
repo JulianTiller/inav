@@ -108,6 +108,7 @@
 #elif defined(AT32F43x)
     #include "timer_def_at32f43x.h"
 #elif defined(SITL_BUILD)
+#elif defined(AURIX)
 #else
     #error "Unknown CPU defined"
 #endif

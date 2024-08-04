@@ -31,7 +31,7 @@
 /** @addtogroup AT32F435_437_system
   * @{
   */
-
+#ifndef AURIX
 #include "at32f435_437.h"
 #include "drivers/system.h"
 #include "platform.h"
@@ -183,4 +183,4 @@ void system_core_clock_update(void)
 /**
   * @}
   */
-
+#endif

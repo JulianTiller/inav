@@ -32,13 +32,13 @@
 void spiChipSelectSetupDelay(void)
 {
     // CS->CLK delay, MPU6000 - 8ns
-    delayNanos(8);
+    //delayNanos(8);
 }
 
 void spiChipSelectHoldTime(void)
 {
     // CLK->CS delay, MPU6000 - 500ns
-    delayNanos(500);
+    //delayNanos(500);
 }
 
 bool spiBusInitHost(const busDevice_t * dev)
@@ -124,11 +124,15 @@ bool spiBusTransferMultiple(const busDevice_t * dev, busTransferDescriptor_t * d
 
 bool spiBusWriteRegister(const busDevice_t * dev, uint8_t reg, uint8_t data)
 {
-#if defined(AT32F43x)
-    spi_type * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
+	SPI_TypeDef * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
+#ifdef AURIX
+    uint8_t buffer[] = { reg, data };
+    spiTransfer(instance, NULL, buffer, sizeof(buffer));
 #else
+    spi_type * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
+
     SPI_TypeDef * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
-#endif
+
 
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusSelectDevice(dev);
@@ -140,7 +144,7 @@ bool spiBusWriteRegister(const busDevice_t * dev, uint8_t reg, uint8_t data)
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusDeselectDevice(dev);
     }
-
+#endif
     return true;
 }
 
@@ -152,6 +156,17 @@ bool spiBusWriteBuffer(const busDevice_t * dev, uint8_t reg, const uint8_t * dat
     SPI_TypeDef * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
 #endif
 
+#ifdef AURIX
+    uint8_t* txData = malloc(length + 1);
+    memset(txData, 0, length + 1);
+
+    txData[0] = reg;
+    memcpy(&txData[1], data, length);
+
+    spiTransfer(instance, NULL, txData, length + 1);
+
+    free(txData);
+#else
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusSelectDevice(dev);
     }
@@ -162,7 +177,7 @@ bool spiBusWriteBuffer(const busDevice_t * dev, uint8_t reg, const uint8_t * dat
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusDeselectDevice(dev);
     }
-
+#endif
     return true;
 }
 
@@ -174,6 +189,21 @@ bool spiBusReadBuffer(const busDevice_t * dev, uint8_t reg, uint8_t * data, uint
     SPI_TypeDef * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
 #endif
 
+#ifdef AURIX
+    uint8_t* rxData = malloc(length + 1);
+    uint8_t* txData = malloc(length + 1);
+
+    memset(rxData, 0, length+1);
+    memset(txData, 0, length+1);
+
+    txData[0] = reg;
+
+    spiTransfer(instance, rxData, txData, length + 1);
+    memcpy(data, rxData+1, length);
+
+    free(rxData);
+    free(txData);
+#else
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusSelectDevice(dev);
     }
@@ -184,7 +214,7 @@ bool spiBusReadBuffer(const busDevice_t * dev, uint8_t reg, uint8_t * data, uint
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusDeselectDevice(dev);
     }
-
+#endif
     return true;
 }
 
@@ -196,6 +226,14 @@ bool spiBusReadRegister(const busDevice_t * dev, uint8_t reg, uint8_t * data)
     SPI_TypeDef * instance = spiInstanceByDevice(dev->busdev.spi.spiBus);
 #endif
 
+#ifdef AURIX
+    uint8_t txData[] = { reg, 0 };
+    uint8_t rxData[] = { 0, 0 };
+
+    spiTransfer(instance, rxData, txData, 2);
+
+    *data = rxData[1];
+#else
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusSelectDevice(dev);
     }
@@ -206,7 +244,7 @@ bool spiBusReadRegister(const busDevice_t * dev, uint8_t reg, uint8_t * data)
     if (!(dev->flags & DEVFLAGS_USE_MANUAL_DEVICE_SELECT)) {
         spiBusDeselectDevice(dev);
     }
-
+#endif
     return true;
 }
 

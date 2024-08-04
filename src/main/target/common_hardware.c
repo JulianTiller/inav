@@ -81,7 +81,6 @@
     #if defined(USE_IMU_LSM6DXX)
         BUSDEV_REGISTER_SPI(busdev_lsm6dxx,      DEVHW_LSM6D,       LSM6DXX_SPI_BUS,     LSM6DXX_CS_PIN,      NONE,  DEVFLAGS_NONE,  IMU_LSM6DXX_ALIGN);
     #endif
-
 #endif
 
 
@@ -161,7 +160,7 @@
     #if !defined(DPS310_I2C_BUS)
         #define DPS310_I2C_BUS BARO_I2C_BUS
     #endif
-    BUSDEV_REGISTER_I2C(busdev_dps310,      DEVHW_DPS310,       DPS310_I2C_BUS,     0x76,               NONE,           DEVFLAGS_NONE, 0);
+    BUSDEV_REGISTER_I2C(busdev_dps310,      DEVHW_DPS310,       DPS310_I2C_BUS,     0x77,               NONE,           DEVFLAGS_NONE, 0);
     #endif
 #endif
 

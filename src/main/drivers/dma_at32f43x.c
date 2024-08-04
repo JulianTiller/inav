@@ -26,7 +26,7 @@
 #include "drivers/nvic.h"
 #include "drivers/dma.h"
 #include "drivers/rcc.h"
-
+#ifndef AURIX
 /*
  * DMA descriptors.
  */
@@ -172,3 +172,4 @@ DMA_t dmaGetByRef(const edma_stream_type* ref)
     return NULL;
 }
 */
+#endif

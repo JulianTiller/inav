@@ -70,18 +70,18 @@ static failsafeState_t failsafeState;
 PG_REGISTER_WITH_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CONFIG, 3);
 
 PG_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig,
-    .failsafe_delay = SETTING_FAILSAFE_DELAY_DEFAULT,                                   // 0.5 sec
-    .failsafe_recovery_delay = SETTING_FAILSAFE_RECOVERY_DELAY_DEFAULT,                 // 0.5 seconds (plus 200ms explicit delay)
-    .failsafe_off_delay = SETTING_FAILSAFE_OFF_DELAY_DEFAULT,                           // 20sec
-    .failsafe_throttle_low_delay = SETTING_FAILSAFE_THROTTLE_LOW_DELAY_DEFAULT,         // default throttle low delay for "just disarm" on failsafe condition
-    .failsafe_procedure = SETTING_FAILSAFE_PROCEDURE_DEFAULT,                           // default full failsafe procedure
-    .failsafe_fw_roll_angle = SETTING_FAILSAFE_FW_ROLL_ANGLE_DEFAULT,                   // 20 deg left
-    .failsafe_fw_pitch_angle = SETTING_FAILSAFE_FW_PITCH_ANGLE_DEFAULT,                 // 10 deg dive (yes, positive means dive)
-    .failsafe_fw_yaw_rate = SETTING_FAILSAFE_FW_YAW_RATE_DEFAULT,                       // 45 deg/s left yaw (left is negative, 8s for full turn)
-    .failsafe_stick_motion_threshold = SETTING_FAILSAFE_STICK_THRESHOLD_DEFAULT,
-    .failsafe_min_distance = SETTING_FAILSAFE_MIN_DISTANCE_DEFAULT,                     // No minimum distance for failsafe by default
-    .failsafe_min_distance_procedure = SETTING_FAILSAFE_MIN_DISTANCE_PROCEDURE_DEFAULT, // default minimum distance failsafe procedure
-    .failsafe_mission_delay = SETTING_FAILSAFE_MISSION_DELAY_DEFAULT,                   // Time delay before Failsafe activated during WP mission (s)
+    .failsafe_delay = 5,                                   // 0.5 sec
+    .failsafe_recovery_delay = 5,                 // 0.5 seconds (plus 200ms explicit delay)
+    .failsafe_off_delay = 200,                           // 20sec
+    .failsafe_throttle_low_delay = 1000,         // default throttle low delay for "just disarm" on failsafe condition
+    .failsafe_procedure = FAILSAFE_PROCEDURE_AUTO_LANDING,                           // default full failsafe procedure
+    .failsafe_fw_roll_angle = -200,                   // 20 deg left
+    .failsafe_fw_pitch_angle = 100,                 // 10 deg dive (yes, positive means dive)
+    .failsafe_fw_yaw_rate = -45,                       // 45 deg/s left yaw (left is negative, 8s for full turn)
+    .failsafe_stick_motion_threshold = 50,
+    .failsafe_min_distance = 0,                     // No minimum distance for failsafe by default
+    .failsafe_min_distance_procedure = FAILSAFE_PROCEDURE_DROP_IT, // default minimum distance failsafe procedure
+    .failsafe_mission_delay = 10,                   // Time delay before Failsafe activated during WP mission (s)
 );
 
 typedef enum {

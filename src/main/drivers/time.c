@@ -32,7 +32,7 @@
 
 #include "drivers/nvic.h"
 #include "drivers/time.h"
-
+#ifndef AURIX
 // cycles per microsecond, this is deliberately uint32_t to avoid type conversions
 // This is not static so system.c can set it up for us.
 uint32_t usTicks = 0;
@@ -172,3 +172,4 @@ void delay(timeMs_t ms)
     while (ms--)
         delayMicroseconds(1000);
 }
+#endif

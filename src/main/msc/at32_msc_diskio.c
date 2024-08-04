@@ -9,7 +9,7 @@
 
 
 #include <stdbool.h>
-
+#ifndef AURIX
 #include "at32_msc_diskio.h"
 #include "platform.h"
 
@@ -105,3 +105,4 @@ uint8_t * get_inquiry(uint8_t lun)
   else
     return NULL;
 }
+#endif

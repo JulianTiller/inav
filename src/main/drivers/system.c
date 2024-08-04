@@ -36,9 +36,10 @@
 #define DWT_LAR_UNLOCK_VALUE 0xC5ACCE55
 #endif
 
+
 // cached value of RCC->CSR
 uint32_t cachedRccCsrValue;
-
+#ifndef AURIX
 void cycleCounterInit(void)
 {
     extern uint32_t usTicks; // From drivers/time.h
@@ -86,12 +87,14 @@ static inline void systemDisableAllIRQs(void)
     }
 }
 
+
 void systemReset(void)
 {
     __disable_irq();
     systemDisableAllIRQs();
     NVIC_SystemReset();
 }
+
 
 void systemResetRequest(uint32_t requestId)
 {
@@ -127,6 +130,45 @@ void checkForBootLoaderRequest(void)
 
 
     while (1);
+}
+#endif
+#if 1
+void delayMicroseconds(timeUs_t us)
+{
+    timeUs_t now = micros();
+    while (micros() - now < us);
+}
+#else
+void delayMicroseconds(timeUs_t us)
+{
+    uint32_t elapsed = 0;
+    uint32_t lastCount = SysTick->VAL;
+
+    for (;;) {
+        register uint32_t current_count = SysTick->VAL;
+        timeUs_t elapsed_us;
+
+        // measure the time elapsed since the last time we checked
+        elapsed += current_count - lastCount;
+        lastCount = current_count;
+
+        // convert to microseconds
+        elapsed_us = elapsed / usTicks;
+        if (elapsed_us >= us)
+            break;
+
+        // reduce the delay by the elapsed time
+        us -= elapsed_us;
+
+        // keep fractional microseconds for the next iteration
+        elapsed %= usTicks;
+    }
+}
+#endif
+void delay(timeMs_t ms)
+{
+    while (ms--)
+        delayMicroseconds(1000);
 }
 
 #define SHORT_FLASH_DURATION 50

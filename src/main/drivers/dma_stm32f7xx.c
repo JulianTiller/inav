@@ -26,6 +26,7 @@
 #include "drivers/dma.h"
 #include "drivers/rcc.h"
 
+#ifndef AURIX
 /*
  * DMA descriptors.
  */
@@ -130,3 +131,4 @@ DMA_t dmaGetByRef(const DMA_Stream_TypeDef* ref)
 
     return NULL;
 }
+#endif

@@ -31,7 +31,7 @@
 #include <stdbool.h>
 
 #include "platform.h"
-
+#ifndef AURIX
 #include "drivers/sdmmc_sdio.h"
 #include "drivers/light_led.h"
 #include "drivers/io.h"
@@ -287,3 +287,4 @@ static int8_t STORAGE_GetMaxLun (void)
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif

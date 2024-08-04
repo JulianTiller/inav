@@ -113,6 +113,16 @@ FASTRAM bool imuUpdated = false;
 
 PG_REGISTER_WITH_RESET_TEMPLATE(imuConfig_t, imuConfig, PG_IMU_CONFIG, 2);
 
+//#define SETTING_AHRS_DCM_KP_DEFAULT 2500
+//#define SETTING_AHRS_DCM_KI_DEFAULT 50
+//#define SETTING_AHRS_DCM_KP_MAG_DEFAULT 10000
+//#define SETTING_AHRS_DCM_KI_MAG_DEFAULT 0
+//#define SETTING_SMALL_ANGLE_DEFAULT 25
+//#define SETTING_AHRS_ACC_IGNORE_RATE_DEFAULT 0
+//#define SETTING_AHRS_ACC_IGNORE_SLOPE_DEFAULT 0
+//#define SETTING_AHRS_GPS_YAW_WINDCOMP_DEFAULT 1
+//#define SETTING_AHRS_INERTIA_COMP_METHOD_DEFAULT COMPMETHOD_ADAPTIVE
+
 PG_RESET_TEMPLATE(imuConfig_t, imuConfig,
     .dcm_kp_acc = SETTING_AHRS_DCM_KP_DEFAULT,                   // 0.20 * 10000
     .dcm_ki_acc = SETTING_AHRS_DCM_KI_DEFAULT,                   // 0.005 * 10000
@@ -328,7 +338,7 @@ bool isGPSTrustworthy(void)
 
 static void imuMahonyAHRSupdate(float dt, const fpVector3_t * gyroBF, const fpVector3_t * accBF, const fpVector3_t * magBF, bool useCOG, float courseOverGround, float accWScaler, float magWScaler)
 {
-    STATIC_FASTRAM fpVector3_t vGyroDriftEstimate = { 0 };
+    STATIC_FASTRAM fpVector3_t vGyroDriftEstimate = {{ 0 }};
 
     fpQuaternion_t prevOrientation = orientation;
     fpVector3_t vRotation = *gyroBF;

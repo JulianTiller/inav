@@ -40,7 +40,7 @@
 /** @addtogroup stm32h7xx_system
   * @{
   */
-
+#ifndef AURIX
 /**
   * @brief Define to prevent recursive inclusion
   */
@@ -110,7 +110,7 @@ extern void SystemCoreClockUpdate(void);
 #endif
 
 #endif /* SYSTEM_STM32H7XX_H */
-
+#endif
 /**
   * @}
   */

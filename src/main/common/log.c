@@ -56,8 +56,8 @@ static mspPort_t * mspLogPort = NULL;
 PG_REGISTER(logConfig_t, logConfig, PG_LOG_CONFIG, 0);
 
 PG_RESET_TEMPLATE(logConfig_t, logConfig,
-    .level = SETTING_LOG_LEVEL_DEFAULT,
-    .topics = SETTING_LOG_TOPICS_DEFAULT
+    .level = LOG_LEVEL_INFO,
+    .topics = LOG_TOPIC_SYSTEM
 );
 
 void logInit(void)

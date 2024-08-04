@@ -30,7 +30,7 @@
 #include "drivers/nvic.h"
 #include "drivers/timer.h"
 #include "drivers/timer_impl.h"
-
+#ifndef AURIX
 #include "stm32f4xx.h"
 
 const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT] = {
@@ -136,4 +136,5 @@ _TIM_IRQ_HANDLER2(TIM8_UP_TIM13_IRQHandler, 8, 13);
 
 #if defined(TIM14) && !defined(STM32F411xE)
 _TIM_IRQ_HANDLER2(TIM8_TRG_COM_TIM14_IRQHandler, 8, 14);
+#endif
 #endif

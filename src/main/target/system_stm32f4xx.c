@@ -313,7 +313,7 @@
 /** @addtogroup STM32F4xx_System_Private_Includes
   * @{
   */
-
+#ifndef AURIX
 #include "stm32f4xx.h"
 #include "system.h"
 #include "system_stm32f4xx.h"
@@ -1106,3 +1106,4 @@ void SystemInit_ExtMemCtl(void)
   * @}
   */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif

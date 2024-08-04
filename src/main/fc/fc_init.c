@@ -199,9 +199,9 @@ void init(void)
     // Initialize system and CPU clocks to their initial values
     systemInit();
 
-#if !defined(SITL_BUILD)
-    __enable_irq();
-#endif
+//#if !defined(SITL_BUILD)
+//    __enable_irq();
+//#endif
 
     // initialize IO (needed for all IO operations)
     IOInitGlobal();
@@ -226,12 +226,13 @@ void init(void)
     suspendRxSignal();
     readEEPROM();
     resumeRxSignal();
-
+#ifndef AURIX
 #ifdef USE_UNDERCLOCK
     // Re-initialize system clock to their final values (if necessary)
     systemClockSetup(systemConfig()->cpuUnderclock);
 #else
     systemClockSetup(false);
+#endif
 #endif
 
 #ifdef USE_I2C
@@ -250,9 +251,9 @@ void init(void)
     latchActiveFeatures();
 
     ledInit(false);
-#if !defined(SITL_BUILD)
-    EXTIInit();
-#endif
+//#if !defined(SITL_BUILD)
+//    EXTIInit();
+//#endif
 
 #ifdef USE_SPEKTRUM_BIND
     if (rxConfig()->receiverType == RX_TYPE_SERIAL) {
@@ -314,17 +315,70 @@ void init(void)
     if (!STATE(ALTITUDE_CONTROL)) {
         featureClear(FEATURE_AIRMODE);
     }
-#if !defined(SITL_BUILD)
-    // Initialize motor and servo outpus
-    if (pwmMotorAndServoInit()) {
-        DISABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
+//#if !defined(SITL_BUILD)
+//    // Initialize motor and servo outpus
+//    if (pwmMotorAndServoInit()) {
+//        DISABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
+//    }
+//    else {
+//        ENABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
+//    }
+//#else
+//    DISABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
+//#endif
+
+    drv_pwm_config_t pwm_params;
+    memset(&pwm_params, 0, sizeof(pwm_params));
+
+//    // when using airplane/wing mixer, servo/motor outputs are remapped
+    pwm_params.flyingPlatformType = mixerConfig()->platformType;
+
+    pwm_params.useVbat = feature(FEATURE_VBAT);
+//    pwm_params.useSoftSerial = feature(FEATURE_SOFTSERIAL);
+//    pwm_params.useParallelPWM = (rxConfig()->receiverType == RX_TYPE_PWM);
+    pwm_params.useRSSIADC = feature(FEATURE_RSSI_ADC);
+    pwm_params.useCurrentMeterADC = feature(FEATURE_CURRENT_METER)
+        && batteryMetersConfig()->current.type == CURRENT_SENSOR_ADC;
+//    pwm_params.useLEDStrip = feature(FEATURE_LED_STRIP);
+////    pwm_params.usePPM = (rxConfig()->receiverType == RX_TYPE_PPM);
+//    pwm_params.useSerialRx = (rxConfig()->receiverType == RX_TYPE_SERIAL);
+//
+//    pwm_params.useServoOutputs = isMixerUsingServos();
+//    pwm_params.servoCenterPulse = servoConfig()->servoCenterPulse;
+//    pwm_params.servoPwmRate = servoConfig()->servoPwmRate;
+//
+    pwm_params.pwmProtocolType = PWM_TYPE_STANDARD;
+//#ifndef BRUSHED_MOTORS
+//    pwm_params.useFastPwm = (motorConfig()->motorPwmProtocol == PWM_TYPE_ONESHOT125) ||
+//                            (motorConfig()->motorPwmProtocol == PWM_TYPE_ONESHOT42) ||
+//                            (motorConfig()->motorPwmProtocol == PWM_TYPE_MULTISHOT);
+//#endif
+    pwm_params.motorPwmRate = motorConfig()->motorPwmRate;
+    pwm_params.idlePulse = motorConfig()->mincommand;
+//    if (motorConfig()->motorPwmProtocol == PWM_TYPE_BRUSHED) {
+//        pwm_params.useFastPwm = false;
+//        pwm_params.idlePulse = 0; // brushed motors
+//    }
+//
+    pwm_params.enablePWMOutput = feature(FEATURE_PWM_OUTPUT_ENABLE);
+
+//#if defined(USE_RX_PWM) || defined(USE_RX_PPM)
+//    pwmRxInit(systemConfig()->pwmRxInputFilteringMode);
+//#endif
+
+#ifdef USE_PWM_SERVO_DRIVER
+    // If external PWM driver is enabled, for example PCA9685, disable internal
+    // servo handling mechanism, since external device will do that
+    if (feature(FEATURE_PWM_SERVO_DRIVER)) {
+        pwm_params.useServoOutputs = false;
     }
-    else {
-        ENABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
-    }
-#else
-    DISABLE_ARMING_FLAG(ARMING_DISABLED_PWM_OUTPUT_ERROR);
 #endif
+
+    pwmInit(&pwm_params);
+
+    if (!pwm_params.useFastPwm)
+        motorControlEnable = true;
+
     systemState |= SYSTEM_STATE_MOTORS_READY;
 
 #ifdef USE_ESC_SENSOR
@@ -707,10 +761,10 @@ void init(void)
     powerLimiterInit();
 #endif
 
-#if !defined(SITL_BUILD)
-    // Considering that the persistent reset reason is only used during init
-    persistentObjectWrite(PERSISTENT_OBJECT_RESET_REASON, RESET_NONE);
-#endif
+//#if !defined(SITL_BUILD)
+//    // Considering that the persistent reset reason is only used during init
+//    persistentObjectWrite(PERSISTENT_OBJECT_RESET_REASON, RESET_NONE);
+//#endif
 
     systemState |= SYSTEM_STATE_READY;
 }

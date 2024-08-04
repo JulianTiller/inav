@@ -48,6 +48,11 @@ static long osdElementsOnEnter(const OSD_Entry *from);
 static long osdElementsOnExit(const OSD_Entry *from);
 static long osdElemActionsOnEnter(const OSD_Entry *from);
 
+#define SETTING_OSD_RSSI_ALARM 20
+#define SETTING_OSD_TIME_ALARM 10
+#define SETTING_OSD_ALT_ALARM 100
+#define SETTING_OSD_DIST_ALARM 1000
+#define SETTING_OSD_NEG_ALT_ALARM 5
 static const OSD_Entry cmsx_menuAlarmsEntries[] = {
     OSD_LABEL_ENTRY("--- ALARMS ---"),
 
@@ -138,7 +143,10 @@ static long osdElemActionsOnEnter(const OSD_Entry *from)
 }
 
 #define OSD_ELEMENT_ENTRY(name, osd_item_id)    OSD_ITEM_ENTRY(name, osd_item_id)
-
+#define SETTING_OSD_CRSF_LQ_FORMAT 1
+#define SETTING_OSD_LINK_QUALITY_ALARM 70
+#define SETTING_OSD_SNR_ALARM 4
+#define SETTING_OSD_RSSI_DBM_MIN -120
 static const OSD_Entry menuCrsfRxEntries[]=
 {
     OSD_LABEL_ENTRY("-- CRSF RX --"),

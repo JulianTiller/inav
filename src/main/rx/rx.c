@@ -108,7 +108,7 @@ PG_REGISTER_WITH_RESET_TEMPLATE(rxConfig_t, rxConfig, PG_RX_CONFIG, 12);
 #define DEFAULT_RX_TYPE   RX_TYPE_NONE
 #endif
 
-#define RX_MIN_USEX 885
+
 PG_RESET_TEMPLATE(rxConfig_t, rxConfig,
     .receiverType = DEFAULT_RX_TYPE,
     .rcmap = {0, 1, 3, 2},      // Default to AETR map

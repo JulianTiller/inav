@@ -61,13 +61,13 @@
 PG_REGISTER_WITH_RESET_TEMPLATE(servoConfig_t, servoConfig, PG_SERVO_CONFIG, 3);
 
 PG_RESET_TEMPLATE(servoConfig_t, servoConfig,
-    .servoCenterPulse = SETTING_SERVO_CENTER_PULSE_DEFAULT,
-    .servoPwmRate = SETTING_SERVO_PWM_RATE_DEFAULT,             // Default for analog servos
-    .servo_lowpass_freq = SETTING_SERVO_LPF_HZ_DEFAULT,         // Default servo update rate is 50Hz, everything above Nyquist frequency (25Hz) is going to fold and cause distortions
-    .servo_protocol = SETTING_SERVO_PROTOCOL_DEFAULT,
-    .flaperon_throw_offset = SETTING_FLAPERON_THROW_OFFSET_DEFAULT,
-    .tri_unarmed_servo = SETTING_TRI_UNARMED_SERVO_DEFAULT,
-    .servo_autotrim_rotation_limit = SETTING_SERVO_AUTOTRIM_ROTATION_LIMIT_DEFAULT
+    .servoCenterPulse = 1500,
+    .servoPwmRate = 50,             // Default for analog servos
+    .servo_lowpass_freq = 20,         // Default servo update rate is 50Hz, everything above Nyquist frequency (25Hz) is going to fold and cause distortions
+    .servo_protocol = 1,
+    .flaperon_throw_offset = 200,
+    .tri_unarmed_servo = 1,
+    .servo_autotrim_rotation_limit = 100
 );
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(servoMixer_t, MAX_SERVO_RULES, customServoMixers, PG_SERVO_MIXER, 1);

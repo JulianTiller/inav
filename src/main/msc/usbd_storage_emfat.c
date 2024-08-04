@@ -31,7 +31,7 @@
 #include "platform.h"
 
 #include "common/utils.h"
-
+#ifndef AURIX
 #include "drivers/light_led.h"
 #include "drivers/time.h"
 #include "drivers/flash.h"
@@ -140,3 +140,4 @@ USBD_MSC_EMFAT_fops =
     STORAGE_GetMaxLun,
     (int8_t *)STORAGE_Inquirydata,
 };
+#endif

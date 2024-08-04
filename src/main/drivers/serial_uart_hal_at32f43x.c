@@ -34,7 +34,7 @@
 #include "serial.h"
 #include "serial_uart.h"
 #include "serial_uart_impl.h"
-
+#ifndef AURIX
 static void usartConfigurePinInversion(uartPort_t *uartPort) {
 #if !defined(USE_UART_INVERTER) 
     UNUSED(uartPort);
@@ -267,3 +267,4 @@ const struct serialPortVTable uartVTable[] = {
         .isIdle = isUartIdle,
     }
 };
+#endif

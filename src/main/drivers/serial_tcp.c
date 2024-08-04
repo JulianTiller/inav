@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef AURIX
 #include <sys/select.h>
 #include <time.h>
 #include <unistd.h>
@@ -368,4 +369,5 @@ static const struct serialPortVTable tcpVTable[] = {
     }
 };
 
+#endif
 #endif

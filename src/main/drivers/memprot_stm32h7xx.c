@@ -25,6 +25,7 @@
 #include "memprot.h"
 
 // Defined in linker script
+#ifndef AURIX
 extern uint8_t dmaram_start;
 extern uint8_t dmaram_end;
 
@@ -77,3 +78,4 @@ mpuRegion_t mpuRegions[] = {
 unsigned mpuRegionCount = ARRAYLEN(mpuRegions);
 
 STATIC_ASSERT(ARRAYLEN(mpuRegions) <= MAX_MPU_REGIONS, MPU_region_count_exceeds_limit);
+#endif

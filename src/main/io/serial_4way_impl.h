@@ -21,6 +21,9 @@
 
 typedef struct {
     IO_t io;
+#ifdef AURIX
+    uint8_t af;
+#endif
 } escHardware_t;
 
 extern uint8_t selected_esc;

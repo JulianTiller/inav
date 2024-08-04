@@ -30,6 +30,9 @@
 #include "common/utils.h"
 
 #include "drivers/uart_inverter.h"
+#ifdef AURIX
+#include "drivers/io_impl.h"
+#endif
 
 #include "serial.h"
 #include "serial_uart.h"
@@ -57,6 +60,104 @@ static void usartConfigurePinInversion(uartPort_t *uartPort) {
 
 static void uartReconfigure(uartPort_t *uartPort)
 {
+#ifdef AURIX
+	//create module config
+	IfxAsclin_Asc_Config ascConfig;
+	IfxAsclin_Asc_initModuleConfig(&ascConfig, uartPort->USARTx);
+
+    //set the desired baudrate
+    ascConfig.baudrate.prescaler    = 1;
+    ascConfig.baudrate.baudrate     = uartPort->port.baudRate;
+    //Adjust sample point to suit HW (default values do not work)
+    ascConfig.baudrate.oversampling = uartPort->oversampling;
+    ascConfig.bitTiming.medianFilter = uartPort->medianFilter;
+    ascConfig.bitTiming.samplePointPosition = uartPort->samplePointPosition;
+
+    // ISR priorities and interrupt target
+    ascConfig.interrupt.rxPriority = uartPort->rxPriority;
+    ascConfig.interrupt.txPriority = uartPort->txPriority;
+    ascConfig.interrupt.typeOfService = IfxCpu_Irq_getTos(IfxCpu_getCoreIndex());
+
+    // FIFO configuration
+    ascConfig.txBuffer = (void*)uartPort->port.txBuffer;
+    ascConfig.txBufferSize = uartPort->port.txBufferSize;
+    ascConfig.rxBuffer = (void*)uartPort->port.rxBuffer;
+    ascConfig.rxBufferSize = uartPort->port.rxBufferSize;
+
+    ascConfig.frame.parityBit = (uartPort->port.options & SERIAL_PARITY_EVEN) ? 1 : 0;
+    ascConfig.frame.parityType = (uartPort->port.options & SERIAL_PARITY_EVEN) ? IfxAsclin_ParityType_even : IfxAsclin_ParityType_odd;
+    ascConfig.frame.stopBit = (uartPort->port.options & SERIAL_STOPBITS_2) ? IfxAsclin_StopBit_2 : IfxAsclin_StopBit_1;
+
+    IfxAsclin_Asc_Pins pins = {0};
+    GPIO_TypeDef* port = IO_GPIO(uartPort->rxIO);
+    if(IO_GPIO(uartPort->rxIO)== 0xF003C200)
+    	port = 0xF003C000; // ONLY FOR TEST PURPOSE
+
+    uint8_t pinIndex = IO_Pin(uartPort->rxIO);
+
+//    uint8 msg_u[50] = "START\n";
+//
+//	snprintf(msg_u,sizeof(msg_u),"START RX\n");
+//	uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//	memset(msg_u,'\0',50);
+
+    int i,j;
+    for (i=0; i<IFXASCLIN_PINMAP_NUM_MODULES; i++)
+    	for (j=0; j<IFXASCLIN_PINMAP_RX_IN_NUM_ITEMS; j++)
+    		if (IfxAsclin_Rx_In_pinTable[i][j] != NULL_PTR)
+    			if (IfxAsclin_Rx_In_pinTable[i][j]->pin.port == port && IfxAsclin_Rx_In_pinTable[i][j]->pin.pinIndex == pinIndex)
+    			{
+
+    				pins.rx = IfxAsclin_Rx_In_pinTable[i][j];
+//    				snprintf(msg_u,sizeof(msg_u),"RXPORT%d %d %X",i,j,(IfxAsclin_Rx_In_pinTable[i][j]->pin.port));
+//    				uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//    				memset(msg_u,'\0',50);
+//
+//    				snprintf(msg_u,sizeof(msg_u),"RXPIN%d %d %X",i,j,(IfxAsclin_Rx_In_pinTable[i][j]->pin.pinIndex));
+//    				uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//    				memset(msg_u,'\0',50);
+    			}
+
+
+//	snprintf(msg_u,sizeof(msg_u),"RXPORT %X",port);
+//	uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//	memset(msg_u,'\0',50);
+//	snprintf(msg_u,sizeof(msg_u),"RXPIN %X",pinIndex);
+//	uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//	memset(msg_u,'\0',50);
+
+    port = IO_GPIO(uartPort->txIO);
+    pinIndex = IO_Pin(uartPort->txIO);
+
+    for (i=0; i<IFXASCLIN_PINMAP_NUM_MODULES; i++)
+    	for (j=0; j<IFXASCLIN_PINMAP_TX_OUT_NUM_ITEMS; j++)
+    		if (IfxAsclin_Tx_Out_pinTable[i][j] != NULL_PTR)
+    			if (IfxAsclin_Tx_Out_pinTable[i][j]->pin.port == port && IfxAsclin_Tx_Out_pinTable[i][j]->pin.pinIndex == pinIndex)
+    			{
+    				pins.tx = IfxAsclin_Tx_Out_pinTable[i][j];
+
+//    				snprintf(msg_u,sizeof(msg_u),"TXPORT%d %d %X",i,j,(IfxAsclin_Tx_Out_pinTable[i][j]->pin.port));
+//    				uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//    				memset(msg_u,'\0',50);
+//
+//    				snprintf(msg_u,sizeof(msg_u),"TXPIN%d %d %X",i,j,(IfxAsclin_Tx_Out_pinTable[i][j]->pin.pinIndex));
+//    				uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//    				memset(msg_u,'\0',50);
+    			}
+
+
+//	snprintf(msg_u,sizeof(msg_u),"TXPORT %X",port);
+//	uart_sendMessage((uint8*)msg_u, sizeof(msg_u));
+//	memset(msg_u,'\0',50);
+
+    pins.rxMode = IfxPort_InputMode_pullUp;
+    pins.txMode = IfxPort_OutputMode_pushPull;
+    ascConfig.pins = &pins;
+
+    IfxAsclin_Asc_initModule(&uartPort->asclin, &ascConfig);
+
+    usartConfigurePinInversion(uartPort);
+#else
     USART_InitTypeDef USART_InitStructure;
     USART_Cmd(uartPort->USARTx, DISABLE);
 
@@ -90,6 +191,7 @@ static void uartReconfigure(uartPort_t *uartPort)
         USART_HalfDuplexCmd(uartPort->USARTx, DISABLE);
 
     USART_Cmd(uartPort->USARTx, ENABLE);
+#endif
 }
 
 serialPort_t *uartOpen(USART_TypeDef *USARTx, serialReceiveCallbackPtr rxCallback, void *rxCallbackData, uint32_t baudRate, portMode_t mode, portOptions_t options)
@@ -147,6 +249,7 @@ serialPort_t *uartOpen(USART_TypeDef *USARTx, serialReceiveCallbackPtr rxCallbac
 
     uartReconfigure(s);
 
+#ifndef AURIX
     if (mode & MODE_RX) {
         USART_ClearITPendingBit(s->USARTx, USART_IT_RXNE);
         USART_ITConfig(s->USARTx, USART_IT_RXNE, ENABLE);
@@ -157,6 +260,7 @@ serialPort_t *uartOpen(USART_TypeDef *USARTx, serialReceiveCallbackPtr rxCallbac
     }
 
     USART_Cmd(s->USARTx, ENABLE);
+#endif
 
     return (serialPort_t *)s;
 }
@@ -178,18 +282,25 @@ void uartSetMode(serialPort_t *instance, portMode_t mode)
 uint32_t uartTotalRxBytesWaiting(const serialPort_t *instance)
 {
     const uartPort_t *s = (const uartPort_t*)instance;
-
+#ifndef AURIX
     if (s->port.rxBufferHead >= s->port.rxBufferTail) {
         return s->port.rxBufferHead - s->port.rxBufferTail;
     } else {
         return s->port.rxBufferSize + s->port.rxBufferHead - s->port.rxBufferTail;
     }
+#else
+    return IfxAsclin_Asc_getReadCount((IfxAsclin_Asc*)&s->asclin);
+#endif
+
 }
 
 uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
 {
     const uartPort_t *s = (const uartPort_t*)instance;
+#ifdef AURIX
 
+    return IfxAsclin_Asc_getWriteCount((IfxAsclin_Asc*)&s->asclin) - 1;
+#else
     uint32_t bytesUsed;
 
     if (s->port.txBufferHead >= s->port.txBufferTail) {
@@ -199,12 +310,17 @@ uint32_t uartTotalTxBytesFree(const serialPort_t *instance)
     }
 
     return (s->port.txBufferSize - 1) - bytesUsed;
+#endif
 }
 
 bool isUartTransmitBufferEmpty(const serialPort_t *instance)
 {
     const uartPort_t *s = (const uartPort_t *)instance;
+#ifdef AURIX
+    return Ifx_Fifo_isEmpty(s->asclin.tx);
+#else
     return s->port.txBufferTail == s->port.txBufferHead;
+#endif
 }
 
 uint8_t uartRead(serialPort_t *instance)
@@ -212,19 +328,25 @@ uint8_t uartRead(serialPort_t *instance)
     uint8_t ch;
     uartPort_t *s = (uartPort_t *)instance;
 
+#ifdef AURIX
+    ch = IfxAsclin_Asc_blockingRead(&s->asclin);
+#else
     ch = s->port.rxBuffer[s->port.rxBufferTail];
     if (s->port.rxBufferTail + 1 >= s->port.rxBufferSize) {
         s->port.rxBufferTail = 0;
     } else {
         s->port.rxBufferTail++;
     }
-
+#endif
     return ch;
 }
 
 void uartWrite(serialPort_t *instance, uint8_t ch)
 {
     uartPort_t *s = (uartPort_t *)instance;
+#ifdef AURIX
+    IfxAsclin_Asc_blockingWrite(&s->asclin, ch);
+#else
     s->port.txBuffer[s->port.txBufferHead] = ch;
     if (s->port.txBufferHead + 1 >= s->port.txBufferSize) {
         s->port.txBufferHead = 0;
@@ -233,17 +355,23 @@ void uartWrite(serialPort_t *instance, uint8_t ch)
     }
 
     USART_ITConfig(s->USARTx, USART_IT_TXE, ENABLE);
+#endif
 }
 
+//Nicht vorhanden auf alter Version daher einfachweise return True nur!!!!
 bool isUartIdle(serialPort_t *instance)
 {
     uartPort_t *s = (uartPort_t *)instance;
+#ifdef AURIX
+    return true;
+#else
     if(USART_GetFlagStatus(s->USARTx, USART_FLAG_IDLE)) {
         uartClearIdleFlag(s);
         return true;
     } else {
         return false;
     }
+#endif
 }
 
 const struct serialPortVTable uartVTable[] = {
@@ -259,6 +387,6 @@ const struct serialPortVTable uartVTable[] = {
         .writeBuf = NULL,
         .beginWrite = NULL,
         .endWrite = NULL,
-        .isIdle = isUartIdle,
+        //.isIdle = isUartIdle,
     }
 };

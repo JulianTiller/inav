@@ -3313,6 +3313,14 @@ static void cliStatus(char *cmdline)
         }
     }
     cliPrintLinefeed();
+
+#ifdef AURIX
+	cliPrintLine("AURIX system clocks:");
+    cliPrintLinef("  PLLCLK = %d MHz", IfxScuCcu_getPllFrequency() / 1000000);
+    cliPrintLinef("  CPUCLK = %d MHz", IfxScuCcu_getCpuFrequency(IfxCpu_getCoreIndex()) / 1000000);
+    cliPrintLinef("  SYSCLK = %d MHz", IfxScuCcu_getSpbFrequency() / 1000000);
+    cliPrintLinef("  STMCLK = %d MHz", IfxStm_getFrequency(&MODULE_STM0) / 1000000);
+#else
 #if !defined(SITL_BUILD)
 #if defined(AT32F43x)
     cliPrintLine("AT32 system clocks:");
@@ -3340,7 +3348,7 @@ static void cliStatus(char *cmdline)
 #endif
 #endif // for if at32
 #endif // for SITL
-
+#endif
     cliPrintLinef("Sensor status: GYRO=%s, ACC=%s, MAG=%s, BARO=%s, RANGEFINDER=%s, OPFLOW=%s, GPS=%s",
         hardwareSensorStatusNames[getHwGyroStatus()],
         hardwareSensorStatusNames[getHwAccelerometerStatus()],

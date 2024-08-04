@@ -76,29 +76,38 @@ int motorZeroCommand = 0;
 PG_REGISTER_WITH_RESET_TEMPLATE(reversibleMotorsConfig_t, reversibleMotorsConfig, PG_REVERSIBLE_MOTORS_CONFIG, 0);
 
 PG_RESET_TEMPLATE(reversibleMotorsConfig_t, reversibleMotorsConfig,
-    .deadband_low = SETTING_3D_DEADBAND_LOW_DEFAULT,
-    .deadband_high = SETTING_3D_DEADBAND_HIGH_DEFAULT,
-    .neutral = SETTING_3D_NEUTRAL_DEFAULT
+    .deadband_low = 1406,
+    .deadband_high = 1514,
+    .neutral = 1460
 );
 
 PG_REGISTER_WITH_RESET_TEMPLATE(mixerConfig_t, mixerConfig, PG_MIXER_CONFIG, 5);
 
 PG_RESET_TEMPLATE(mixerConfig_t, mixerConfig,
-    .motorDirectionInverted = SETTING_MOTOR_DIRECTION_INVERTED_DEFAULT,
-    .platformType = SETTING_PLATFORM_TYPE_DEFAULT,
-    .hasFlaps = SETTING_HAS_FLAPS_DEFAULT,
-    .appliedMixerPreset = SETTING_MODEL_PREVIEW_TYPE_DEFAULT, //This flag is not available in CLI and used by Configurator only
-    .outputMode = SETTING_OUTPUT_MODE_DEFAULT,
+    .motorDirectionInverted = 1,
+    .platformType = PLATFORM_MULTIROTOR,
+    .hasFlaps = false,
+    .appliedMixerPreset = -1, //This flag is not available in CLI and used by Configurator only
+    .outputMode = 1,
 );
 
 PG_REGISTER_WITH_RESET_TEMPLATE(motorConfig_t, motorConfig, PG_MOTOR_CONFIG, 9);
 
+#ifdef BRUSHED_MOTORS
+#define DEFAULT_PWM_PROTOCOL    PWM_TYPE_BRUSHED
+#define DEFAULT_PWM_RATE        16000
+#else
+#define DEFAULT_PWM_PROTOCOL    PWM_TYPE_STANDARD
+#define DEFAULT_PWM_RATE        400
+#endif
+
+#define DEFAULT_MAX_THROTTLE    1850
 PG_RESET_TEMPLATE(motorConfig_t, motorConfig,
-    .motorPwmProtocol = SETTING_MOTOR_PWM_PROTOCOL_DEFAULT,
-    .motorPwmRate = SETTING_MOTOR_PWM_RATE_DEFAULT,
-    .maxthrottle = SETTING_MAX_THROTTLE_DEFAULT,
-    .mincommand = SETTING_MIN_COMMAND_DEFAULT,
-    .motorPoleCount = SETTING_MOTOR_POLES_DEFAULT,            // Most brushless motors that we use are 14 poles
+    .motorPwmProtocol = DEFAULT_PWM_PROTOCOL,
+    .motorPwmRate = DEFAULT_PWM_RATE,
+    .maxthrottle = DEFAULT_MAX_THROTTLE,
+    .mincommand = 1000,
+    .motorPoleCount = 14,            // Most brushless motors that we use are 14 poles
 );
 
 PG_REGISTER_ARRAY(motorMixer_t, MAX_SUPPORTED_MOTORS, primaryMotorMixer, PG_MOTOR_MIXER, 0);
@@ -338,6 +347,11 @@ static void applyTurtleModeToMotors(void) {
 
 void FAST_CODE writeMotors(void)
 {
+	  /* FHTW */
+	  static uint8 prev_arm_state = 0;
+	  uint8 act_arm_state = 0;
+	  /* FHTW */
+
 #if !defined(SITL_BUILD)
     for (int i = 0; i < motorCount; i++) {
         uint16_t motorValue;
@@ -415,12 +429,23 @@ void FAST_CODE writeMotors(void)
 
         }
 #else
+        /* FHTW */
+        act_arm_state = ARMING_FLAG(ARMED);
+        /* FHTW */
         // We don't define USE_DSHOT
         motorValue = motor[i];
 #endif
-
+        /* FHTW */
+//        if(prev_arm_state != act_arm_state && prev_arm_state == 0)
+//        {
+//          delay(1000);
+//        }
+        /* FHTW */
         pwmWriteMotor(i, motorValue);
     }
+    /* FHTW */
+    prev_arm_state = act_arm_state;
+    /* FHTW */
 #endif
 }
 

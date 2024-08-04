@@ -160,14 +160,14 @@ void validateNavConfig(void)
 __attribute__((weak)) void validateAndFixTargetConfig(void)
 {
 #if !defined(SITL_BUILD)
-    __NOP();
+    //__NOP();
 #endif
 }
 
 __attribute__((weak)) void targetConfiguration(void)
 {
 #if !defined(SITL_BUILD)
-    __NOP();
+    //__NOP();
 #endif
 }
 
@@ -224,11 +224,11 @@ void validateAndFixConfig(void)
     }
 #endif
 
-#ifndef USE_SERVO_SBUS
-    if (servoConfig()->servo_protocol == SERVO_TYPE_SBUS || servoConfig()->servo_protocol == SERVO_TYPE_SBUS_PWM) {
-        servoConfigMutable()->servo_protocol = SERVO_TYPE_PWM;
-    }
-#endif
+//#ifndef USE_SERVO_SBUS
+//    if (servoConfig()->servo_protocol == SERVO_TYPE_SBUS || servoConfig()->servo_protocol == SERVO_TYPE_SBUS_PWM) {
+//        servoConfigMutable()->servo_protocol = SERVO_TYPE_PWM;
+//    }
+//#endif
 
     if (!isSerialConfigValid(serialConfigMutable())) {
         pgResetCopy(serialConfigMutable(), PG_SERIAL_CONFIG);

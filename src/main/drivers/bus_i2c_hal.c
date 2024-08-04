@@ -27,7 +27,7 @@
 #include "drivers/nvic.h"
 #include "io_impl.h"
 #include "rcc.h"
-
+#ifndef AURIX
 #if !defined(SOFT_I2C) && defined(USE_I2C)
 
 #define CLOCKSPEED 800000    // i2c clockspeed 400kHz default (conform specs), 800kHz  and  1200kHz (Betaflight default)
@@ -458,4 +458,5 @@ static void i2cUnstick(IO_t scl, IO_t sda)
     IOHi(sda); // Set bus sda high
 }
 
+#endif
 #endif

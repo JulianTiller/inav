@@ -24,7 +24,7 @@
 
 #define _TIM_IRQ_HANDLER2(name, i, j)                                   \
     void name(void)                                                     \
-    {                                                                   \
+    {                                                                   \s
         impl_timerCaptureCompareHandler(TMR ## i, timerCtx[i - 1]); \
         impl_timerCaptureCompareHandler(TMR ## j, timerCtx[j - 1]); \
     } struct dummy
@@ -38,16 +38,49 @@
 uint8_t lookupTimerIndex(const tmr_type *tim);
 void impl_timerCaptureCompareHandler(tmr_type *tim, timHardwareContext_t * timerCtx);
 
-#else // end at32 
+#endif// end at32
 
 #if defined(USE_HAL_DRIVER)
 # define IMPL_TIM_IT_UPDATE_INTERRUPT      TIM_IT_UPDATE
 # define TIM_IT_CCx(chIdx)                 (TIM_IT_CC1 << (chIdx))
+#elif defined(AURIX)
+#define TIM_IT_CCx(ch)                    (TIM_IT_CC1 << ((ch) / 4))
+#define IMPL_TIM_IT_UPDATE_INTERRUPT      TIM_IT_Update
+#define CC_CHANNELS_PER_TIMER       1
+
+#define EDGE_IRQ					1
+#define OVER_IRQ					2
 #else
 #define IMPL_TIM_IT_UPDATE_INTERRUPT      TIM_IT_Update
 #define TIM_IT_CCx(chIdx)                 (TIM_IT_CC1 << (chIdx))
 #endif
 
+#ifdef AURIX
+
+#define _TIM_IRQ_HANDLER(_tim, _ch, _index)													\
+	IFX_INTERRUPT(TIM##_tim##CH##_ch##_ISR, 0, IFX_INTPRIO_TIM##_tim##_CH##_ch)				\
+	{																						\
+		impl_timerCaptureCompareHandler(timerDefinitions[_index].tim, timerConfig[_index]);	\
+	}
+
+#define _TOM_IRQ_HANDLER(_tom, _ch1, _ch2, _index1, _index2)															\
+	IFX_INTERRUPT(TOM##_tom##CH##_ch1##_##_ch2##_ISR, 0, IFX_INTPRIO_TOM##_tom##_CH##_ch1##_##_ch2)			\
+	{																								\
+		if(timerDefinitions[_index1].tim->tom.IRQ_NOTIFY.B.CCU0TC == 1)								\
+			impl_timerCaptureCompareHandler(timerDefinitions[_index1].tim, timerConfig[_index1]);		\
+		if(timerDefinitions[_index2].tim->tom.IRQ_NOTIFY.B.CCU0TC == 1)							\
+			impl_timerCaptureCompareHandler(timerDefinitions[_index2].tim, timerConfig[_index2]);	\
+	}
+
+typedef struct timerConfig_s {
+    timerCCHandlerRec_t *edgeCallback[CC_CHANNELS_PER_TIMER];
+    timerOvrHandlerRec_t *overflowCallback[CC_CHANNELS_PER_TIMER];
+    timerOvrHandlerRec_t *overflowCallbackActive; // null-terminated linkded list of active overflow callbacks
+} timerConfig_t;
+
+extern timerConfig_t * timerConfig[HARDWARE_TIMER_DEFINITION_COUNT];
+
+#else
 #define _TIM_IRQ_HANDLER2(name, i, j)                                   \
     void name(void)                                                     \
     {                                                                   \
@@ -66,6 +99,24 @@ void impl_timerCaptureCompareHandler(TIM_TypeDef *tim, timHardwareContext_t * ti
 
 #endif //end of else (stm32)
 
+
+uint8_t lookupTimerIndex(const TIM_TypeDef *tim);
+
+#ifdef AURIX
+void impl_timerNVICConfigure(volatile Ifx_SRC_SRCR* src, int irqPriority);
+void impl_enableTimer(const timerHardware_t *timHw, uint8_t channel);
+uint16_t impl_timerGetPeriod(const timerHardware_t *timHw);
+void impl_timerConfigBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz);
+void impl_timerEnableIT(TIM_TypeDef * tim, uint32_t interrupt);
+void impl_timerDisableIT(TIM_TypeDef * tim, uint32_t interrupt);
+void impl_timerClearFlag(TIM_TypeDef * tim, uint32_t flag);
+void impl_timerChConfigIC(const timerHardware_t *timHw, bool polarityRising, unsigned inputFilterTicks);
+void impl_timerCaptureCompareHandler(TIM_TypeDef *tim, timerConfig_t *timerConfig);
+void impl_timerPWMConfigChannel(TIM_TypeDef * tim, uint8_t channel, bool isNChannel, bool inverted, uint16_t value);
+void impl_timerPWMStart(TIM_TypeDef * tim, unsigned channel, bool isNChannel);
+uint16_t impl_timerDmaSource(uint8_t channel);
+volatile timCCR_t * impl_timerCCR(TIM_TypeDef *tim, uint8_t channel);
+#else
 void impl_timerInitContext(timHardwareContext_t * timCtx);
 
 volatile timCCR_t * impl_timerCCR(TCH_t * tch);
@@ -84,3 +135,4 @@ bool impl_timerPWMConfigChannelDMA(TCH_t * tch, void * dmaBuffer, uint8_t dmaBuf
 void impl_timerPWMPrepareDMA(TCH_t * tch, uint32_t dmaBufferElementCount);
 void impl_timerPWMStartDMA(TCH_t * tch);
 void impl_timerPWMStopDMA(TCH_t * tch);
+#endif

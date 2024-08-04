@@ -35,37 +35,41 @@ const controlRateConfig_t *currentControlRateProfile;
 
 
 PG_REGISTER_ARRAY_WITH_RESET_FN(controlRateConfig_t, MAX_CONTROL_RATE_PROFILE_COUNT, controlRateProfiles, PG_CONTROL_RATE_PROFILES, 4);
+#define SETTING_ROLL_RATE_DEFAULT 20
+#define SETTING_PITCH_RATE_DEFAULT 20
+#define SETTING_YAW_RATE_DEFAULT 20
+
 
 void pgResetFn_controlRateProfiles(controlRateConfig_t *instance)
 {
     for (int i = 0; i < MAX_CONTROL_RATE_PROFILE_COUNT; i++) {
         RESET_CONFIG(controlRateConfig_t, &instance[i],
             .throttle = {
-                .rcMid8 = SETTING_THR_MID_DEFAULT,
-                .rcExpo8 = SETTING_THR_EXPO_DEFAULT,
-                .dynPID = SETTING_TPA_RATE_DEFAULT,
-                .pa_breakpoint = SETTING_TPA_BREAKPOINT_DEFAULT,
-                .fixedWingTauMs = SETTING_FW_TPA_TIME_CONSTANT_DEFAULT
+                .rcMid8 = 50,
+                .rcExpo8 = 0,
+                .dynPID = 0,
+                .pa_breakpoint = 1500,
+                .fixedWingTauMs = 0
             },
 
             .stabilized = {
-                .rcExpo8 = SETTING_RC_EXPO_DEFAULT,
-                .rcYawExpo8 = SETTING_RC_YAW_EXPO_DEFAULT,
+                .rcExpo8 = 70,
+                .rcYawExpo8 = 20,
                 .rates[FD_ROLL] = SETTING_ROLL_RATE_DEFAULT,
                 .rates[FD_PITCH] = SETTING_PITCH_RATE_DEFAULT,
                 .rates[FD_YAW] = SETTING_YAW_RATE_DEFAULT,
             },
 
             .manual = {
-                .rcExpo8 = SETTING_MANUAL_RC_EXPO_DEFAULT,
-                .rcYawExpo8 = SETTING_MANUAL_RC_YAW_EXPO_DEFAULT,
-                .rates[FD_ROLL] = SETTING_MANUAL_ROLL_RATE_DEFAULT,
-                .rates[FD_PITCH] = SETTING_MANUAL_PITCH_RATE_DEFAULT,
-                .rates[FD_YAW] = SETTING_MANUAL_YAW_RATE_DEFAULT
+                .rcExpo8 = 70,
+                .rcYawExpo8 = 20,
+                .rates[FD_ROLL] = 100,
+                .rates[FD_PITCH] = 100,
+                .rates[FD_YAW] = 100
             },
 
             .misc = {
-                .fpvCamAngleDegrees = SETTING_FPV_MIX_DEGREES_DEFAULT
+                .fpvCamAngleDegrees = 0
             },
         #ifdef USE_RATE_DYNAMICS
             .rateDynamics = {

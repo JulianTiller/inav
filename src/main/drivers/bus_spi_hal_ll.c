@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#ifndef AURIX
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -399,3 +399,4 @@ SPI_TypeDef * spiInstanceByDevice(SPIDevice device)
 {
     return spiHardwareMap[device].dev;
 }
+#endif

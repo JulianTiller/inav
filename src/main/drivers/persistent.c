@@ -28,7 +28,7 @@
 
 #include "drivers/persistent.h"
 #include "drivers/system.h"
-
+#ifndef AURIX
 #define PERSISTENT_OBJECT_MAGIC_VALUE (('i' << 24)|('N' << 16)|('a' << 8)|('v' << 0))
 
 #if defined(AT32F43x)
@@ -147,3 +147,4 @@ void persistentObjectInit(void)
         persistentObjectWrite(PERSISTENT_OBJECT_MAGIC, PERSISTENT_OBJECT_MAGIC_VALUE);
     }
 }
+#endif

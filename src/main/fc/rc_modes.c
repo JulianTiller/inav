@@ -56,7 +56,7 @@ PG_REGISTER_ARRAY(modeActivationCondition_t, MAX_MODE_ACTIVATION_CONDITION_COUNT
 PG_REGISTER(modeActivationOperatorConfig_t, modeActivationOperatorConfig, PG_MODE_ACTIVATION_OPERATOR_CONFIG, 0);
 
 PG_RESET_TEMPLATE(modeActivationOperatorConfig_t, modeActivationOperatorConfig,
-    .modeActivationOperator = SETTING_MODE_RANGE_LOGIC_OPERATOR_DEFAULT
+    .modeActivationOperator = 0
 );
 
 static void processAirmodeAirplane(void) {

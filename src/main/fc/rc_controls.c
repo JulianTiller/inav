@@ -77,23 +77,23 @@ FASTRAM int16_t rcCommand[4];           // interval [1000;2000] for THROTTLE and
 PG_REGISTER_WITH_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig, PG_RC_CONTROLS_CONFIG, 3);
 
 PG_RESET_TEMPLATE(rcControlsConfig_t, rcControlsConfig,
-    .deadband = SETTING_DEADBAND_DEFAULT,
-    .yaw_deadband = SETTING_YAW_DEADBAND_DEFAULT,
-    .pos_hold_deadband = SETTING_POS_HOLD_DEADBAND_DEFAULT,
-    .control_deadband = SETTING_CONTROL_DEADBAND_DEFAULT,
-    .alt_hold_deadband = SETTING_ALT_HOLD_DEADBAND_DEFAULT,
-    .mid_throttle_deadband = SETTING_3D_DEADBAND_THROTTLE_DEFAULT,
-    .airmodeHandlingType = SETTING_AIRMODE_TYPE_DEFAULT,
-    .airmodeThrottleThreshold = SETTING_AIRMODE_THROTTLE_THRESHOLD_DEFAULT,
+    .deadband = 5,
+    .yaw_deadband = 5,
+    .pos_hold_deadband = 20,
+    .control_deadband = 20,
+    .alt_hold_deadband = 50,
+    .mid_throttle_deadband = 50,
+    .airmodeHandlingType = STICK_CENTER,
+    .airmodeThrottleThreshold = AIRMODE_THROTTLE_THRESHOLD,
 );
 
 PG_REGISTER_WITH_RESET_TEMPLATE(armingConfig_t, armingConfig, PG_ARMING_CONFIG, 2);
 
 PG_RESET_TEMPLATE(armingConfig_t, armingConfig,
-    .fixed_wing_auto_arm = SETTING_FIXED_WING_AUTO_ARM_DEFAULT,
-    .disarm_kill_switch = SETTING_DISARM_KILL_SWITCH_DEFAULT,
-    .switchDisarmDelayMs = SETTING_SWITCH_DISARM_DELAY_DEFAULT,
-    .prearmTimeoutMs = SETTING_PREARM_TIMEOUT_DEFAULT,
+    .fixed_wing_auto_arm = 0,
+    .disarm_kill_switch = 1,
+    .switchDisarmDelayMs = DEFAULT_RC_SWITCH_DISARM_DELAY_MS,
+    .prearmTimeoutMs = 10000,
 );
 
 bool areSticksInApModePosition(uint16_t ap_mode)

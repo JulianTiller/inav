@@ -31,7 +31,10 @@
 
 #include "drivers/bus.h"
 #include "drivers/io.h"
-
+#ifdef AURIX
+#include "drivers/io_impl.h"
+#include "sensors/gyro.h"
+#endif
 #define BUSDEV_MAX_DEVICES 16
 
 #ifdef USE_SPI
@@ -91,13 +94,103 @@ static bool busDevInit_SPI(busDevice_t * dev, const busDeviceDescriptor_t * desc
     dev->busType = descriptor->busType;
     dev->irqPin = IOGetByTag(descriptor->irqPin);
     dev->busdev.spi.spiBus = descriptor->busdev.spi.spiBus;
-    dev->busdev.spi.csnPin = IOGetByTag(descriptor->busdev.spi.csnPin);
-
+    if(descriptor->busdev.spi.spiBus == BMI160_SPI_BUS)
+    {
+    	dev->busdev.spi.csnPin = IOGetByTag(IO_TAG(BMI160_CS_PIN));
+//    	dev->busdev.spi.csnPin = IfxQspi_Slso_Out_pinTable[2][4][0];
+    }
+    if(descriptor->busdev.spi.spiBus == SDCARD_SPI_BUS)
+    {
+    	dev->busdev.spi.csnPin = IOGetByTag(IO_TAG(SDCARD_CS_PIN));
+    	//dev->busdev.spi.csnPin = IfxQspi_Slso_Out_pinTable[3][2][0];
+    }
     if (dev->busdev.spi.csnPin && spiBusInitHost(dev)) {
         // Init CSN pin
         IOInit(dev->busdev.spi.csnPin, owner, RESOURCE_SPI_CS, 0);
+#ifdef AURIX
+        if(descriptor->busdev.spi.spiBus == BMI160_SPI_BUS)
+        {
+        	IfxQspi_SpiMaster_ChannelConfig chConfig;
+        	IfxQspi_SpiMaster* master = spiMasterByDevice(BMI160_SPI_BUS);
+        	IfxQspi_SpiMaster_initChannelConfig(&chConfig, master);
+
+        	chConfig.base.baudrate = 1000000;
+        	chConfig.base.mode.shiftClock = SpiIf_ShiftClock_shiftTransmitDataOnTrailingEdge;
+
+        	IfxQspi_SpiMaster_Output slsOutput =
+        	{
+        			NULL,
+					IfxPort_OutputMode_pushPull,
+					IfxPort_PadDriver_cmosAutomotiveSpeed1
+        	};
+
+        	GPIO_TypeDef* port = IO_GPIO(dev->busdev.spi.csnPin);
+        	uint8_t pinIndex = IO_Pin(dev->busdev.spi.csnPin);
+
+        	for (int i=0; i<IFXQSPI_PINMAP_NUM_MODULES; i++)
+        		for (int j=0; j<IFXQSPI_PINMAP_NUM_SLAVESELECTS; j++)
+        			for (int k=0; k<IFXQSPI_PINMAP_SLSO_OUT_NUM_ITEMS; k++)
+        				if (IfxQspi_Slso_Out_pinTable[i][j][k] != NULL)
+        					if (IfxQspi_Slso_Out_pinTable[i][j][k]->pin.port == port &&
+        							IfxQspi_Slso_Out_pinTable[i][j][k]->pin.pinIndex == pinIndex &&
+									IfxQspi_Slso_Out_pinTable[i][j][k]->module == (Ifx_QSPI*)master->qspi)
+        						slsOutput.pin = IfxQspi_Slso_Out_pinTable[i][j][k];
+
+//        	slsOutput.pin = IfxQspi_Slso_Out_pinTable[2][4][0];
+        	chConfig.sls.output = (IfxQspi_SpiMaster_Output)slsOutput;
+
+        	IfxQspi_SpiMaster_Channel* spiChannel = spiInstanceByDevice(dev->busdev.spi.spiBus);
+        	IfxQspi_SpiMaster_initChannel(spiChannel, &chConfig);
+        }
+        if(descriptor->busdev.spi.spiBus == SDCARD_SPI_BUS)
+        {
+        	IfxQspi_SpiMaster_ChannelConfig chConfig;
+        	IfxQspi_SpiMaster* master = spiMasterByDevice(SDCARD_SPI_BUS);
+        	IfxQspi_SpiMaster_initChannelConfig(&chConfig, master);
+
+        	chConfig.base.baudrate = 1000000;
+        	chConfig.base.mode.shiftClock = SpiIf_ShiftClock_shiftTransmitDataOnTrailingEdge;
+        	chConfig.base.mode.autoCS = false;
+
+        	IfxQspi_SpiMaster_Output slsOutput =
+        	{
+        			NULL,
+					IfxPort_OutputMode_pushPull,
+					IfxPort_PadDriver_cmosAutomotiveSpeed1
+        	};
+
+        	GPIO_TypeDef* port = IO_GPIO(IOGetByTag(IO_TAG(SDCARD_CS_PIN)));
+        	uint8_t pinIndex = IO_Pin(IOGetByTag(IO_TAG(SDCARD_CS_PIN)));
+
+        	for (int i=0; i<IFXQSPI_PINMAP_NUM_MODULES; i++)
+        		for (int j=0; j<IFXQSPI_PINMAP_NUM_SLAVESELECTS; j++)
+        			for (int k=0; k<IFXQSPI_PINMAP_SLSO_OUT_NUM_ITEMS; k++)
+        				if (IfxQspi_Slso_Out_pinTable[i][j][k] != NULL)
+        					if (IfxQspi_Slso_Out_pinTable[i][j][k]->pin.port == port &&
+        							IfxQspi_Slso_Out_pinTable[i][j][k]->pin.pinIndex == pinIndex &&
+									IfxQspi_Slso_Out_pinTable[i][j][k]->module == master->qspi)
+        						slsOutput.pin = IfxQspi_Slso_Out_pinTable[i][j][k];
+
+//        	slsOutput.pin = IfxQspi_Slso_Out_pinTable[3][2][0];
+        	chConfig.sls.output = (IfxQspi_SpiMaster_Output)slsOutput;
+
+        	IfxQspi_SpiMaster_Channel* spiChannel = spiInstanceByDevice(dev->busdev.spi.spiBus);
+        	IfxQspi_SpiMaster_initChannel(spiChannel, &chConfig);
+        	spiChannel->activateSlso = NULL;
+        	spiChannel->deactivateSlso = NULL;
+
+
+            IOHi(dev->busdev.spi.csnPin);
+        }
+#else
+    dev->busdev.spi.csnPin = IOGetByTag(descriptor->busdev.spi.csnPin);
+#endif
+
+#ifndef AURIX
         IOConfigGPIO(dev->busdev.spi.csnPin, SPI_IO_CS_CFG);
         IOHi(dev->busdev.spi.csnPin);
+#endif
+
         return true;
     }
 

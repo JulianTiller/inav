@@ -31,7 +31,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#ifndef AURIX
 /* includes ------------------------------------------------------------------*/
 #include "at32f435_437.h"
 
@@ -194,4 +194,5 @@ void            i2c_dma_rx_irq_handler    (i2c_handle_type* hi2c);
 }
 #endif
 
+#endif
 #endif
