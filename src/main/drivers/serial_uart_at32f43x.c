@@ -46,6 +46,7 @@ typedef struct uartDevice_s {
     uint8_t af;
     uint8_t irq;
     uint32_t irqPriority;
+    bool pinSwap;
 } uartDevice_t;
 
 #ifdef USE_UART1
@@ -60,7 +61,12 @@ static uartDevice_t uart1 =
 #endif
     .rcc_apb2 = RCC_APB2(USART1),
     .irq = USART1_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART1_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -76,7 +82,12 @@ static uartDevice_t uart2 =
 #endif
     .rcc_apb1 = RCC_APB1(USART2),
     .irq = USART2_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART2_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -92,7 +103,12 @@ static uartDevice_t uart3 =
 #endif
     .rcc_apb1 = RCC_APB1(USART3),
     .irq = USART3_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART3_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -108,7 +124,12 @@ static uartDevice_t uart4 =
 #endif
     .rcc_apb1 = RCC_APB1(UART4),
     .irq = UART4_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART4_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -124,7 +145,12 @@ static uartDevice_t uart5 =
 #endif
     .rcc_apb1 = RCC_APB1(UART5),
     .irq = UART5_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART5_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -140,7 +166,12 @@ static uartDevice_t uart6 =
 #endif
     .rcc_apb2 = RCC_APB2(USART6),
     .irq = USART6_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART6_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -153,7 +184,12 @@ static uartDevice_t uart7 =
     .af = GPIO_MUX_8,
     .rcc_apb1 = RCC_APB1(UART7),
     .irq = UART7_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART7_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -166,7 +202,12 @@ static uartDevice_t uart8 =
     .af = GPIO_MUX_8,
     .rcc_apb1 = RCC_APB1(UART8),
     .irq = UART8_IRQn,
-    .irqPriority = NVIC_PRIO_SERIALUART
+    .irqPriority = NVIC_PRIO_SERIALUART,
+#ifdef USE_UART8_PIN_SWAP
+    .pinSwap = true,
+#else
+    .pinSwap = false,
+#endif
 };
 #endif
 
@@ -257,6 +298,30 @@ void uartClearIdleFlag(uartPort_t *s)
 {
     (void) s->USARTx->sts;
     (void) s->USARTx->dt;
+}
+
+static uartDevice_t *uartFindDevice(uartPort_t *uartPort)
+{
+    for (uint32_t i = 0; i < UARTDEV_MAX; i++) {
+        uartDevice_t *pDevice = uartHardwareMap[i];
+
+        if (pDevice->dev == uartPort->USARTx) {
+            return pDevice;
+        }
+    }
+    return NULL;
+}
+
+void uartConfigurePinSwap(uartPort_t *uartPort)
+{
+    uartDevice_t *uartDevice = uartFindDevice(uartPort);
+    if (!uartDevice) {
+        return;
+    }
+
+    if (uartDevice->pinSwap) {
+        usart_transmit_receive_pin_swap(uartPort->USARTx, TRUE);
+    }
 }
 
 uartPort_t *serialUART(UARTDevice_e device, uint32_t baudRate, portMode_t mode, portOptions_t options)
