@@ -34,7 +34,7 @@
   *
   ******************************************************************************
   */ 
-
+#ifndef AURIX
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32H7xx_HAL_CONF_H
 #define __STM32H7xx_HAL_CONF_H
@@ -428,5 +428,5 @@
 
 #endif /* __STM32H7xx_HAL_CONF_H */
  
-
+#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -153,8 +153,8 @@ static void jetiExBusDataReceive(uint16_t c, void *data)
 
     static timeUs_t jetiExBusTimeLast = 0;
     static uint8_t *jetiExBusFrame;
-    const timeUs_t now = microsISR();
-
+    //const timeUs_t now = microsISR();
+    const timeUs_t now = micros();
     // Check if we shall reset frame position due to time
     if (cmpTimeUs(now, jetiExBusTimeLast) > JETIEXBUS_MIN_FRAME_GAP) {
         jetiExBusFrameReset();

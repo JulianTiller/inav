@@ -30,7 +30,13 @@
 #include <math.h>
 
 #include "platform.h"
-
+// * Check if this OSD layout is using scaled or unscaled throttle.
+// * If both are used, it will default to scaled.
+// */
+bool osdUsingScaledThrottle()
+{
+	return 0;
+}
 #ifdef USE_OSD
 
 #include "build/debug.h"
@@ -1090,20 +1096,20 @@ void osdCrosshairPosition(uint8_t *x, uint8_t *y)
     *y -= osdConfig()->horizon_offset; // positive horizon_offset moves the HUD up, negative moves down
 }
 
-/**
- * Check if this OSD layout is using scaled or unscaled throttle.
- * If both are used, it will default to scaled.
- */
-bool osdUsingScaledThrottle() 
-{
-    bool usingScaledThrottle = OSD_VISIBLE(osdLayoutsConfig()->item_pos[currentLayout][OSD_SCALED_THROTTLE_POS]);
-    bool usingRCThrottle = OSD_VISIBLE(osdLayoutsConfig()->item_pos[currentLayout][OSD_THROTTLE_POS]);
-
-    if (!usingScaledThrottle && !usingRCThrottle)
-        usingScaledThrottle = true;
-
-    return usingScaledThrottle;
-}
+///**
+// * Check if this OSD layout is using scaled or unscaled throttle.
+// * If both are used, it will default to scaled.
+// */
+//bool osdUsingScaledThrottle()
+//{
+//    bool usingScaledThrottle = OSD_VISIBLE(osdLayoutsConfig()->item_pos[currentLayout][OSD_SCALED_THROTTLE_POS]);
+//    bool usingRCThrottle = OSD_VISIBLE(osdLayoutsConfig()->item_pos[currentLayout][OSD_THROTTLE_POS]);
+//
+//    if (!usingScaledThrottle && !usingRCThrottle)
+//        usingScaledThrottle = true;
+//
+//    return usingScaledThrottle;
+//}
 
 /**
  * Formats throttle position prefixed by its symbol.

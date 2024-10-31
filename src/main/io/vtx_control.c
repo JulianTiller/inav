@@ -43,12 +43,20 @@
 PG_REGISTER_WITH_RESET_TEMPLATE(vtxConfig_t, vtxConfig, PG_VTX_CONFIG, 4);
 
 PG_RESET_TEMPLATE(vtxConfig_t, vtxConfig,
-      .halfDuplex = SETTING_VTX_HALFDUPLEX_DEFAULT,
-      .smartAudioEarlyAkkWorkaroundEnable = SETTING_VTX_SMARTAUDIO_EARLY_AKK_WORKAROUND_DEFAULT,
-      .smartAudioAltSoftSerialMethod = SETTING_VTX_SMARTAUDIO_ALTERNATE_SOFTSERIAL_METHOD_DEFAULT,
-      .softSerialShortStop = SETTING_VTX_SOFTSERIAL_SHORTSTOP_DEFAULT,
-      .smartAudioStopBits = SETTING_VTX_SMARTAUDIO_STOPBITS_DEFAULT,
+      .halfDuplex = 0,
+      .smartAudioEarlyAkkWorkaroundEnable = 0,
+      .smartAudioAltSoftSerialMethod = 0,
+      .softSerialShortStop = 0,
+      .smartAudioStopBits = 0,
 );
+
+//PG_RESET_TEMPLATE(vtxConfig_t, vtxConfig,
+//      .halfDuplex = SETTING_VTX_HALFDUPLEX_DEFAULT,
+//      .smartAudioEarlyAkkWorkaroundEnable = SETTING_VTX_SMARTAUDIO_EARLY_AKK_WORKAROUND_DEFAULT,
+//      .smartAudioAltSoftSerialMethod = SETTING_VTX_SMARTAUDIO_ALTERNATE_SOFTSERIAL_METHOD_DEFAULT,
+//      .softSerialShortStop = SETTING_VTX_SOFTSERIAL_SHORTSTOP_DEFAULT,
+//      .smartAudioStopBits = SETTING_VTX_SMARTAUDIO_STOPBITS_DEFAULT,
+//);
 
 static uint8_t locked = 0;
 

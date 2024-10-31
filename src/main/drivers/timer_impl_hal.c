@@ -33,7 +33,7 @@
 #include "drivers/nvic.h"
 #include "drivers/timer.h"
 #include "drivers/timer_impl.h"
-
+#ifndef AURIX
 extern uint32_t timerClock(TIM_TypeDef *tim);
 
 const uint16_t lookupDMASourceTable[] = { TIM_DMA_CC1, TIM_DMA_CC2, TIM_DMA_CC3, TIM_DMA_CC4 };
@@ -465,3 +465,4 @@ void impl_timerPWMStopDMA(TCH_t * tch)
     (void)tch;
     // FIXME
 }
+#endif

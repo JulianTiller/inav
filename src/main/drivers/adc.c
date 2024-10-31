@@ -24,9 +24,11 @@
 #include "build/debug.h"
 #include "drivers/time.h"
 #include "common/utils.h"
+#include "target.h"
 
 #include "drivers/adc.h"
-#if defined(USE_ADC) && !defined(SITL_BUILD)
+//#if defined(USE_ADC) && !defined(SITL_BUILD)
+#if defined(USE_ADC)
 #include "drivers/io.h"
 
 #include "drivers/adc_impl.h"
@@ -67,6 +69,17 @@ uint32_t adcChannelByTag(ioTag_t ioTag)
     return 0;
 }
 
+#ifdef AURIX
+uint8_t adcGroupByTag(ioTag_t ioTag)
+{
+    for (uint8_t i = 0; i < ARRAYLEN(adcTagMap); i++) {
+        if (ioTag == adcTagMap[i].tag)
+            return adcTagMap[i].group;
+    }
+    return 0;
+}
+#endif
+
 int adcGetFunctionChannelAllocation(uint8_t function)
 {
     return adcFunctionMap[function];
@@ -86,7 +99,12 @@ uint16_t adcGetChannel(uint8_t function)
 
     if (adcConfig[channel].adcDevice != ADCINVALID && adcConfig[channel].enabled) {
 #if !defined(USE_ADC_AVERAGING)
+#ifdef AURIX
+    	Ifx_EVADC_G_RES result = IfxEvadc_Adc_getResult(&adcConfig[channel].ifxAdcChannel);
+    	return result.B.RESULT;
+#else
         return adcValues[adcConfig[channel].adcDevice][adcConfig[channel].dmaIndex];
+#endif
 #else
         uint32_t acc = 0;
         for (int i = 0; i < ADC_AVERAGE_N_SAMPLES; i++) {
@@ -99,7 +117,7 @@ uint16_t adcGetChannel(uint8_t function)
     }
 }
 
-#if defined(ADC_CHANNEL_1_PIN) || defined(ADC_CHANNEL_2_PIN) || defined(ADC_CHANNEL_3_PIN) || defined(ADC_CHANNEL_4_PIN)
+//#if defined(ADC_CHANNEL_1_PIN) || defined(ADC_CHANNEL_2_PIN) || defined(ADC_CHANNEL_3_PIN) || defined(ADC_CHANNEL_4_PIN)
 static bool isChannelInUse(int channel)
 {
     for (int i = 0; i < ADC_FUNCTION_COUNT; i++) {
@@ -109,7 +127,7 @@ static bool isChannelInUse(int channel)
 
     return false;
 }
-#endif
+//#endif
 
 #if !defined(ADC_CHANNEL_1_PIN) || !defined(ADC_CHANNEL_2_PIN) || !defined(ADC_CHANNEL_3_PIN) || !defined(ADC_CHANNEL_4_PIN)
 static void disableChannelMapping(int channel)

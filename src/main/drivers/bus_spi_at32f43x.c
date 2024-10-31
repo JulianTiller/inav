@@ -19,7 +19,7 @@
 #include <stdint.h>
 
 #include <platform.h>
-
+#ifndef AURIX
 #ifdef USE_SPI
 
 #include "drivers/bus_spi.h"
@@ -290,3 +290,4 @@ spi_type * spiInstanceByDevice( SPIDevice device )
     return spiHardwareMap[device].dev;
 }
 #endif // USE_SPI
+#endif

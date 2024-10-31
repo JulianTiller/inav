@@ -39,13 +39,17 @@
 #define REQUIRE_PRINTF_LONG_SUPPORT
 #endif
 
+#ifdef AURIX
+#define FASTRAM
+#else
 #ifdef __APPLE__
 #define FASTRAM                     __attribute__ ((section("__DATA,__.fastram_bss"), aligned(4)))
 #else
 #define FASTRAM                     __attribute__ ((section(".fastram_bss"), aligned(4)))
 #endif
+#endif
 
-#if defined (STM32F4) || defined (STM32F7)
+#if defined (STM32F4) || defined (STM32F7) || defined (AURIX)
 #define EXTENDED_FASTRAM FASTRAM
 #else
 #define EXTENDED_FASTRAM

@@ -99,6 +99,20 @@
 # define IOCFG_IPU            0
 # define IOCFG_IN_FLOATING    0
 
+#elif defined(AURIX)
+
+#define IO_CONFIG(mode, speed, otype, pupd) ((mode) | ((speed) << 2) | ((otype) << 4) | ((pupd) << 5))
+
+# define IOCFG_OUT_PP         IfxPort_Mode_outputPushPullGeneral
+# define IOCFG_OUT_OD         IfxPort_Mode_outputOpenDrainGeneral
+# define IOCFG_AF_PP          IfxPort_Mode_outputPushPullGeneral
+# define IOCFG_AF_PP_PD       IfxPort_Mode_outputPushPullGeneral
+# define IOCFG_AF_PP_UP       IfxPort_Mode_outputPushPullGeneral
+# define IOCFG_AF_OD          IfxPort_Mode_outputOpenDrainAlt1
+# define IOCFG_IPD            IfxPort_Mode_inputPullDown
+# define IOCFG_IPU            IfxPort_Mode_inputPullUp
+# define IOCFG_IN_FLOATING    IfxPort_Mode_inputNoPullDevice
+
 #else
 # warning "Unknown TARGET"
 #endif

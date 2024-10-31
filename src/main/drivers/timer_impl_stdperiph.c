@@ -33,7 +33,7 @@
 #include "drivers/dma.h"
 #include "drivers/timer.h"
 #include "drivers/timer_impl.h"
-
+#ifndef AURIX
 const uint16_t lookupDMASourceTable[4] = { TIM_DMA_CC1, TIM_DMA_CC2, TIM_DMA_CC3, TIM_DMA_CC4 };
 const uint8_t lookupTIMChannelTable[4] = { TIM_Channel_1, TIM_Channel_2, TIM_Channel_3, TIM_Channel_4 };
 
@@ -410,3 +410,4 @@ void impl_timerPWMStopDMA(TCH_t * tch)
     TIM_DMACmd(tch->timHw->tim, lookupDMASourceTable[tch->timHw->channelIndex], DISABLE);
     TIM_Cmd(tch->timHw->tim, ENABLE);
 }
+#endif

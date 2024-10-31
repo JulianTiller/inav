@@ -62,7 +62,7 @@
 /** @addtogroup STM32F7xx_System_Private_Includes
   * @{
   */
-
+#ifndef AURIX
 #include <string.h>
 #include "stm32f7xx.h"
 #include "drivers/system.h"
@@ -412,3 +412,4 @@ void SystemCoreClockUpdate(void)
   * @}
   */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif

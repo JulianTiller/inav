@@ -33,5 +33,5 @@
 PG_REGISTER_WITH_RESET_TEMPLATE(generalSettings_t, generalSettings, PG_GENERAL_SETTINGS, 0);
 
 PG_RESET_TEMPLATE(generalSettings_t, generalSettings,
-    .appliedDefaults = SETTING_APPLIED_DEFAULTS_DEFAULT,
+    .appliedDefaults = APPLIED_DEFAULTS_NONE,
 );

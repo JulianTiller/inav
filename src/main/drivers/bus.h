@@ -86,6 +86,7 @@ typedef enum {
     DEVHW_BMI270,
     DEVHW_LSM6D,
     /* Combined ACC/GYRO/MAG chips */
+	DEVHW_BMX160,
     DEVHW_MPU9250,
 
     /* Barometer chips */

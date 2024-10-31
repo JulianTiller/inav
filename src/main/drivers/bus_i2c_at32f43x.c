@@ -27,7 +27,7 @@
 #include "drivers/nvic.h"
 #include "drivers/i2c_application.h"
 
-
+#ifndef AURIX
 #if !defined(SOFT_I2C) && defined(USE_I2C)
 
 #define CLOCKSPEED 800000    // i2c clockspeed 400kHz default (conform specs), 800kHz  and  1200kHz (Betaflight default)
@@ -483,4 +483,5 @@ bool i2cBusy(I2CDevice device, bool *error)
    return true;
 }
 
+#endif
 #endif

@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "platform.h"
-
+#ifdef USE_EXTI
 #if !defined(SITL_BUILD)
 
 #include "build/assert.h"
@@ -257,4 +257,5 @@ _EXTI_IRQ_HANDLER(EXTI9_5_IRQHandler);
 _EXTI_IRQ_HANDLER(EXTI15_10_IRQHandler);
 #endif 
 
+#endif
 #endif

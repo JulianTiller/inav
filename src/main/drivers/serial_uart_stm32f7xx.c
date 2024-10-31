@@ -28,7 +28,7 @@
 #include "serial.h"
 #include "serial_uart.h"
 #include "serial_uart_impl.h"
-
+#ifndef AURIX
 #define UART_RX_BUFFER_SIZE UART1_RX_BUFFER_SIZE
 #define UART_TX_BUFFER_SIZE UART1_TX_BUFFER_SIZE
 
@@ -487,4 +487,5 @@ void UART8_IRQHandler(void)
     uartPort_t *s = &(uartHardwareMap[UARTDEV_8]->port);
     uartIrqHandler(s);
 }
+#endif
 #endif

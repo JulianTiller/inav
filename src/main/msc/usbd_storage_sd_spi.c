@@ -51,7 +51,7 @@
 /* USB NVIC Priority has to be lower than both DMA and SDIO priority,
  * otherwise SDIO won't be able to preempt USB.
  */
-
+#ifndef AURIX
 #define STORAGE_LUN_NBR                  1
 #define STORAGE_BLK_NBR                  0x10000
 #define STORAGE_BLK_SIZ                  0x200
@@ -255,3 +255,4 @@ static int8_t STORAGE_GetMaxLun (void)
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+#endif

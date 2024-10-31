@@ -47,6 +47,7 @@
 
 PG_REGISTER_WITH_RESET_TEMPLATE(vtxSettingsConfig_t, vtxSettingsConfig, PG_VTX_SETTINGS_CONFIG, 2);
 
+
 PG_RESET_TEMPLATE(vtxSettingsConfig_t, vtxSettingsConfig,
     .band = SETTING_VTX_BAND_DEFAULT,
     .channel = SETTING_VTX_CHANNEL_DEFAULT,

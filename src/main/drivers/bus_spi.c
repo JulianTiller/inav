@@ -19,6 +19,7 @@
 #include <stdint.h>
 
 #include <platform.h>
+#include "target.h"
 
 #ifdef USE_SPI
 
@@ -27,6 +28,17 @@
 #include "drivers/io.h"
 #include "drivers/io_impl.h"
 #include "drivers/rcc.h"
+#include "nvic.h"
+#ifdef AURIX
+
+#ifndef SPI1_SCK_PIN
+#define SPI1_NSS_PIN    PA4
+#define SPI1_SCK_PIN    PA5
+#define SPI1_MISO_PIN   PA6
+#define SPI1_MOSI_PIN   PA7
+#endif
+
+#else
 
 #ifndef SPI1_SCK_PIN
 #define SPI1_NSS_PIN    PA4
@@ -79,8 +91,78 @@ static const uint32_t spiDivisorMapSlow[] = {
     SPI_BaudRatePrescaler_2       // SPI_CLOCK_ULTRAFAST          21.0 MBits/s
 };
 #endif
+#endif
+#endif
+
+#if defined(AURIX)
+static const uint32_t spiDivisorMapFast[] = {
+	  100000,    	// SPI_CLOCK_INITIALIZATON
+	  500000,     	// SPI_CLOCK_SLOW
+	 1000000,      	// SPI_CLOCK_STANDARD
+	 5000000,      	// SPI_CLOCK_FAST
+	10000000       	// SPI_CLOCK_ULTRAFAST
+};
+static const uint32_t spiDivisorMapSlow[] = {
+	   50000,    	// SPI_CLOCK_INITIALIZATON
+	  100000,     	// SPI_CLOCK_SLOW
+	  500000,      	// SPI_CLOCK_STANDARD
+	 1000000,      	// SPI_CLOCK_FAST
+	 5000000       	// SPI_CLOCK_ULTRAFAST
+};
+
+IfxQspi_SpiMaster_Channel SpiMasterChannels[4];
+#else
+#error "Invalid CPU"
+#endif
 
 static spiDevice_t spiHardwareMap[] = {
+#ifdef AURIX
+#ifdef USE_SPI_DEVICE_1
+	{
+		.dev = &SpiMasterChannels[0],
+		.qspi = SPI1,
+		.sck = IO_TAG(SPI1_SCK_PIN),
+		.miso = IO_TAG(SPI1_MISO_PIN),
+		.mosi = IO_TAG(SPI1_MOSI_PIN),
+		.divisorMap = spiDivisorMapFast,
+		.leadingEdge = false,
+		.txPrio = IFX_INTPRIO_QSPI_SPI1_TX,
+		.rxPrio = IFX_INTPRIO_QSPI_SPI1_RX,
+		.rxDmaChannelId = IfxDma_ChannelId_0,
+		.txDmaChannelId = IfxDma_ChannelId_1
+	},
+#endif
+#ifdef USE_SPI_DEVICE_2
+	{
+		.dev = &SpiMasterChannels[1],
+		.qspi = SPI2,
+		.sck = IO_TAG(SPI2_SCK_PIN),
+		.miso = IO_TAG(SPI2_MISO_PIN),
+		.mosi = IO_TAG(SPI2_MOSI_PIN),
+		.divisorMap = spiDivisorMapFast,
+		.leadingEdge = false,
+		.txPrio = IFX_INTPRIO_QSPI_SPI2_TX,
+		.rxPrio = IFX_INTPRIO_QSPI_SPI2_RX,
+		.rxDmaChannelId = IfxDma_ChannelId_2,
+		.txDmaChannelId = IfxDma_ChannelId_3
+	},
+#endif
+#ifdef USE_SPI_DEVICE_3
+	{
+		.dev = &SpiMasterChannels[2],
+		.qspi = SPI3,
+		.sck = IO_TAG(SPI3_SCK_PIN),
+		.miso = IO_TAG(SPI3_MISO_PIN),
+		.mosi = IO_TAG(SPI3_MOSI_PIN),
+		.divisorMap = spiDivisorMapFast,
+		.leadingEdge = false,
+		.txPrio = IFX_INTPRIO_QSPI_SPI3_TX,
+		.rxPrio = IFX_INTPRIO_QSPI_SPI3_RX,
+		.rxDmaChannelId = IfxDma_ChannelId_4,
+		.txDmaChannelId = IfxDma_ChannelId_5
+	},
+#endif
+#else
 #ifdef USE_SPI_DEVICE_1
     { .dev = SPI1, .nss = IO_TAG(SPI1_NSS_PIN), .sck = IO_TAG(SPI1_SCK_PIN), .miso = IO_TAG(SPI1_MISO_PIN), .mosi = IO_TAG(SPI1_MOSI_PIN), .rcc = RCC_APB2(SPI1), .af = GPIO_AF_SPI1, .divisorMap = spiDivisorMapFast },
 #else
@@ -97,13 +179,14 @@ static spiDevice_t spiHardwareMap[] = {
     { .dev = NULL },    // No SPI3
 #endif
     { .dev = NULL },    // No SPI4
-};
-#else
-#error "Invalid CPU"
 #endif
+};
+
+
 
 SPIDevice spiDeviceByInstance(SPI_TypeDef *instance)
 {
+#ifndef AURIX
     if (instance == SPI1)
         return SPIDEV_1;
 
@@ -112,7 +195,23 @@ SPIDevice spiDeviceByInstance(SPI_TypeDef *instance)
 
     if (instance == SPI3)
         return SPIDEV_3;
+#else
 
+    IfxQspi_SpiMaster* handle = (IfxQspi_SpiMaster*)instance->base.driver;
+
+    if (handle->qspi == SPI1)
+    	return SPIDEV_1;
+
+    if (handle->qspi == SPI2)
+        return SPIDEV_2;
+
+    if (handle->qspi == SPI3)
+        return SPIDEV_3;
+
+    if (handle->qspi == SPI4)
+        return SPIDEV_4;
+
+#endif
     return SPIINVALID;
 }
 
@@ -127,15 +226,83 @@ bool spiInitDevice(SPIDevice device, bool leadingEdge)
     if (spi->initDone) {
         return true;
     }
-
+#ifndef AURIX
     // Enable SPI clock
     RCC_ClockCmd(spi->rcc, ENABLE);
     RCC_ResetCmd(spi->rcc, DISABLE);
-
+#endif
     IOInit(IOGetByTag(spi->sck),  OWNER_SPI, RESOURCE_SPI_SCK,  device + 1);
     IOInit(IOGetByTag(spi->miso), OWNER_SPI, RESOURCE_SPI_MISO, device + 1);
     IOInit(IOGetByTag(spi->mosi), OWNER_SPI, RESOURCE_SPI_MOSI, device + 1);
+#ifdef AURIX
 
+    IfxQspi_SpiMaster_Config config;
+    IfxQspi_SpiMaster_initModuleConfig(&config, spi->qspi);
+
+    config.base.mode			= SpiIf_Mode_master;
+    config.base.maximumBaudrate	= 10000000;
+    config.base.txPriority		= spi->txPrio;
+    config.base.rxPriority		= spi->rxPrio;
+    config.dma.txDmaChannelId	= spi->txDmaChannelId;
+    config.dma.rxDmaChannelId	= spi->rxDmaChannelId;
+    config.dma.useDma			= 1;
+
+    GPIO_TypeDef* port;
+    uint8_t pinIndex;
+
+    IfxQspi_SpiMaster_Pins pins =
+    {
+    	NULL, IfxPort_OutputMode_pushPull,		// SCLK
+		NULL, IfxPort_OutputMode_pushPull,
+		NULL, IfxPort_InputMode_pullDown,
+		IfxPort_PadDriver_cmosAutomotiveSpeed3
+    };
+
+    for (int i=0; i<IFXQSPI_PINMAP_NUM_MODULES; i++)
+    {
+    	port = IO_GPIO(IOGetByTag(spi->sck));
+    	pinIndex = IO_Pin(IOGetByTag(spi->sck));
+
+    	for (int j=0; j<IFXQSPI_PINMAP_SCLK_OUT_NUM_ITEMS; j++)
+    		if (IfxQspi_Sclk_Out_pinTable[i][j] != NULL)
+				if (IfxQspi_Sclk_Out_pinTable[i][j]->pin.port == port &&
+					IfxQspi_Sclk_Out_pinTable[i][j]->pin.pinIndex == pinIndex &&
+					IfxQspi_Sclk_Out_pinTable[i][j]->module == (Ifx_QSPI*)spi->qspi)
+					pins.sclk = IfxQspi_Sclk_Out_pinTable[i][j];
+
+    	port = IO_GPIO(IOGetByTag(spi->mosi));
+    	pinIndex = IO_Pin(IOGetByTag(spi->mosi));
+
+    	for (int j=0; j<IFXQSPI_PINMAP_MTSR_OUT_NUM_ITEMS; j++)
+    		if (IfxQspi_Mtsr_Out_pinTable[i][j] != NULL)
+				if (IfxQspi_Mtsr_Out_pinTable[i][j]->pin.port == port &&
+					IfxQspi_Mtsr_Out_pinTable[i][j]->pin.pinIndex == pinIndex &&
+					IfxQspi_Mtsr_Out_pinTable[i][j]->module == (Ifx_QSPI*)spi->qspi)
+					pins.mtsr = IfxQspi_Mtsr_Out_pinTable[i][j];
+
+    	port = IO_GPIO(IOGetByTag(spi->miso));
+    	pinIndex = IO_Pin(IOGetByTag(spi->miso));
+
+    	for (int j=0; j<IFXQSPI_PINMAP_MRST_IN_NUM_ITEMS; j++)
+    		if (IfxQspi_Mrst_In_pinTable[i][j] != NULL)
+				if (IfxQspi_Mrst_In_pinTable[i][j]->pin.port == port &&
+					IfxQspi_Mrst_In_pinTable[i][j]->pin.pinIndex == pinIndex &&
+					IfxQspi_Mrst_In_pinTable[i][j]->module == (Ifx_QSPI*)spi->qspi)
+					pins.mrst = IfxQspi_Mrst_In_pinTable[i][j];
+    }
+//    if(device == SPIDEV_1)
+//    {
+//    	pins.sclk = IfxQspi_Sclk_Out_pinTable[2][4];
+//
+//    	pins.mtsr = IfxQspi_Mtsr_Out_pinTable[2][3];
+//
+//    	pins.mrst = IfxQspi_Mrst_In_pinTable[2][1];
+//    }
+    config.pins = &pins;
+
+    IfxQspi_SpiMaster_initModule(&spi->master, &config);
+
+#else
 #if defined(STM32F4)
     if (leadingEdge) {
         IOConfigGPIOAF(IOGetByTag(spi->sck),  SPI_IO_AF_SCK_CFG, spi->af);
@@ -181,7 +348,7 @@ bool spiInitDevice(SPIDevice device, bool leadingEdge)
         // Drive NSS high to disable connected SPI device.
         IOHi(IOGetByTag(spi->nss));
     }
-
+#endif
     spi->initDone = true;
     return true;
 }
@@ -199,6 +366,15 @@ uint32_t spiTimeoutUserCallback(SPI_TypeDef *instance)
 // return uint8_t value or -1 when failure
 uint8_t spiTransferByte(SPI_TypeDef *instance, uint8_t data)
 {
+#ifdef AURIX
+
+	uint8_t byte = -1;
+
+	spiTransfer(instance, &byte, &data, 1);
+
+	return byte;
+
+#else
     uint16_t spiTimeout = 1000;
 
     while (SPI_I2S_GetFlagStatus(instance, SPI_I2S_FLAG_TXE) == RESET)
@@ -213,6 +389,7 @@ uint8_t spiTransferByte(SPI_TypeDef *instance, uint8_t data)
             return spiTimeoutUserCallback(instance);
 
     return ((uint8_t)SPI_I2S_ReceiveData(instance));
+#endif
 }
 
 /**
@@ -220,13 +397,18 @@ uint8_t spiTransferByte(SPI_TypeDef *instance, uint8_t data)
  */
 bool spiIsBusBusy(SPI_TypeDef *instance)
 {
+#ifdef AURIX
+
+	return (IfxQspi_SpiMaster_getStatus(instance) == SpiIf_Status_busy);
+#else
     return SPI_I2S_GetFlagStatus(instance, SPI_I2S_FLAG_TXE) == RESET || SPI_I2S_GetFlagStatus(instance, SPI_I2S_FLAG_BSY) == SET;
+#endif
 }
 
 bool spiTransfer(SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int len)
 {
     uint16_t spiTimeout = 1000;
-
+#ifndef AURIX
     instance->DR;
     while (len--) {
         uint8_t b = in ? *(in++) : 0xFF;
@@ -244,7 +426,23 @@ bool spiTransfer(SPI_TypeDef *instance, uint8_t *out, const uint8_t *in, int len
         if (out)
             *(out++) = b;
     }
+#else
 
+    spiTimeout = 0xffff;
+
+    while(IfxQspi_SpiMaster_getStatus(instance) == SpiIf_Status_busy)
+    	if ((spiTimeout--) == 0)
+    		return spiTimeoutUserCallback(instance);
+
+    IfxQspi_SpiMaster_exchange(instance, (const void*)in, (void*)out, len);
+
+    spiTimeout = 0xffff;
+
+    while(IfxQspi_SpiMaster_getStatus(instance) == SpiIf_Status_busy)
+    	if ((spiTimeout--) == 0)
+    		return spiTimeoutUserCallback(instance);
+
+#endif
     return true;
 }
 
@@ -255,7 +453,7 @@ void spiSetSpeed(SPI_TypeDef *instance, SPIClockSpeed_e speed)
     if (device == SPIINVALID) {
         return;
     }
-
+#ifndef AURIX
     SPI_Cmd(instance, DISABLE);
 
     uint16_t tempRegister = instance->CR1;
@@ -264,6 +462,9 @@ void spiSetSpeed(SPI_TypeDef *instance, SPIClockSpeed_e speed)
     instance->CR1 = tempRegister;
 
     SPI_Cmd(instance, ENABLE);
+#else
+    IfxQspi_SpiMaster_setChannelBaudrate(instance, spiHardwareMap[device].divisorMap[speed]);
+#endif
 }
 
 uint16_t spiGetErrorCounter(SPI_TypeDef *instance)
@@ -287,4 +488,76 @@ SPI_TypeDef * spiInstanceByDevice(SPIDevice device)
 {
     return spiHardwareMap[device].dev;
 }
+
+#ifdef AURIX
+
+IfxQspi_SpiMaster * spiMasterByDevice(SPIDevice device)
+{
+	return &spiHardwareMap[device].master;
+}
+
+#ifdef USE_SPI_DEVICE_1
+
+IFX_INTERRUPT(qspiSPI1TxISR, 0, IFX_INTPRIO_QSPI_SPI1_TX);
+IFX_INTERRUPT(qspiSPI1RxISR, 0, IFX_INTPRIO_QSPI_SPI1_RX);
+
+void qspiSPI1TxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaTransmit(&spiHardwareMap[SPIDEV_1].master);
+}
+void qspiSPI1RxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaReceive(&spiHardwareMap[SPIDEV_1].master);
+}
+
+#endif
+
+#ifdef USE_SPI_DEVICE_2
+
+IFX_INTERRUPT(qspiSPI2TxISR, 0, IFX_INTPRIO_QSPI_SPI2_TX);
+IFX_INTERRUPT(qspiSPI2RxISR, 0, IFX_INTPRIO_QSPI_SPI2_RX);
+
+void qspiSPI2TxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaTransmit(&spiHardwareMap[SPIDEV_2].master);
+}
+void qspiSPI2RxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaReceive(&spiHardwareMap[SPIDEV_2].master);
+}
+
+#endif
+
+#ifdef USE_SPI_DEVICE_3
+
+IFX_INTERRUPT(qspiSPI3TxISR, 0, IFX_INTPRIO_QSPI_SPI3_TX);
+IFX_INTERRUPT(qspiSPI3RxISR, 0, IFX_INTPRIO_QSPI_SPI3_RX);
+
+void qspiSPI3TxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaTransmit(&spiHardwareMap[SPIDEV_3].master);
+}
+void qspiSPI3RxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaReceive(&spiHardwareMap[SPIDEV_3].master);
+}
+
+#endif
+
+#ifdef USE_SPI_DEVICE_4
+
+IFX_INTERRUPT(qspiSPI4TxISR, 0, IFX_INTPRIO_QSPI_SPI4_TX);
+IFX_INTERRUPT(qspiSPI4RxISR, 0, IFX_INTPRIO_QSPI_SPI4_RX);
+
+void qspiSPI4TxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaTransmit(&spiHardwareMap[SPIDEV_4].master);
+}
+void qspiSPI4RxISR(void)
+{
+	IfxQspi_SpiMaster_isrDmaReceive(&spiHardwareMap[SPIDEV_4].master);
+}
+
+#endif
 #endif // USE_SPI
+#endif

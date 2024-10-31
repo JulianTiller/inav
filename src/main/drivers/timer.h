@@ -25,7 +25,9 @@
 #include "drivers/rcc_types.h"
 #include "drivers/timer_def.h"
 
+#ifndef AURIX
 #define CC_CHANNELS_PER_TIMER       4   // TIM_Channel_1..4
+#endif
 
 typedef uint16_t captureCompare_t;        // 16 bit on both 103 and 303, just register access must be 32bit sometimes (use timCCR_t)
 
@@ -44,6 +46,11 @@ typedef uint32_t timCCR_t;
 typedef uint32_t timCCER_t;
 typedef uint32_t timSR_t;
 typedef uint32_t timCNT_t;
+#elif defined(AURIX)
+typedef uint32_t timCCR_t;
+typedef uint32_t timCCER_t;
+typedef uint32_t timSR_t;
+typedef uint32_t timCNT_t;
 #else
 #error "Unknown CPU defined"
 #endif
@@ -58,6 +65,8 @@ typedef uint32_t timCNT_t;
 #define HARDWARE_TIMER_DEFINITION_COUNT 15
 #elif defined(SITL_BUILD)
 #define HARDWARE_TIMER_DEFINITION_COUNT 0
+#elif defined(AURIX)
+#define HARDWARE_TIMER_DEFINITION_COUNT 64
 #else
 #error "Unknown CPU defined"
 #endif
@@ -84,21 +93,37 @@ typedef struct timerHardware_s {
 #else
 typedef struct timerDef_s {
     TIM_TypeDef   * tim;
+#ifdef AURIX
+    volatile Ifx_SRC_SRCR* src;
+    uint16_t irqPrio;
+#else
     rccPeriphTag_t  rcc;
     uint8_t         irq;
     uint8_t         secondIrq;
+#endif
 } timerDef_t;
 
 // TCH hardware definition (listed in target.c)
 typedef struct timerHardware_s {
     TIM_TypeDef *tim;
     ioTag_t tag;
+#ifdef AURIX
+    uint8_t channel;
+#else
     uint8_t channelIndex;
+#endif
     uint8_t output;
     ioConfig_t ioMode;
     uint8_t alternateFunction;
     uint32_t usageFlags;
+#ifndef AURIX
     dmaTag_t dmaTag;
+#endif
+#ifdef AURIX
+    uint8_t select;
+    uint8_t toutn;
+#endif
+
 } timerHardware_t;
 
 #endif
@@ -118,16 +143,38 @@ typedef enum {
 
 enum {
     TIMER_OUTPUT_NONE = 0x00,
+#ifdef AURIX
+	TIMER_OUTPUT_ENABLED = 0x01,
+#endif
     TIMER_OUTPUT_INVERTED = 0x02,
     TIMER_OUTPUT_N_CHANNEL= 0x04
 };
 
+#ifndef AURIX
 typedef enum {
     TCH_DMA_IDLE = 0,
     TCH_DMA_READY,
     TCH_DMA_ACTIVE,
 } tchDmaState_e;
+#endif
 
+#ifdef AURIX
+struct timerCCHandlerRec_s;
+struct timerOvrHandlerRec_s;
+typedef void timerCCHandlerCallback(struct timerCCHandlerRec_s* self, uint32_t capture_rise, uint32_t capture_fall);
+typedef void timerOvrHandlerCallback(struct timerOvrHandlerRec_s* self, uint32_t capture);
+
+typedef struct timerCCHandlerRec_s {
+    timerCCHandlerCallback* fn;
+} timerCCHandlerRec_t;
+
+typedef struct timerOvrHandlerRec_s {
+    timerOvrHandlerCallback* fn;
+    struct timerOvrHandlerRec_s* next;
+} timerOvrHandlerRec_t;
+#endif
+
+#ifndef AURIX
 // Some forward declarations for types
 struct TCH_s;
 struct timHardwareContext_s;
@@ -150,7 +197,9 @@ typedef struct TCH_s {
     volatile tchDmaState_e          dmaState;
     void *                          dmaBuffer;
 } TCH_t;
+#endif
 
+#ifndef AURIX
 // Run-time timer context (dynamically allocated), includes 4x TCH
 typedef struct timHardwareContext_s {
     const timerDef_t *  timDef;
@@ -159,15 +208,21 @@ typedef struct timHardwareContext_s {
 #endif
     TCH_t               ch[CC_CHANNELS_PER_TIMER];
 } timHardwareContext_t;
+#endif
 
 // Per MCU timer definitions
+#ifndef AURIX
 extern timHardwareContext_t * timerCtx[HARDWARE_TIMER_DEFINITION_COUNT];
+#endif
 extern const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT];
 
+//// Per target timer output definitions
+//extern timerHardware_t timerHardware[];
+//extern const int timerHardwareCount;
 // Per target timer output definitions
-extern timerHardware_t timerHardware[];
+extern const timerDef_t timerDefinitions[HARDWARE_TIMER_DEFINITION_COUNT];
+extern const timerHardware_t timerHardware[];
 extern const int timerHardwareCount;
-
 typedef enum {
     TYPE_FREE,
     TYPE_PWMINPUT,
@@ -194,38 +249,52 @@ typedef enum {
     uint16_t timerGetPrescalerByDesiredMhz(TIM_TypeDef *tim, uint16_t mhz);
 #endif
 
+#ifndef AURIX
 uint32_t timerGetBaseClockHW(const timerHardware_t * timHw);
+TCH_t * timerGetTCH(const timerHardware_t * timHw);
+#endif
 
 const timerHardware_t * timerGetByUsageFlag(timerUsageFlag_e flag);
 const timerHardware_t * timerGetByTag(ioTag_t tag, timerUsageFlag_e flag);
-TCH_t * timerGetTCH(const timerHardware_t * timHw);
 
+#ifndef AURIX
 uint32_t timerGetBaseClock(TCH_t * tch);
-void timerConfigure(TCH_t * tch, uint16_t period, uint32_t hz);  // This interface should be replaced.
+#endif
+void timerConfigure(const timerHardware_t *timHw, uint16_t period, uint8_t mhz); // This interface should be replaced. //MAYBE ÄNDERNUNG NOTWENDIG
+void timerChConfigIC(const timerHardware_t *timHw, bool polarityRising, unsigned inputFilterSamples);
 
+#ifndef AURIX
 void timerChInitCallbacks(timerCallbacks_t * cb, void * callbackParam, timerCallbackFn * edgeCallback, timerCallbackFn * overflowCallback);
-void timerChConfigIC(TCH_t * tch, bool polarityRising, unsigned inputFilterSamples);
 void timerChConfigCallbacks(TCH_t * tch, timerCallbacks_t * cb);
 void timerChCaptureEnable(TCH_t * tch);
 void timerChCaptureDisable(TCH_t * tch);
-
+#endif
 void timerInit(void);
 void timerStart(void);
 
-void timerConfigBase(TCH_t * tch, uint16_t period, uint32_t hz);  // TODO - just for migration
-uint16_t timerGetPeriod(TCH_t * tch);
+#ifdef AURIX
+void timerConfigBase(TIM_TypeDef *tim, uint16_t period, uint8_t mhz);  // TODO - just for migration
+#else
+void timerConfigBase(TCH_t * tch, uint16_t period, uint32_t hz);  // TODO - just for migration //MAYBE ÄNDERNUNG NOTWENDIG
+uint16_t timerGetPeriod(TCH_t * tch); //MAYBE ÄNDERNUNG NOTWENDIG
+#endif
 
+
+#ifndef AURIX
 void timerEnable(TCH_t * tch);
 void timerPWMConfigChannel(TCH_t * tch, uint16_t value);
 void timerPWMStart(TCH_t * tch);
-
+#endif
 // dmaBufferElementSize is the size in bytes of each element in the memory
 // buffer. 1, 2 or 4 are the only valid values.
 // dmaBufferElementCount is the number of elements in the buffer
+#ifndef AURIX
 bool timerPWMConfigChannelDMA(TCH_t * tch, void * dmaBuffer, uint8_t dmaBufferElementSize, uint32_t dmaBufferElementCount);
 void timerPWMPrepareDMA(TCH_t * tch, uint32_t dmaBufferElementCount);
 void timerPWMStartDMA(TCH_t * tch);
 void timerPWMStopDMA(TCH_t * tch);
 bool timerPWMDMAInProgress(TCH_t * tch);
-
 volatile timCCR_t *timerCCR(TCH_t * tch);
+#endif
+
+

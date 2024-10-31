@@ -23,7 +23,7 @@
   *
   **************************************************************************
   */
-
+#ifndef AURIX
 #ifndef __SYSTEM_AT32F435_437_H
 #define __SYSTEM_AT32F435_437_H
 
@@ -74,4 +74,4 @@ extern void system_core_clock_update(void);
 #endif
 
 #endif
-
+#endif

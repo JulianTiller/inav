@@ -3,7 +3,7 @@
 #include "rcc.h"
 
 #define RCC_BIT_CMD(ptr, mask, state)       do { if (state != DISABLE) { ptr |= mask; } else { ptr &= ~mask; } } while(0)
-
+#ifndef AURIX
 
 void RCC_ClockCmd(rccPeriphTag_t periphTag, FunctionalState NewState)
 {
@@ -151,3 +151,4 @@ void RCC_ResetCmd(rccPeriphTag_t periphTag, FunctionalState NewState)
         #endif 
     }
 }
+#endif

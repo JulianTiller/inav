@@ -26,7 +26,7 @@
 #include "drivers/exti.h"
 #include "drivers/nvic.h"
 #include "drivers/system.h"
-
+#ifndef AURIX
 void SystemClock_Config(void);
 
 void enableGPIOPowerUsageAndNoiseReductions(void)
@@ -103,3 +103,4 @@ void systemInit(void)
 
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 }
+#endif

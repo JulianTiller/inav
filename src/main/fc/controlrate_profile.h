@@ -24,7 +24,7 @@
 #include "fc/controlrate_profile_config_struct.h"
 #include "fc/settings.h"
 
-#define MAX_CONTROL_RATE_PROFILE_COUNT SETTING_CONSTANT_MAX_CONTROL_RATE_PROFILE_COUNT
+#define MAX_CONTROL_RATE_PROFILE_COUNT 3
 
 PG_DECLARE_ARRAY(controlRateConfig_t, MAX_CONTROL_RATE_PROFILE_COUNT, controlRateProfiles);
 

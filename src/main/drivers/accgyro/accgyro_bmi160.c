@@ -232,14 +232,17 @@ static bool deviceDetect(busDevice_t * busDev)
     uint8_t attempts;
 
     busSetSpeed(busDev, BUS_SPEED_INITIALIZATION);
+    busWrite(busDev,0x7E,0xB6);
+    delay(100);
+    busWrite(busDev,0x70,0x01);
+    delay(100);
 
-    for (attempts = 0; attempts < 5; attempts++) {
+    for (attempts = 0; attempts < 128; attempts++) {
         uint8_t chipId;
 
-        delay(100);
         busRead(busDev, BMI160_REG_CHIPID, &chipId);
 
-        if (chipId == 0xD1) {
+        if (chipId == 0xD8) { //War 0xD1
             return true;
         }
     }

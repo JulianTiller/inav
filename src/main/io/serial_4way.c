@@ -139,6 +139,22 @@ uint8_t esc4wayInit(void)
     escCount = 0;
     memset(&escHardware, 0, sizeof(escHardware));
 
+#ifdef AURIX
+    pwmIOConfiguration_t *pwmIOConfiguration = pwmGetOutputConfiguration();
+        for (volatile uint8_t i = 0; i < pwmIOConfiguration->ioCount; i++) {
+            if ((pwmIOConfiguration->ioConfigurations[i].flags & PWM_PF_MOTOR) == PWM_PF_MOTOR) {
+                if (motor[pwmIOConfiguration->ioConfigurations[i].index] > 0) {
+                    escHardware[escCount].io = IOGetByTag(pwmIOConfiguration->ioConfigurations[i].timerHardware->tag);
+    #ifdef AURIX
+                    escHardware[escCount].af = pwmIOConfiguration->ioConfigurations[i].timerHardware->alternateFunction;
+    #endif
+                    setEscInput(escCount);
+                    setEscHi(escCount);
+                    escCount++;
+                }
+            }
+        }
+#else
     for (int idx = 0; idx < getMotorCount(); idx++) {
         ioTag_t tag = pwmGetMotorPinTag(idx);
         if (tag != IOTAG_NONE) {
@@ -148,7 +164,7 @@ uint8_t esc4wayInit(void)
             escCount++;
         }
     }
-
+#endif
     return escCount;
 }
 
@@ -156,7 +172,11 @@ void esc4wayRelease(void)
 {
     while (escCount > 0) {
         escCount--;
+#ifdef AURIX
+        IOConfigGPIOAF(escHardware[escCount].io, IOCFG_AF_PP, escHardware[escCount].af);
+#else
         IOConfigGPIO(escHardware[escCount].io, IOCFG_AF_PP);
+#endif
         setEscLo(escCount);
     }
     pwmEnableMotors();

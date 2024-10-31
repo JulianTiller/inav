@@ -60,7 +60,7 @@
 /** @addtogroup STM32H7xx_System_Private_Includes
   * @{
   */
-
+#ifndef AURIX
 #include "stm32h7xx.h"
 #include "platform.h"
 #include "string.h"
@@ -937,7 +937,7 @@ void SystemInit_ExtMemCtl(void)
 }
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
-
+#endif
 /**
   * @}
   */

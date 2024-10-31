@@ -49,6 +49,9 @@ typedef enum ADCDevice {
 
 typedef struct adcTagMap_s {
     ioTag_t tag;
+	#ifdef AURIX
+    	uint8_t group;
+	#endif
     uint32_t channel;
 } adcTagMap_t;
 
@@ -73,6 +76,9 @@ typedef struct adcDevice_s {
     ADC_HandleTypeDef ADCHandle;
     DMA_HandleTypeDef DmaHandle;
 #endif
+#ifdef AURIX
+    IfxEvadc_Adc ifxAdc;
+#endif
     bool enabled;
     int usedChannelCount;
 } adcDevice_t;
@@ -84,6 +90,10 @@ typedef struct adc_config_s {
     uint8_t dmaIndex;           // index into DMA buffer in case of sparse channels
     bool enabled;
     uint8_t sampleTime;
+#ifdef AURIX
+	IfxEvadc_Adc_Group ifxAdcGroup;
+    IfxEvadc_Adc_Channel ifxAdcChannel;
+#endif
 } adc_config_t;
 
 extern const adcTagMap_t adcTagMap[ADC_TAG_MAP_COUNT];
@@ -97,3 +107,7 @@ ADCDevice adcDeviceByInstance(adc_type *instance);
 ADCDevice adcDeviceByInstance(ADC_TypeDef *instance);
 #endif
 uint32_t adcChannelByTag(ioTag_t ioTag);
+
+#ifdef AURIX
+uint8_t adcGroupByTag(ioTag_t ioTag);
+#endif

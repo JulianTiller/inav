@@ -31,7 +31,7 @@
 
 #include "adc.h"
 #include "adc_impl.h"
-
+#ifndef AURIX
 #if !defined(ADC1_DMA_STREAM)
 #define ADC1_DMA_STREAM DMA2_Stream0
 #endif
@@ -180,3 +180,4 @@ void adcHardwareInit(drv_adc_config_t *init)
         }
     }
 }
+#endif

@@ -3275,8 +3275,8 @@ void mspWriteSimulatorOSD(sbuf_t *dst)
 
 	if (isOSDTypeSupportedBySimulator())
 	{
-		displayPort_t *osdDisplayPort = osdGetDisplayPort();
-
+		//displayPort_t *osdDisplayPort = osdGetDisplayPort();
+		displayPort_t *osdDisplayPort = 16;
 		sbufWriteU8(dst, osdPos_y | (osdDisplayPort->rows == 16 ? 128: 0));
 		sbufWriteU8(dst, osdPos_x);
 

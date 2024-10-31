@@ -35,7 +35,26 @@ typedef uint64_t config_streamer_buffer_align_type_t;
 #define CONFIG_STREAMER_BUFFER_SIZE 4
 typedef uint32_t config_streamer_buffer_align_type_t;
 #endif
-
+#ifdef AURIX
+typedef struct config_streamer_s {
+    uintptr_t address;
+    int size;
+#ifndef AURIX
+    union {
+        uint8_t b[4];
+        uint32_t w;
+    } buffer;
+#else
+    union {
+    uint8_t b[IFXFLASH_DFLASH_PAGE_LENGTH];
+    } buffer;
+    uint16_t endinitSfty_pw;
+#endif
+    int at;
+    int err;
+    bool unlocked;
+} config_streamer_t;
+#else
 typedef struct config_streamer_s {
     uintptr_t address;
     uintptr_t end;
@@ -48,7 +67,7 @@ typedef struct config_streamer_s {
     int err;
     bool unlocked;
 } config_streamer_t;
-
+#endif
 void config_streamer_init(config_streamer_t *c);
 
 void config_streamer_start(config_streamer_t *c, uintptr_t base, int size);

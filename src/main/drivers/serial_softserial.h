@@ -19,6 +19,10 @@
 
 #define SOFTSERIAL_BUFFER_SIZE 256
 
+#ifdef AURIX
+#define ENABLE 1
+#endif
+
 typedef enum {
     SOFTSERIAL1 = 0,
     SOFTSERIAL2

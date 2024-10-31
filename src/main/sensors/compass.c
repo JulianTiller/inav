@@ -63,8 +63,9 @@
 mag_t mag;                   // mag access functions
 
 #ifdef USE_MAG
-
+#define MAG_HARDWARE_DEFAULT    MAG_AUTODETECT
 PG_REGISTER_WITH_RESET_TEMPLATE(compassConfig_t, compassConfig, PG_COMPASS_CONFIG, 6);
+
 
 PG_RESET_TEMPLATE(compassConfig_t, compassConfig,
     .mag_align = SETTING_ALIGN_MAG_DEFAULT,
@@ -85,6 +86,7 @@ static bool magUpdatedAtLeastOnce = false;
 bool compassDetect(magDev_t *dev, magSensor_e magHardwareToUse)
 {
     magSensor_e magHardware = MAG_NONE;
+
     requestedSensors[SENSOR_INDEX_MAG] = magHardwareToUse;
 
     dev->magAlign.useExternal = false;
@@ -193,6 +195,22 @@ bool compassDetect(magDev_t *dev, magSensor_e magHardwareToUse)
         }
 #endif
         FALLTHROUGH;
+
+        /* FHTW */
+
+    case MAG_BMX160:
+#ifdef USE_MAG_BMX160
+        if (bmx160CompassDetect(dev)) {
+#ifdef MAG_BMX160_ALIGN
+            dev->magAlign.onBoard = MAG_BMX160_ALIGN;
+#endif
+            magHardware = MAG_BMX160;
+            break;
+        }
+#endif
+        FALLTHROUGH;
+
+        /* FHTW */
 
     case MAG_LIS3MDL:
 #ifdef USE_MAG_LIS3MDL

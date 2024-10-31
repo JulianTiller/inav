@@ -33,9 +33,9 @@
 #include "fc/runtime_config.h"
 #include "scheduler/scheduler.h"
 
-#include "io/osd.h"
-#include "io/serial.h"
 
+#include "io/serial.h"
+#include "io/osd.h"
 #include "sensors/barometer.h"
 #include "sensors/temperature.h"
 #include "sensors/acceleration.h"
@@ -54,6 +54,7 @@
 #include "fc/config.h"
 #include "config/feature.h"
 #include "io/gps.h"
+
 #define IBUS_TEMPERATURE_OFFSET (0x0190)
 
 typedef uint8_t ibusAddress_t;
@@ -148,7 +149,7 @@ static uint8_t dispatchMeasurementRequest(ibusAddress_t address) {
         if (!temp_valid || (temperature < -400)) temperature = -400; // Minimum reported temperature is -40°C
         return sendIbusMeasurement2(address, (uint16_t)(temperature  + IBUS_TEMPERATURE_OFFSET));
     } else if (SENSOR_ADDRESS_TYPE_LOOKUP[address].value == IBUS_MEAS_VALUE_RPM) {
-        return sendIbusMeasurement2(address, (uint16_t)getThrottlePercent(osdUsingScaledThrottle()) );
+        return sendIbusMeasurement2(address, (uint16_t)getThrottlePercent(0) );
     } else if (SENSOR_ADDRESS_TYPE_LOOKUP[address].value == IBUS_MEAS_VALUE_EXTERNAL_VOLTAGE) { //VBAT
         if (telemetryConfig()->report_cell_voltage) {
             return sendIbusMeasurement2(address, getBatteryAverageCellVoltage());

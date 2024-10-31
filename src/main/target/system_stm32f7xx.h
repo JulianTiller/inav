@@ -24,7 +24,7 @@
   *
   ******************************************************************************
   */
-
+#ifndef AURIX
 #ifndef __SYSTEM_STM32F7XX_H
 #define __SYSTEM_STM32F7XX_H
 
@@ -41,5 +41,5 @@ extern void SystemClock_Config(void);
 #endif
 
 #endif /*__SYSTEM_STM32F7XX_H */
-
+#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

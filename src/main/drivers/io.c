@@ -108,7 +108,11 @@ int IO_GPIOPortIdx(IO_t io)
     if (!io) {
         return -1;
     }
+#ifdef AURIX
+    return 0;
+#else
     return (((size_t)IO_GPIO(io) - GPIOA_BASE) >> 10);     // ports are 0x400 apart
+#endif
 }
 
 int IO_EXTI_PortSourceGPIO(IO_t io)
@@ -149,6 +153,8 @@ uint32_t IO_EXTI_Line(IO_t io)
     return 1 << IO_GPIOPinIdx(io);
 #elif defined (SITL_BUILD)
     return 0;
+#elif defined(AURIX)
+    return 0;
 #else
 # error "Unknown target type"
 #endif
@@ -164,7 +170,7 @@ bool IORead(IO_t io)
 #elif defined(AT32F43x)
     return !! (IO_GPIO(io)->idt & IO_Pin(io));
 #else
-    return !! (IO_GPIO(io)->IDR & IO_Pin(io));
+    return IfxPort_getPinState(IO_GPIO(io), IO_Pin(io));
 #endif
 }
 
@@ -188,7 +194,10 @@ void IOWrite(IO_t io, bool hi)
 #elif defined(AT32F43x)
     IO_GPIO(io)->scr = IO_Pin(io) << (hi ? 0 : 16); 
 #else
-    IO_GPIO(io)->BSRR = IO_Pin(io) << (hi ? 0 : 16);  
+    if (hi)
+		IfxPort_setPinHigh(IO_GPIO(io), IO_Pin(io));
+	else
+		IfxPort_setPinLow(IO_GPIO(io), IO_Pin(io));
 #endif
 }
 
@@ -204,7 +213,7 @@ void IOHi(IO_t io)
 #elif defined(AT32F43x)
     IO_GPIO(io)->scr = IO_Pin(io);
 #else
-    IO_GPIO(io)->BSRR = IO_Pin(io);
+    IfxPort_setPinHigh(IO_GPIO(io), IO_Pin(io));
 #endif
 }
 
@@ -220,7 +229,7 @@ void IOLo(IO_t io)
 #elif defined(AT32F43x)
     IO_GPIO(io)->clr = IO_Pin(io);  
 #else
-    IO_GPIO(io)->BRR = IO_Pin(io);
+    IfxPort_setPinLow(IO_GPIO(io), IO_Pin(io));
 #endif
 }
 
@@ -249,10 +258,7 @@ void IOToggle(IO_t io)
     
     IO_GPIO(io)->scr = IO_Pin(io);
 #else
-    if (IO_GPIO(io)->ODR & mask)
-        mask <<= 16;   // bit is set, shift mask to reset half
-    
-    IO_GPIO(io)->BSRR = mask;
+    IfxPort_togglePin(IO_GPIO(io), IO_Pin(io));
 #endif
 }
 
@@ -406,6 +412,27 @@ void IOConfigGPIOAF(IO_t io, ioConfig_t cfg, uint8_t af)
      };
     gpio_init(IO_GPIO(io), &init);
 }
+#elif defined(AURIX)
+
+void IOConfigGPIO(IO_t io, ioConfig_t cfg)
+{
+    if (!io) {
+        return;
+    }
+
+    IfxPort_Mode mode = (IfxPort_Mode)cfg;
+    IfxPort_setPinMode(IO_GPIO(io), IO_Pin(io), mode);
+}
+
+void IOConfigGPIOAF(IO_t io, ioConfig_t cfg, uint8_t af)
+{
+    if (!io) {
+        return;
+    }
+
+    IfxPort_Mode mode = (IfxPort_Mode)(cfg | af);
+    IfxPort_setPinMode(IO_GPIO(io), IO_Pin(io), mode);
+}
 
 #endif
 
@@ -431,14 +458,25 @@ void IOInitGlobal(void)
 #if defined(AT32F43x)
                 ioRec->gpio = (gpio_type *)(GPIOA_BASE + (port << 10));   // ports are 0x400 apart
 #else
-                ioRec->gpio = (GPIO_TypeDef *)(GPIOA_BASE + (port << 10));   // ports are 0x400 apart 
-# endif
-                ioRec->pin = 1 << pin;
+            	if (port < 17)
+            		ioRec->gpio = (Ifx_P *)(0xF003A000 + (((port-7) % 10) << 8));   // (port - 7) because of STM Ports (A,B,C,D,E,F,G)
+            	else if (port < 27)
+            		ioRec->gpio = (Ifx_P *)(0xF003AA00 + (((port-7) % 10) << 8));   // ports are 0x100 apart // normal Value0xF003B000
+            	else if (port < 37)
+            		ioRec->gpio = (Ifx_P *)(0xF003B400 + (((port-7) % 10) << 8));   // ports are 0x100 apart
+            	else if (port < 47)
+            		ioRec->gpio = (Ifx_P *)(0xF003C000 + (((port-7) % 10) << 8));   // ports are 0x100 apart//F003C000
+            	else
+            		ioRec->gpio = (Ifx_P *)(0xF003E000 + (((port-7) % 10) << 8));   // ports are 0x100 apart
+
+                ioRec->pin = pin;
+#endif
                 ioRec++;
             }
         }
     }
 }
+
 
 IO_t IOGetByTag(ioTag_t tag)
 {

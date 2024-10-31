@@ -25,9 +25,9 @@
 #include "drivers/exti.h"
 #include "drivers/nvic.h"
 #include "drivers/system.h"
-#include "target/system.h"
-#include "at32f435_437_clock.h"
 
+#ifndef AURIX
+#include "at32f435_437_clock.h"
 void SetSysClock(void);
 
 void enableGPIOPowerUsageAndNoiseReductions(void)
@@ -146,3 +146,4 @@ void systemInit(void)
     // SysTick
     SysTick_Config(system_core_clock / 1000);
 }
+#endif

@@ -33,7 +33,7 @@
 #include "io_impl.h"
 #include "rcc.h"
 #include "drivers/light_led.h"
-
+#ifndef AURIX
 #ifndef SOFT_I2C
 
 static void i2cUnstick(IO_t scl, IO_t sda);
@@ -630,4 +630,5 @@ static void i2cUnstick(IO_t scl, IO_t sda)
     IOHi(sda); // Set bus sda high
 }
 
+#endif
 #endif

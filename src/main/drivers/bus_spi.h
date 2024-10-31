@@ -37,7 +37,14 @@
 #define SPI_IO_AF_SCK_CFG       IO_CONFIG(GPIO_MODE_MUX,  GPIO_DRIVE_STRENGTH_STRONGER, GPIO_OUTPUT_PUSH_PULL, GPIO_PULL_DOWN)
 #define SPI_IO_AF_MISO_CFG      IO_CONFIG(GPIO_MODE_MUX,  GPIO_DRIVE_STRENGTH_STRONGER, GPIO_OUTPUT_PUSH_PULL, GPIO_PULL_UP)
 #define SPI_IO_CS_CFG           IO_CONFIG(GPIO_MODE_OUTPUT, GPIO_DRIVE_STRENGTH_STRONGER, GPIO_OUTPUT_PUSH_PULL, GPIO_PULL_NONE)
+#elif defined (AURIX)
+#define SPI_IO_AF_CFG           0
+#define SPI_IO_AF_SCK_CFG_HIGH  0
+#define SPI_IO_AF_SCK_CFG_LOW   0
+#define SPI_IO_AF_MISO_CFG      0
+#define SPI_IO_CS_CFG           IfxPort_Mode_outputPushPullGeneral
 #endif
+
 
 /*
   Flash M25p16 tolerates 20mhz, SPI_CLOCK_FAST should sit around 20 or less.
@@ -85,7 +92,18 @@ typedef struct SPIDevice_s {
 #else
     uint8_t af;
 #endif
+#if defined(AURIX)
+    Ifx_QSPI* qspi;
+    IfxQspi_SpiMaster master;
+    Ifx_Priority txPrio;
+    Ifx_Priority rxPrio;
+    IfxDma_ChannelId txDmaChannelId;
+    IfxDma_ChannelId rxDmaChannelId;
     const uint32_t * divisorMap;
+    bool leadingEdge;
+#else
+    const uint32_t * divisorMap;
+#endif
     volatile uint16_t errorCount;
     bool initDone;
 } spiDevice_t;
@@ -114,4 +132,7 @@ bool spiInitDevice(SPIDevice device, bool leadingEdge);
     void spiResetErrorCounter(SPI_TypeDef *instance);
     SPIDevice spiDeviceByInstance(SPI_TypeDef *instance);
     SPI_TypeDef * spiInstanceByDevice(SPIDevice device);
+#ifdef AURIX
+	IfxQspi_SpiMaster * spiMasterByDevice(SPIDevice device);
+#endif
 #endif

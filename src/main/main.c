@@ -26,7 +26,10 @@
 #include "fc/fc_init.h"
 
 #include "scheduler/scheduler.h"
+/* EAL FHTW */
+#include "main.h"
 
+boolean INIT_INAV;
 #ifdef SOFTSERIAL_LOOPBACK
 serialPort_t *loopbackPort;
 #endif
@@ -58,11 +61,15 @@ int main(int argc, char *argv[])
 {
     parseArguments(argc, argv);
 #else
-int main(void)
+int execute_inav(void)
 {
 #endif
     init();
     loopbackInit();
+
+    /* EAL FHTW */
+    INIT_INAV = 1;
+    /* EAL FHTW */
 
     while (true) {
         scheduler();

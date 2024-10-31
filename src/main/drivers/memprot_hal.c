@@ -23,7 +23,7 @@
 #include "platform.h"
 
 #include "memprot.h"
-
+#ifndef AURIX
 static void memProtConfigError(void)
 {
     for (;;) {}
@@ -105,3 +105,5 @@ void memProtReset(void)
 
     HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
+
+#endif

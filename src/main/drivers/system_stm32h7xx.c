@@ -27,7 +27,7 @@
 #include "drivers/exti.h"
 #include "drivers/nvic.h"
 #include "drivers/system.h"
-
+#ifndef AURIX
 void forcedSystemResetWithoutDisablingCaches(void)
 {
     persistentObjectWrite(PERSISTENT_OBJECT_RESET_REASON, RESET_NONE);
@@ -85,3 +85,4 @@ void systemInit(void)
     HAL_SYSTICK_Config(SystemCoreClock / 1000);
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 }
+#endif

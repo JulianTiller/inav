@@ -78,8 +78,58 @@ typedef enum
 #define U_ID_1 (*(uint32_t*)0x1fff7a14)
 #define U_ID_2 (*(uint32_t*)0x1fff7a18)
 
+#elif defined(AURIX)
+
+#include <stdint.h>
+#include "Ifx_Types.h"
+
+#include "IfxPort.h"
+#include "IfxFlash.h"
+#include "IfxAsclin_Asc.h"
+#include "IfxQspi_SpiMaster.h"
+#include "IfxGtm_Tom_Pwm.h"
+#include "IfxEvadc_Adc.h"
+
+#ifdef MCI_BUDDY
+#include "IfxI2c_I2c.h"
 #endif
 
+#define SystemCoreClock 64000000U
+
+#define U_ID_0 (((*(uint32_t*)&SCU_CHIPID) & IFX_SCU_CHIPID_CHREV_MSK) >> IFX_SCU_CHIPID_CHREV_OFF)
+#define U_ID_1 (((*(uint32_t*)&SCU_CHIPID) & IFX_SCU_CHIPID_CHTEC_MSK) >> IFX_SCU_CHIPID_CHTEC_OFF)
+#define U_ID_2 (((*(uint32_t*)&SCU_CHIPID) & IFX_SCU_CHIPID_CHID_MSK) >> IFX_SCU_CHIPID_CHID_OFF)
+
+typedef uint32_t EXTITrigger_TypeDef;
+typedef uint32_t IRQn_Type;
+typedef Ifx_ASCLIN USART_TypeDef;
+typedef IfxQspi_SpiMaster_Channel SPI_TypeDef;
+typedef uint32_t DMA_TypeDef;
+typedef uint32_t DMA_Channel_TypeDef;
+typedef Ifx_P GPIO_TypeDef;
+typedef Ifx_EVADC ADC_TypeDef;
+typedef uint32_t RCC_ClocksTypeDef;
+typedef uint32_t FunctionalState;
+
+#ifdef MCI_OCTO
+typedef uint32_t I2C_TypeDef;
+#else
+typedef Ifx_I2C I2C_TypeDef;
+#endif
+
+typedef union
+{
+	Ifx_GTM_TOM_CH tom;
+	Ifx_GTM_TIM_CH tim;
+}TIM_TypeDef;
+
+typedef enum
+{
+  Bit_RESET = 0,
+  Bit_SET
+}BitAction;
+
+#endif
 #include "target/common.h"
 #include "target.h"
 #include "target/sanity_check.h"

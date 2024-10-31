@@ -105,7 +105,6 @@ const uint32_t baudRates[] = { 0, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 1
         460800, 921600, 1000000, 1500000, 2000000, 2470000 }; // see baudRate_e
 
 #define BAUD_RATE_COUNT ARRAYLEN(baudRates)
-
 PG_REGISTER_WITH_RESET_FN(serialConfig_t, serialConfig, PG_SERIAL_CONFIG, 1);
 
 void pgResetFn_serialConfig(serialConfig_t *serialConfig)

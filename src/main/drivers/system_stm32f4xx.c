@@ -24,11 +24,11 @@
 #include "drivers/accgyro/accgyro_mpu.h"
 #include "drivers/exti.h"
 #include "drivers/nvic.h"
-#include "drivers/system.h"
+//#include "drivers/system.h"
+//
+//#include "target/system.h"
 
-#include "target/system.h"
-
-
+#ifndef AURIX
 void SetSysClock(void);
 
 void enableGPIOPowerUsageAndNoiseReductions(void)
@@ -173,3 +173,4 @@ void systemInit(void)
     // SysTick
     SysTick_Config(SystemCoreClock / 1000);
 }
+#endif

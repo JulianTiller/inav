@@ -62,7 +62,18 @@ typedef struct {
         #ifdef USE_HAL_DRIVER
             UART_HandleTypeDef Handle;
         #endif 
-        USART_TypeDef *USARTx;
+#ifdef AURIX
+	IfxAsclin_Asc asclin;
+	IO_t txIO;
+	IO_t rxIO;
+	uint16_t txPriority;
+	uint16_t rxPriority;
+	uint8_t oversampling;
+	uint8_t medianFilter;
+	uint8_t samplePointPosition;
+
+#endif
+	USART_TypeDef *USARTx;
     #endif
   
 } uartPort_t;
