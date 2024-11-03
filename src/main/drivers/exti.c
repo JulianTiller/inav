@@ -34,7 +34,7 @@ static const uint8_t extiGroupIRQn[EXTI_IRQ_GROUPS] = {
     EXTI9_5_IRQn,
     EXTI15_10_IRQn
 };
-#elif defined(AT32F43x)  
+#elif defined(AT32F43x)
 static const uint8_t extiGroupIRQn[EXTI_IRQ_GROUPS] = {
     EXINT0_IRQn,
     EXINT1_IRQn,

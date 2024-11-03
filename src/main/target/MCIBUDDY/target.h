@@ -136,7 +136,8 @@
 
 #define USE_IMU_BMI160
 #define BMI160_SPI_BUS SPIDEV_1
-#define BMI160_CS_PIN P147
+#define BMI160_CS_PIN P147 //P106 makes the system halt
+#define BMI160_CS_PIN_2 P106 //P106 makes the system halt
 #define IMU_BMI160_ALIGN CW90_DEG
 
 #define USE_SPI
